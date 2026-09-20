@@ -1,28 +1,24 @@
-jui.ready([ "ui.splitter" ], function(Splitter) {
-
-	// implements border-layout
-
-	new Splitter('#container-3 .layout-main', {
-		items : [ '.top', '.main-group' ],
-		minSize : [ 50, 200],
-		direction: 'horizontal'
-	});
-
-	new Splitter('.layout-main-group', {
-		items : [ '.main', '.bottom' ],
-		minSize : [ 100, 50],
-		direction: 'horizontal'
-	});
-
-	new Splitter('.layout-center-group', {
-		items : [ '.left', '.center-group' ],
-		minSize : [50, 100],
-		fixed : true
-	});
-
-	new Splitter('.layout-right', {
-		items : [ '.center', '.right' ],
-		minSize : 50
-	});
-
-});
+{
+    setup() {
+        // Inject CSS for splitter and container
+        const style = document.createElement('style');
+        style.textContent = `
+            .splitter-container {
+                width: 500px;
+                height: 500px;
+                position: relative;
+                border: 1px solid #ececec;
+            }
+            .splitter {
+                width: 100% !important;
+                height: 100% !important;
+                left: auto !important;
+                top: auto !important;
+                bottom: auto !important;
+                background-color: transparent !important;
+            }
+        `;
+        document.head.appendChild(style);
+        return {}
+    }
+}

@@ -1,5 +1,11 @@
-jui.ready([ "ui.switch" ], function(button) {
-    switch_1 = button("#switch_1", {
-        checked: false
-    });
-});
+{
+    setup() {
+        const checked = Vue.ref(false)
+
+        function toggle() {
+            checked.value = !checked.value
+        }
+
+        return { checked, toggle }
+    }
+}

@@ -1,7 +1,6 @@
-jui.ready([ "ui.autocomplete" ], function(autocomplete) {
-    ac_2 = autocomplete("#ac_2", {
-        target: "input[type=text]",
-        words: [
+{
+    setup() {
+        const initialWords = [
             "ActionScript",
             "AppleScript",
             "Asp",
@@ -12,16 +11,9 @@ jui.ready([ "ui.autocomplete" ], function(autocomplete) {
             "COBOL",
             "ColdFusion",
             "Erlang"
-        ],
-        event: {
-            change: function(text) {
-                alert(text);
-            }
-        }
-    });
+        ]
 
-    ac_2_submit = function() {
-        ac_2.update([
+        const newWords = [
             "Fortran",
             "Groovy",
             "Haskell",
@@ -34,6 +26,16 @@ jui.ready([ "ui.autocomplete" ], function(autocomplete) {
             "Ruby",
             "Scala",
             "Scheme"
-        ]);
+        ]
+
+        const text = Vue.ref("")
+        const words = Vue.ref(initialWords)
+        const ac2Ref = Vue.ref(null)
+
+        function runUpdate() {
+            ac2Ref.value.update(newWords)
+        }
+
+        return { text, words, ac2Ref, runUpdate }
     }
-});
+}

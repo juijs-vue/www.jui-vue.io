@@ -1,39 +1,22 @@
-jui.ready([ "ui.notify" ], function(notify) {
-    notify_4 = notify("#notify_target", {
-        position: "bottom",
-        timeout: 0,
-        distance: 30,
-        tpl: {
-            item: $("#tpl_alarm").html()
+{
+    setup() {
+        const notify4 = Vue.ref(null)
+        const notify5 = Vue.ref(null)
+        const notify6 = Vue.ref(null)
+
+        function notifyBottomSubmit(type, color) {
+            const data = {
+                title: "Caution message Send!!!",
+                message: "Feb 15, 2013-12-24 02:24:19",
+                color: color
+            }
+
+            const refs = { 4: notify4, 5: notify5, 6: notify6 }
+            if (refs[type]?.value) {
+                refs[type].value.add(data)
+            }
         }
-    });
 
-    notify_5 = notify("#notify_target", {
-        position: "bottom-left",
-        showDuration: 1000,
-        hideDuration: 1000,
-        tpl: {
-            item: $("#tpl_alarm").html()
-        }
-    });
-
-    notify_6 = notify("#notify_target", {
-        position: "bottom-right",
-        showEasing: "linear",
-        tpl: {
-            item: $("#tpl_alarm").html()
-        }
-    });
-
-    notify_bottom_submit = function(type, color) {
-        var data = {
-            title: "Caution message Send!!!",
-            message: "Feb 15, 2013-12-24 02:24:19",
-            color: color
-        };
-
-        if(type == 4) notify_4.add(data);
-        if(type == 5) notify_5.add(data);
-        if(type == 6) notify_6.add(data);
+        return { notify4, notify5, notify6, notifyBottomSubmit }
     }
-});
+}

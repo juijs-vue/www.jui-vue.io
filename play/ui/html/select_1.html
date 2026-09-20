@@ -1,21 +1,6 @@
-<style type="text/css">
-	.select-container {
-		width:500px;
-		height:500px;
-		overflow:auto;
-		border:1px solid #ececec;
-	}
-
-	.select-container h1 {
-		color:#333;
-		margin-top:10px;
-		margin-bottom:10px;
-		border-bottom:0px;
-	}
-</style>
-<div class="select-container">
-	<h1>SelectBox</h1>
-	<div>
-		<div  class="theme-list"></div>
-	</div>
+<div class="select-container select-container-500-500">
+    <h1>SelectBox</h1>
+    <div>
+        <Select v-model="themeList" :items="items" placeholder="THEME" @change="onChange" />
+    </div>
 </div>

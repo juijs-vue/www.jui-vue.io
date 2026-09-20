@@ -1,18 +1,8 @@
-jui.ready([ "ui.layout" ], function(layout) {
-    layout_1 = layout("#layout_1", {
-        width: "auto",
-        height: 400,
-        left: {
-            size: 100,
-            min: 100,
-            max: 300,
-            resize: true
-        },
-        right: {
-            size: 100,
-            min: 100,
-            max: 300,
-            resize: true
-        }
-    });
-});
+{
+    setup() {
+        const leftSize = Vue.ref(100)
+        const rightSize = Vue.ref(100)
+
+        return { leftSize, rightSize }
+    }
+}

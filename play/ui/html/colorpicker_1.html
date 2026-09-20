@@ -1,8 +1,7 @@
-<input type="text" id="colorcode_1" class="input" style="width: 118px;" />
-
-<div class="group" style="margin-bottom: 3px;">
-    <button class="btn" onclick="$(colorpicker_1.root).show();">Show</button>
-    <button class="btn" onclick="$(colorpicker_1.root).hide();">Hide</button>
+<input v-model="color" type="text" class="input" style="width: 118px;" /> <div class="group" style="margin-bottom: 3px;">
+    <button class="btn" @click="show">Show</button> <button class="btn" @click="hide">Hide</button>
 </div>
 
-<div id="colorpicker_1" class="colorpicker"></div>
+<div v-if="visible" class="colorpicker-wrap">
+    <Colorpicker v-model="color" @change="onColorChange" />
+</div>

@@ -1,7 +1,7 @@
-jui.ready([ "ui.modal" ], function(modal) {
-    $("#modal_1").appendTo("body");
+{
+    setup() {
+        const show = Vue.ref(false)
 
-    modal_1 = modal("#modal_1", {
-        color: "black"
-    });
-});
+        return { show }
+    }
+}

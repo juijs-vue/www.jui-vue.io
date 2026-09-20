@@ -1,54 +1,22 @@
-jui.ready([ "ui.notify" ], function(notify) {
-    var handler = {
-        show: function(data) {
-            console.log("show : " + JSON.stringify(data));
-        },
-        hide: function(data) {
-            console.log("hide : " + JSON.stringify(data));
-        },
-        click: function(data) {
-            console.log("click : " + JSON.stringify(data));
+{
+    setup() {
+        const notify1 = Vue.ref(null)
+        const notify2 = Vue.ref(null)
+        const notify3 = Vue.ref(null)
+
+        function notifyTopSubmit(type, color) {
+            const data = {
+                title: "Caution message Send!!!",
+                message: "Feb 15, 2013-12-24 02:24:19",
+                color: color
+            }
+
+            const refs = { 1: notify1, 2: notify2, 3: notify3 }
+            if (refs[type]?.value) {
+                refs[type].value.add(data)
+            }
         }
-    };
 
-    notify_1 = notify("body", {
-        position: "top-right",
-        event: handler,
-        tpl: {
-            item: $("#tpl_alarm").html()
-        }
-    });
-
-    notify_2 = notify("body", {
-        position: "top-left",
-        event: handler,
-        timeout: 0,
-        tpl: {
-            item: $("#tpl_alarm").html()
-        }
-    });
-
-    notify_3 = notify("body", {
-        position: "top",
-        event: handler,
-        timeout: 2000,
-        padding: {
-            top: 100
-        },
-        tpl: {
-            item: $("#tpl_alarm").html()
-        }
-    });
-
-    notify_top_submit = function(type, color) {
-        var data = {
-            title: "Caution message Send!!!",
-            message: "Feb 15, 2013-12-24 02:24:19",
-            color: color
-        };
-
-        if(type == 1) notify_1.add(data);
-        if(type == 2) notify_2.add(data);
-        if(type == 3) notify_3.add(data);
+        return { notify1, notify2, notify3, notifyTopSubmit }
     }
-});
+}

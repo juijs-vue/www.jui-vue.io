@@ -3,30 +3,11 @@
 
     <p>
         Tooltip is comprised of a title and anchors on the left/right side and at the top/bottom.
-
-		<div class="tooltip">
-            <div class="anchor"></div>
-            <div class="message">Title contents</div>
-		</div>
-
-        <div class="tooltip left" style="left: 125px;">
-            <div class="anchor"></div>
-            <div class="message">Title contents</div>
-        </div>
-
-        <div class="tooltip right" style="left: 250px;">
-            <div class="anchor"></div>
-            <div class="message">Title contents</div>
-        </div>
-
-        <div class="tooltip top" style="left: 375px;">
-            <div class="anchor"></div>
-            <div class="message">Title contents</div>
-        </div>
-
-        <div class="tooltip bottom" style="left: 500px;">
-            <div class="anchor"></div>
-            <div class="message">Title contents</div>
-        </div>
+        (
+        <Tooltip text="Title contents" position="bottom"><span style="cursor: pointer;">Bottom</span></Tooltip>
+        <Tooltip text="Title contents" position="left"><span style="cursor: pointer;">Left</span></Tooltip>
+        <Tooltip text="Title contents" position="right"><span style="cursor: pointer;">Right</span></Tooltip>
+        <Tooltip text="Title contents" position="top"><span style="cursor: pointer;">Top</span></Tooltip>
+        )
     </p>
 </section>

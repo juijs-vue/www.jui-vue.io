@@ -1,13 +1,9 @@
 <div class="row">
     <div class="col" style="width: 40px;">
-        <div id="progress_2" class="progress vertical" style="height: 200px;">
-            <div class="area">
-                <div class="bar"></div>
-            </div>
-        </div>
+        <Progress v-model="value" min="0" max="700" orient="vertical" style="height: 200px;" />
     </div>
     <div class="col">
-        <button class="btn small" onclick="progress_2.setValue(650);" style="width: 70px;">
+        <button class="btn small" @click="runValue()" style="width: 70px;">
             <i class="icon-play"></i> Run
         </button>
     </div>

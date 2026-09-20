@@ -1,18 +1,18 @@
-jui.ready([ "ui.button" ], function(button) {
-    button_4 = button("#button_4", {
-        type: "check",
-        event: {
-            change: function(data) {
-                var result = "";
+{
+    setup() {
+        const items = [
+            { value: "check", icon: "check" },
+            { value: "plus", icon: "plus" },
+            { value: "edit", icon: "edit" },
+            { value: "home", icon: "home" },
+            { value: "gear", icon: "gear" }
+        ]
+        const selected = Vue.ref([])
 
-                for(var i = 0; i < data.length; i++) {
-                    if(data[i] != null) {
-                        result += "index(" + data[i].index + "), value(" + data[i].value + ")" + "\n";
-                    }
-                }
-
-                alert(result);
-            }
+        function runSetIndex() {
+            selected.value = [items[3].value, items[4].value]
         }
-    });
-});
+
+        return { items, selected, runSetIndex }
+    }
+}

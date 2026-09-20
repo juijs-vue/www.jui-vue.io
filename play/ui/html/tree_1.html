@@ -1,21 +1,22 @@
-<div id="tree_1" class="row">
+<div class="row">
     <div class="col col-3">
-        <ul class="tree arrow"></ul>
+        <Tree ref="tree1Ref" variant="arrow" :root="rootData" @select="onSelect">
+            <template #default="{ node }"><i></i> {{ node.data.title }}</template>
+        </Tree>
     </div>
     <div class="col col-3">
-        <ul class="tree line"></ul>
+        <Tree ref="tree2Ref" variant="line" :root="rootData" @select="onSelect">
+            <template #default="{ node }"><i></i> {{ node.data.title }}</template>
+        </Tree>
     </div>
     <div class="col col-3">
-        <ul class="tree arrow-file"></ul>
+        <Tree ref="tree3Ref" variant="arrow-file" :root="rootData" @select="onSelect">
+            <template #default="{ node }"><i></i> {{ node.data.title }}</template>
+        </Tree>
     </div>
     <div class="col col-3">
-        <ul class="tree line-file"></ul>
+        <Tree ref="tree4Ref" variant="line-file" :root="rootData" @select="onSelect">
+            <template #default="{ node }"><i></i> {{ node.data.title }}</template>
+        </Tree>
     </div>
 </div>
-
-<script id="tpl_node" type="text/template">
-    <li>
-        <div><i></i> <!= title !></div>
-        <ul></ul>
-    </li>
-</script>

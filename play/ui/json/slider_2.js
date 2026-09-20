@@ -1,16 +1,15 @@
-jui.ready([ "ui.slider" ], function(slider) {
-    slider("#slider_2", {
-        type: "double",
-        from: 50,
-        to: 70,
-        min: 0,
-        max: 100,
-        step: 1,
-        tooltip: false,
-        event: {
-            change: function(data) {
-                $("#slider_2_info").html(data.from + "~" + data.to).show();
-            }
+{
+    setup() {
+        const from = Vue.ref(50)
+        const to = Vue.ref(70)
+        const info = Vue.ref("")
+        const showInfo = Vue.ref(false)
+
+        function onSliderChange(data) {
+            info.value = data.from + "~" + data.to
+            showInfo.value = true
         }
-    });
-});
+
+        return { from, to, info, showInfo, onSliderChange }
+    }
+}

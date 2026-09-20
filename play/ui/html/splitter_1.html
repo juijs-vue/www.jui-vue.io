@@ -7,14 +7,13 @@
 	}
 </style>
 <h3>Splitter for Vertical</h3>
-<div class="splitter-container" id="container-1">
-	<div class="layout-main">
-		<div class="left">
+<div class="splitter-container">
+	<Splitter>
+		<template #first>
 			<h3>Left</h3>
-		</div>
-		<div class="right">
+		</template>
+		<template #second>
 			<h3>Right</h3>
-		</div>
-	</div>
-
+		</template>
+	</Splitter>
 </div>

@@ -1,8 +1,3 @@
-<div id="button_1" class="group">
-    <a class="btn small" value="true">On</a>
-    <a class="btn small" value="false">Off</a>
-</div>
-
-<button class="btn small" onclick="alert(button_1.getValue())">
+<ButtonGroup v-model="selected" :items="items" type="radio" size="small" /> <button class="btn small" @click="runGetValue">
     <i class="icon-play"></i> Run
 </button>

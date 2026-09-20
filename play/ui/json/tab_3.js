@@ -1,42 +1,42 @@
-jui.ready([ "ui.tab" ], function(tab) {
-    var count = 3;
+{
+    setup() {
+        const items = Vue.ref([
+            { text: "Tab1", value: "tab1" },
+            { text: "Tab2", value: "tab2" },
+            { text: "Tab3", value: "tab3" }
+        ])
+        const activeIndex = Vue.ref(0)
+        let count = 3
+        const contentText = Vue.ref("Tab1")
+        const tabRef = Vue.ref(null)
 
-    tab_3 = tab("#tab_3", {
-        nodes: [
-            { text: "Tab1" },
-            { text: "Tab2" },
-            { text: "Tab3" }
-        ],
-        event: {
-            change: function(data) {
-                $("#tab_3_contents").html(data.text);
-            }
-        },
-        tpl: {
-            node: "<li><a href='#'><!= text !></a></li>"
+        function handleChange(data) {
+            contentText.value = data.item.text
         }
-    });
 
-    tab_3_sumit = function(type) {
-        switch(type) {
-            case 1:
-                count += 1;
-                tab_3.append({ text: "Tab" + count });
-                break;
-            case 2:
-                count += 1;
-                tab_3.prepend({ text: "Tab" + count });
-                break;
-            case 3:
-                count += 1;
-                tab_3.insert(2, { text: "Tab" + count });
-                break;
-            case 4:
-                tab_3.remove(0);
-                break;
-            case 5:
-                tab_3.move(0, 2);
-                break;
+        function handleAppend() {
+            count += 1
+            tabRef.value?.append({ text: "Tab" + count, value: "tab" + count })
         }
+
+        function handlePrepend() {
+            count += 1
+            tabRef.value?.prepend({ text: "Tab" + count, value: "tab" + count })
+        }
+
+        function handleInsert() {
+            count += 1
+            tabRef.value?.insert(2, { text: "Tab" + count, value: "tab" + count })
+        }
+
+        function handleRemove() {
+            tabRef.value?.remove(0)
+        }
+
+        function handleMove() {
+            tabRef.value?.move(0, 2)
+        }
+
+        return { items, activeIndex, contentText, tabRef, handleChange, handleAppend, handlePrepend, handleInsert, handleRemove, handleMove }
     }
-});
+}

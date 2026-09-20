@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <META charset="UTF-8">
+    <meta name="viewport" content="initial-scale=1, maximum-scale=1">
+    <script src="../../lib/vue/vue.global.js"></script>
+    <script src="../../lib/jui-ui-vue/jui-ui-vue.umd.js"></script>
+    <link rel="stylesheet" href="../../lib/jui-ui-vue/style.css" />
+    <link rel="stylesheet" href="../chart/chart.css" />
+    <link rel="stylesheet" href="style.css" />
+</head>
+<body class="jui {{ theme | safe }}">
+<div id="app"></div>
+<script id="__play_code__" type="text/plain">{{ code | safe }}</script>
+<script id="__play_html__" type="text/plain">{{ html | safe }}</script>
+<script>
+    (function () {
+        var mount = document.getElementById("app");
+
+        try {
+            // The "Code" tab is a JS expression evaluating to a Vue options object
+            // (typically just { setup() { ... return {...} } }); the "HTML" tab
+            // becomes its template. This mirrors the old jui.ready(...) + markup
+            // pair 1:1, just targeting Vue instead of jui.js/jQuery.
+            var codeText = document.getElementById("__play_code__").textContent;
+            var htmlText = document.getElementById("__play_html__").textContent;
+
+            // Style-only examples (the "Common Styles" group) have no Code tab content -
+            // treat blank/whitespace-only code as "no setup options", not a syntax error.
+            var options = codeText.trim() ? (0, eval)("(" + codeText + ")") : {};
+            options.template = htmlText;
+
+            var app = Vue.createApp(options);
+            app.use(JuiUiVue);
+
+            app.config.errorHandler = function (err) {
+                mount.innerHTML =
+                    '<pre style="color:#c0392b;white-space:pre-wrap;padding:12px;">' +
+                    String(err && err.stack || err) +
+                    "</pre>";
+                if (window.console) console.error(err);
+            };
+
+            app.mount("#app");
+        } catch (err) {
+            mount.innerHTML =
+                '<pre style="color:#c0392b;white-space:pre-wrap;padding:12px;">' +
+                String(err && err.stack || err) +
+                "</pre>";
+            if (window.console) console.error(err);
+        }
+    })();
+</script>
+</body>
+</html>

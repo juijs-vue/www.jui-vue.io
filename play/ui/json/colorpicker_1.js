@@ -1,12 +1,20 @@
-jui.ready([ "ui.colorpicker" ], function(colorpicker) {
-    colorpicker_1 = colorpicker("#colorpicker_1", {
-        color: "#DCDCDC",
-        event: {
-            change: function(color) {
-                $("#colorcode_1").val(color);
-            }
-        }
-    });
+{
+    setup() {
+        const color = Vue.ref("#DCDCDC")
+        const visible = Vue.ref(false)
 
-    $(colorpicker_1.root).hide();
-});
+        function onColorChange(newColor) {
+            // Optional: handle change event if needed
+        }
+
+        function show() {
+            visible.value = true
+        }
+
+        function hide() {
+            visible.value = false
+        }
+
+        return { color, visible, onColorChange, show, hide }
+    }
+}

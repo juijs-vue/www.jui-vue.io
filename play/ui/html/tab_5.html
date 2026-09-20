@@ -1,24 +1,6 @@
-<ul id="tab_5" class="tab top">
-    <li><a href="#">CSS</a></li>
-    <li><a href="#">Script</a></li>
-    <li class="menu">
-        <a href="#">Menu <i class="icon-arrow1"></i></a>
-    </li>
-</ul>
+<Tab v-model="activeIndex" :items="items" position="top" :menu="menu" @changemenu="handleChangeMenu"></Tab>
 
 <div style="background: #dcdcdc;">
-    <div id="css" style="display: none;">css</div>
-    <div id="script" style="display: none;">script</div>
+    <div v-show="showCss">css</div>
+    <div v-show="showScript">script</div>
 </div>
-
-<script id="tpl_menu" type="text/template">
-    <div id="dd_1" class="dropdown large">
-        <ul style="width: 150px;">
-            <li value="1">Dropdown 1</li>
-            <li class="divider"></li>
-            <li value="2">Dropdown 2</li>
-            <li value="3">Dropdown 3</li>
-            <li value="4">Dropdown 4</li>
-        </ul>
-    </div>
-</script>

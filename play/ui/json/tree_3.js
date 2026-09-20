@@ -1,21 +1,29 @@
-jui.ready([ "ui.tree" ], function(tree) {
-    tree_3 = tree("#tree_3", {
-        root: { title: "C:\\" },
-        drag: true,
-        dragChild: false
-    });
+{
+    setup() {
+        const { ref, onMounted } = Vue
+        const treeRef = ref(null)
 
-    tree_3.append({ title: "Windows" });
-    tree_3.append({ title: "Download" });
-    tree_3.append({ title: "Program Files" });
-    tree_3.append({ title: "Apache" });
-    tree_3.append("0", { title: "run.exe" });
-    tree_3.append("0", { title: "setting.conf" });
-    tree_3.append("1", { title: "jui.torrrent" });
-    tree_3.insert("2.0", { title: "Riot Games" });
-    tree_3.insert("2.0.0", { title: "lol.exe" });
-    tree_3.append("3", { title: "startup.bat" });
-    tree_3.fold("0");
-    tree_3.fold("1");
-    tree_3.fold("3");
-});
+        onMounted(() => {
+            const t = treeRef.value
+            if (!t) return
+            t.append({ title: "Windows" })
+            t.append({ title: "Download" })
+            t.append({ title: "Program Files" })
+            t.append({ title: "Apache" })
+            t.append("0", { title: "run.exe" })
+            t.append("0", { title: "setting.conf" })
+            t.append("1", { title: "jui.torrent" })
+            t.insert("2.0", { title: "Riot Games" })
+            t.insert("2.0.0", { title: "lol.exe" })
+            t.append("3", { title: "startup.bat" })
+            t.fold("0")
+            t.fold("1")
+            t.fold("3")
+        })
+
+        return {
+            treeRef,
+            rootData: { title: "C:\\\\" }
+        }
+    }
+}

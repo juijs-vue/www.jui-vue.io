@@ -1,29 +1,13 @@
-<style type="text/css">
-	.select-container {
-		width:500px;
-		height:300px;
-		border:1px solid #ececec;
-		z-index:0;
-	}
-
-	.select-container h1 {
-		color:#333;
-		margin-top:10px;
-		margin-bottom:10px;
-		border-bottom:0px;
-	}
-</style>
-<div class="select-container">
-	<h3>Align : right</h3>
-	<div style="text-align:right;">
-		<div  class="theme-list-right"></div>
-	</div>
+<div class="select-container select-container-500-300">
+    <h3>Align : right</h3>
+    <div style="text-align: right;">
+        <Select v-model="themeListRight" :items="items" align="right" />
+    </div>
 </div>
 
-
-<div class="select-container">
-		<h3>Vertical Align : bottom</h3>
-		<div>
-			<div  class="theme-list-bottom"></div>
-		</div>
+<div class="select-container select-container-500-300">
+    <h3>Vertical Align : bottom</h3>
+    <div>
+        <Select v-model="themeBottom" :items="items" valign="bottom" placeholder="THEME" @change="onChange" />
+    </div>
 </div>

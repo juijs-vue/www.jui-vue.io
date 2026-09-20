@@ -1,44 +1,24 @@
-jui.ready([ "ui.select" ], function(SelectBox) {
+{
+    setup() {
+        const items = [
+            { value: "jennifer", text: "Jennifer" },
+            { value: "dark", text: "Dark" },
+            { value: "pastel", html: "<strong>Pastel</strong>" },
+            { value: "pattern", text: "Pattern" },
+            { type: "divider" },
+            {
+                value: "gradient",
+                html: '<img src="https://placehold.co/20x20" width="20" height="20" style="vertical-align: middle;" /> <span style="color: yellow;">Gradient</span>'
+            }
+        ]
 
-	var items = [
-		{ value : 'jennifer', text : 'Jennifer' } ,
-		{ value : 'dark', text : 'Dark' } ,
-		{ value : 'pastel', html : '<strong>Pastel</strong>' } ,
-		{ value : 'pattern', text : 'Pattern' },
-		{ type : 'divider' },
-		{
-			value : 'gradient',
-			html : function () {
+        const themeListRight = Vue.ref(undefined)
+        const themeBottom = Vue.ref(undefined)
 
-				var $dom = $('<img src="http://placehold.it/20x20" width="20px" height="20px" /> <span>Gradient</span>');
+        function onChange(value) {
+            console.log(value)
+        }
 
-				$dom.eq(0).css({
-					'vertical-align': 'middle'
-				});
-
-				$dom.eq(2).css({
-					'color' : 'yellow'
-				})
-
-				return $dom;
-			}
-		}
-	];
-
-	window.themeListRight  = new SelectBox('.theme-list-right', {
-		align: 'right',
-		items : items
-	});
-
-	window.themeBottom  = new SelectBox('.theme-list-bottom', {
-		items : items,
-		valign: 'bottom',
-		placeholder: 'THEME',
-		event : {
-			change : function (value) {
-				console.log(value);
-			}
-		}
-	});
-
-});
+        return { items, themeListRight, themeBottom, onChange }
+    }
+}

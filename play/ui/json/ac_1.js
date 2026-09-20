@@ -1,7 +1,6 @@
-jui.ready([ "ui.autocomplete" ], function(autocomplete) {
-    ac_1 = autocomplete("#ac_1", {
-        target: "input[type=text]",
-        words: [
+{
+    setup() {
+        const words = [
             "ActionScript",
             "AppleScript",
             "Asp",
@@ -24,11 +23,14 @@ jui.ready([ "ui.autocomplete" ], function(autocomplete) {
             "Ruby",
             "Scala",
             "Scheme"
-        ],
-        event: {
-            change: function(text) {
-                alert(text);
-            }
+        ]
+
+        const text = Vue.ref("")
+
+        function onChangeWord(text) {
+            alert(text)
         }
-    });
-});
+
+        return { text, words, onChangeWord }
+    }
+}

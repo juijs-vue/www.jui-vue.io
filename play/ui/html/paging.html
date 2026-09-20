@@ -3,38 +3,12 @@
 	<p>
 		The basic horizontal size of paging is 100%.
 		So, if you want to limit the horizontal size, you need to specify it as follows.
-	</p>
-	<p>
-		<div class="paging" style="width: 500px;">
-			<a href="#" class="prev">Previous</a>
-			<div class="list">
-				<a href="#">1</a>
-				<a href="#" class="active">2</a>
-				<a href="#">3</a>
-				<a href="#">4</a>
-				<a href="#">5</a>
-			</div>
-			<a href="#" class="next">Next</a>
-		</div>
-	</p>
+		</p><Paging v-model="page1" :count="50" :page-count="10" :screen-count="5" style="width: 500px;" />
+	<p></p>
 	<br/><br/>
 
 	<p>
 		Paging provides the <strong>large</strong> option for a bigger size.
-	</p>
-	<p>
-		<div class="paging large">
-			<a href="#" class="prev">Previous</a>
-			<div class="list">
-				<a href="#">1</a>
-				<a href="#" class="active">2</a>
-				<a href="#">3</a>
-				<a href="#">4</a>
-				<a href="#">9</a>
-				<a href="#">...</a>
-				<a href="#">100</a>
-			</div>
-			<a href="#" class="next">Next</a>
-		</div>
-	</p>
+		</p><Paging v-model="page2" :count="1000" :page-count="10" :screen-count="7" size="large" style="width: 100%;" />
+	<p></p>
 </section>

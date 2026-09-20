@@ -1,8 +1,11 @@
-jui.ready([ "ui.progress" ], function(progress) {
-    progress_2 = progress("#progress_2", {
-        orient: "vertical",
-        value: 400,
-        min: 0,
-        max: 700
-    });
-});
+{
+    setup() {
+        const value = Vue.ref(400)
+
+        function runValue() {
+            value.value = 650
+        }
+
+        return { value, runValue }
+    }
+}

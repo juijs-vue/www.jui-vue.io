@@ -1,16 +1,11 @@
 <div class="group">
-    <button class="btn" onclick="dd_2.show();">Show</button>
-    <button class="btn" onclick="dd_2.hide();">Hide</button>
+    <button class="btn" @click="dd2 = true">Show</button> <button class="btn" @click="dd2 = false">Hide</button>
 </div>
 
-<div id="dd_2" class="dropdown large">
-    <div class="anchor"></div>
-
-    <ul style="width: 150px;">
-        <li value="1">Dropdown 1</li>
-        <li class="divider"></li>
-        <li value="2">Dropdown 2</li>
-        <li value="3">Dropdown 3</li>
-        <li value="4">Dropdown 4</li>
-    </ul>
-</div>
+<Dropdown v-model="dd2" size="large" :close="false" anchor :width="150" @change="onDd2Change">
+    <li value="1">Dropdown 1</li>
+    <li class="divider"></li>
+    <li value="2">Dropdown 2</li>
+    <li value="3">Dropdown 3</li>
+    <li value="4">Dropdown 4</li>
+</Dropdown>

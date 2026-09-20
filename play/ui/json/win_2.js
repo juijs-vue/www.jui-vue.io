@@ -1,7 +1,7 @@
-jui.ready([ "ui.window" ], function(win) {
-    win_2 = win("#win_2", {
-        width: 500,
-        height: 300,
-        modal: true
-    });
-});
+{
+    setup() {
+        const visible = Vue.ref(false)
+
+        return { visible }
+    }
+}

@@ -1,15 +1,6 @@
-<div id="accordion_1" class="accordion">
-    <div class="title active">
-        Group Item #1 <i class="icon-arrow3"></i>
-    </div>
-    <div class="content">
-        The style components provide various options in addition to the basic functionality.
-        In addition, script components can be added, which facilitate the development of more diverse UI components.
-    </div>
-    <div class="title">
-        Group Item #2 <i class="icon-arrow1"></i>
-    </div>
-    <div class="title">
-        Group Item #3 <i class="icon-arrow1"></i>
-    </div>
-</div>
+<Accordion v-model="open" :items="items" @open="onOpen">
+    <template v-for="item in items" :key="item.value" #[`content-${item.value}`]>
+        {{ item.text }}
+    </template>
+    <template #icon="{ index }"><i :class="icons[index]"></i></template>
+</Accordion>

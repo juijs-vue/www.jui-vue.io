@@ -1,23 +1,24 @@
-jui.ready([ "ui.tab" ], function(tab) {
-    tab_5 = tab("#tab_5", {
-        event: {
-            change: function(data, e) {
-                if(data.index == 0) {
-                    $("#css").show();
-                    $("#script").hide();
-                } else {
-                    $("#css").hide();
-                    $("#script").show();
-                }
-            },
-            changemenu: function(data, e) {
-                alert(data.text);
-            }
-        },
-        tpl: {
-            menu: $("#tpl_menu").html()
-        }
-    });
+{
+    setup() {
+        const items = [
+            { text: "CSS", value: "css" },
+            { text: "Script", value: "script" }
+        ]
+        const activeIndex = Vue.ref(1)
+        const showCss = Vue.computed(() => activeIndex.value === 0)
+        const showScript = Vue.computed(() => activeIndex.value === 1)
+        const menu = [
+            { text: "Dropdown 1", value: "1" },
+            { divider: true },
+            { text: "Dropdown 2", value: "2" },
+            { text: "Dropdown 3", value: "3" },
+            { text: "Dropdown 4", value: "4" }
+        ]
 
-    tab_5.show(1);
-});
+        function handleChangeMenu(data) {
+            alert(data.text)
+        }
+
+        return { items, activeIndex, showCss, showScript, menu, handleChangeMenu }
+    }
+}

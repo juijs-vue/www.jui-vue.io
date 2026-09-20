@@ -7,32 +7,34 @@
 	}
 </style>
 <h3>Border Layout (with minSize)</h3>
-<div class="splitter-container" id="container-3">
-	<div class="layout-main">
-		<div class="top">
+<div class="splitter-container">
+	<Splitter direction="horizontal" :min-size="[50, 200]">
+		<template #first>
 			<h3>Top</h3>
-		</div>
-		<div class="main-group">
-			<div class="layout-main-group">
-				<div class="main">
-					<div class="layout-center-group">
-						<div class="left">Left</div>
-						<div class="center-group">
-							<div class="layout-right">
-								<div class="center">Center</div>
-								<div class="right">Right</div>
-							</div>
-
-						</div>
-					</div>
-				</div>
-				<div class="bottom">
+		</template>
+		<template #second>
+			<Splitter direction="horizontal" :min-size="[100, 50]">
+				<template #first>
+					<Splitter :min-size="[50, 100]" fixed>
+						<template #first>
+							Left
+						</template>
+						<template #second>
+							<Splitter :min-size="50">
+								<template #first>
+									Center
+								</template>
+								<template #second>
+									Right
+								</template>
+							</Splitter>
+						</template>
+					</Splitter>
+				</template>
+				<template #second>
 					<h3>Bottom</h3>
-				</div>
-			</div>
-
-		</div>
-	</div>
-
-
+				</template>
+			</Splitter>
+		</template>
+	</Splitter>
 </div>

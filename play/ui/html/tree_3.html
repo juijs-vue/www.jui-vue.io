@@ -1,8 +1,3 @@
-<ul id="tree_3" class="tree line-file"></ul>
-
-<script data-jui="#tree_3" data-tpl="node" type="text/template">
-    <li>
-        <div><i></i> <!= title !></div>
-        <ul></ul>
-    </li>
-</script>
+<Tree ref="treeRef" variant="line-file" :root="rootData" drag :drag-child="false">
+    <template #default="{ node }"><i></i> {{ node.data.title }}</template>
+</Tree>

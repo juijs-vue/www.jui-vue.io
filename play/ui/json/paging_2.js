@@ -1,43 +1,33 @@
-jui.ready([ "ui.paging", "grid.xtable" ], function(paging, xtable) {
-    paging_2 = paging("#paging_2", {
-        pageCount: 100,
-        event: {
-            page: function(pNo) {
-                paging_2_xtable.page(pNo);
+{
+    setup() {
+        const page = Vue.ref(1)
+        const items = Vue.ref([])
+        const pageCount = 100
+
+        function generateData() {
+            const result = []
+            for (let i = 0; i < 1000; i++) {
+                result.push({
+                    name: "Item " + (i + 1),
+                    age: Math.floor(Math.random() * 100) + 1,
+                    location: "LA"
+                })
             }
-        },
-        tpl: {
-            pages: $("#tpl_pages").html()
-        }
-    });
-
-    paging_2_xtable = xtable("#paging_2_xtable", {
-        fields: [ "name", "age", "location" ],
-        resize: true,
-        sort: true,
-        sortLoading: true,
-        buffer: "s-page",
-        bufferCount: 100,
-        event: {
-            sortend: function(data, e) {
-                paging_2.first();
-            }
-        },
-        tpl: {
-            row: $("#tpl_row").html(),
-            none: $("#tpl_none").html()
-        }
-    });
-
-    paging_2_submit = function() {
-        var result = [];
-
-        for(var i = 0; i < 1000000; i++) {
-            result.push({ name: "Alvin" + i, age: Math.floor(Math.random() * 100) + 1, location: "LA" });
+            items.value = result
+            page.value = 1
         }
 
-        paging_2_xtable.update(result);
-        paging_2_xtable.resize();
-        paging_2.reload(paging_2_xtable.count());
+        function onPage(pNo) {
+            console.log("Page changed to:", pNo)
+        }
+
+        const paginatedItems = Vue.computed(() => {
+            const start = (page.value - 1) * pageCount
+            const end = start + pageCount
+            return items.value.slice(start, end)
+        })
+
+        return { page, items, pageCount, generateData, onPage, paginatedItems }
     }
-});
+}
+

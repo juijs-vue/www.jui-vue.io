@@ -1,11 +1,3 @@
-<div id="button_4" class="group">
-    <a class="btn" value="check"><i class="icon-check"></i></a>
-    <a class="btn" value="plus"><i class="icon-plus"></i></a>
-    <a class="btn" value="edit"><i class="icon-edit"></i></a>
-    <a class="btn" value="home"><i class="icon-home"></i></a>
-    <a class="btn" value="gear"><i class="icon-gear"></i></a>
-</div>
-
-<button class="btn" onclick="button_4.setIndex([ 3, 4 ]);">
+<ButtonGroup v-model="selected" :items="items" type="check" size="normal" /> <button class="btn" @click="runSetIndex">
     <i class="icon-play"></i> Run
 </button>

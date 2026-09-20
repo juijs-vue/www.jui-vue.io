@@ -1,13 +1,5 @@
-<ul id="tab_1" class="tab top">
-    <li>
-        <a href="#home">Home</a>
-    </li>
-    <li><a href="#css">CSS</a></li>
-    <li><a href="#script">Script</a></li>
-</ul>
-
-<div id="tab_contents_1" style="background: #dcdcdc;">
-    <div id="home">home</div>
-    <div id="css">css</div>
-    <div id="script">script</div>
-</div>
+<Tab v-model="activeIndex" :items="items" position="top" :content-style="{ background: '#dcdcdc' }" @change="handleChange">
+    <template #panel-home><div>home</div></template>
+    <template #panel-css><div>css</div></template>
+    <template #panel-script><div>script</div></template>
+</Tab>

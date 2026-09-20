@@ -1,11 +1,16 @@
-jui.ready([ "ui.tab" ], function(tab) {
-    tab_2 = tab("#tab_2", {
-        event: {
-            change: function(data) {
-                alert(data.text);
-            }
-        },
-        target: "#tab_contents_2",
-        index: 1
-    });
-});
+{
+    setup() {
+        const items = [
+            { text: "Home", value: "home" },
+            { text: "CSS", value: "css" },
+            { text: "Script", value: "script" }
+        ]
+        const activeIndex = Vue.ref(1)
+
+        function handleChange(data) {
+            alert(data.item.text)
+        }
+
+        return { items, activeIndex, handleChange }
+    }
+}
