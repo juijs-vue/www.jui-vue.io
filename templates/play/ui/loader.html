@@ -5,7 +5,9 @@
     <meta name="viewport" content="initial-scale=1, maximum-scale=1">
     <script src="../../lib/vue/vue.global.js"></script>
     <script src="../../lib/jui-ui-vue/jui-ui-vue.umd.js"></script>
+    <script src="../../lib/jui-grid-vue/jui-grid-vue.umd.js"></script>
     <link rel="stylesheet" href="../../lib/jui-ui-vue/style.css" />
+    <link rel="stylesheet" href="../../lib/jui-grid-vue/style.css" />
     <link rel="stylesheet" href="../chart/chart.css" />
     <link rel="stylesheet" href="style.css" />
 </head>
@@ -32,6 +34,7 @@
 
             var app = Vue.createApp(options);
             app.use(JuiUiVue);
+            app.use(JuiGridVue);
 
             app.config.errorHandler = function (err) {
                 mount.innerHTML =
