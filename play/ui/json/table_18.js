@@ -3,21 +3,25 @@
         const grid = Vue.ref(null);
 
         const columns = [
-            { key: 'index', label: 'Index', width: 200 },
+            { key: 'index', label: 'Index', width: 214 },
             { key: 'name', label: 'Column. Name' },
-            { key: 'age', label: 'Column. Age', width: 100 }
+            { key: 'age', label: 'Column. Age', width: 114 }
         ];
 
         const rows = Vue.reactive([
-            { id: 1, data: { index: 1, name: "Hong", age: "20", location: "Ilsan" } },
-            { id: 2, data: { index: 2, name: "Jung", age: "30", location: "Seoul" } },
-            { id: 3, data: { index: 3, name: "Park", age: "15", location: "Yeosu" } },
-            { id: 4, data: { index: 4, name: "Kang", age: "32", location: "Seoul" } },
-            { id: 5, data: { index: 5, name: "Song", age: "12", location: "Gwangju" } },
-            { id: 6, data: { index: 6, name: "Yoon", age: "22", location: "Damyang" } },
-            { id: 7, data: { index: 7, name: "Kim", age: "33", location: "Busan" } },
-            { id: 8, data: { index: 8, name: "Hwang", age: "21", location: "Seoul" } }
+            { id: 1, data: { name: "Hong", age: "20", location: "Ilsan" } },
+            { id: 2, data: { name: "Jung", age: "30", location: "Seoul" } },
+            { id: 3, data: { name: "Park", age: "15", location: "Yeosu" } },
+            { id: 4, data: { name: "Kang", age: "32", location: "Seoul" } },
+            { id: 5, data: { name: "Song", age: "12", location: "Gwangju" } },
+            { id: 6, data: { name: "Yoon", age: "22", location: "Damyang" } },
+            { id: 7, data: { name: "Kim", age: "33", location: "Busan" } },
+            { id: 8, data: { name: "Hwang", age: "21", location: "Seoul" } }
         ]);
+
+        function rowIndex(row) {
+            return rows.findIndex((r) => r.id === row.id);
+        }
 
         function onRowClick(row) {
             alert("index(" + row.id + "), name(" + row.data.name + ")");
@@ -46,6 +50,6 @@
             }
         }
 
-        return { grid, columns, rows, onRowClick, move, remove, update };
+        return { grid, columns, rows, onRowClick, move, remove, update, rowIndex };
     }
 }

@@ -2,7 +2,8 @@
     setup() {
         const columns = [
             { key: 'name', label: 'Name' },
-            { key: 'age', label: 'Age' }
+            { key: 'age', label: 'Age' },
+            { key: 'location', label: 'Location' }
         ];
 
         const rows = [
@@ -18,8 +19,18 @@
 
         const grid = Vue.ref(null);
 
+        // 원본은 화면 컬럼(fields: name/age/location)과 CSV로 내보낼 컬럼(csv: name/age)을
+        // 따로 설정했다 - DataGrid의 exportCsv()는 항상 "지금 보이는 컬럼 그대로"만 내보내서
+        // 이 기능을 표현할 수 없으므로, useCsv의 rowsToCsv/downloadCsv를 직접 가져다 CSV 전용
+        // 컬럼 목록으로 호출한다.
+        const csvColumns = [
+            { key: 'name', label: 'Name' },
+            { key: 'age', label: 'Age' }
+        ];
+
         function downloadCsv() {
-            grid.value?.exportCsv('table');
+            const csv = JuiGridVue.rowsToCsv(csvColumns, rows);
+            JuiGridVue.downloadCsv('table.csv', csv);
         }
 
         return { columns, rows, grid, downloadCsv };

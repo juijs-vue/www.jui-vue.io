@@ -3,12 +3,25 @@
 </button>
 
 <VirtualGrid
+    ref="grid"
     :columns="columns"
     :rows="rows"
     mode="paging"
     :page-size="20"
     sortable
     resizable
-    column-menu
     theme="classic"
-/>
+    variant="simple"
+    headline
+    :show-pager="false"
+    style="margin-top: 7px;"
+>
+    <template #empty>Data does not exist.</template>
+</VirtualGrid>
+
+<div class="row" align="right" style="text-align: right; margin-top: 3px;">
+    <div class="group">
+        <button @click="onPage(-1)" class="btn mini">Prev</button>
+        <button @click="onPage(1)" class="btn mini">Next</button>
+    </div>
+</div>

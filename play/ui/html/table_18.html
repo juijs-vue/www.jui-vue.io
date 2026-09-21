@@ -6,9 +6,15 @@
     ref="grid"
     :columns="columns"
     :rows="rows"
-    sortable
     resizable
-    selectable
-    :scroll-height="300"
+    :scroll-height="200"
+    style="margin-top: 7px;"
     @row-click="onRowClick"
-/>
+>
+    <template #cell-index="{ row }">{{ rowIndex(row) }}</template>
+    <template #cell-name="{ row, value }">
+        <span style="display: block; padding-left: 5px;">
+            <i v-if="row.depth" class="icon-left"></i>{{ value }}
+        </span>
+    </template>
+</DataGrid>

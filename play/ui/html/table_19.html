@@ -5,7 +5,8 @@
     :columns="columns"
     :rows="rows"
     resizable
-    selectable
-    expandable
-    :scroll-height="300"
-/>
+    nowrap
+    style="margin-top: 7px;"
+>
+    <template #empty>Data does not exist.</template>
+</DataGrid>

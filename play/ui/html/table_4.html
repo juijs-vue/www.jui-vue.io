@@ -1,5 +1,5 @@
 <div class="jui-grid-vue-root theme-classic">
-<table id="table_4" class="table classic borderless">
+<table id="table_4" class="table classic borderless body-scroll">
     <thead>
         <tr>
             <th>Name</th>
@@ -7,11 +7,11 @@
             <th>Location</th>
         </tr>
     </thead>
-    <tbody>
+    <tbody style="max-height: 150px; width: 536px;">
         <tr v-for="row in data" :key="row.name">
-            <td>{{ row.name }}</td>
-            <td>{{ row.age }}</td>
-            <td>{{ row.location }}</td>
+            <td style="width: 181.5px;">{{ row.name }}</td>
+            <td style="width: 183px;">{{ row.age }}</td>
+            <td style="width: 172px;">{{ row.location }}</td>
         </tr>
     </tbody>
 </table>

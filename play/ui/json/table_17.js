@@ -1,8 +1,9 @@
 {
     setup() {
         const columns = [
+            { key: 'index', label: 'Index', width: 214 },
             { key: 'name', label: 'Column. Name' },
-            { key: 'age', label: 'Column. Age' }
+            { key: 'age', label: 'Column. Age', width: 114 }
         ];
 
         const rows = Vue.reactive([
@@ -104,6 +105,10 @@
             alert(`index(${row.id}), name(${row.data.name})`);
         }
 
-        return { columns, rows, submit, onRowClick };
+        function rowIndex(row) {
+            return rows.findIndex((r) => r.id === row.id);
+        }
+
+        return { columns, rows, submit, onRowClick, rowIndex };
     }
 }

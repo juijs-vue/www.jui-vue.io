@@ -1,9 +1,9 @@
 {
     setup() {
-        const { ref } = Vue
+        const { ref, onMounted } = Vue
 
         const columns = [
-            { key: 'url', label: 'URL' },
+            { key: 'url', label: 'URL', width: 394 },
             { key: 'count', label: 'Count' }
         ]
 
@@ -60,6 +60,10 @@
                 grid.value?.toggle(row.id)
             }
         }
+
+        onMounted(() => {
+            grid.value?.open('0')
+        })
 
         return { columns, rows, grid, onRowClick }
     }

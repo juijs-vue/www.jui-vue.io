@@ -3,9 +3,9 @@
         const grid = Vue.ref(null);
 
         const columns = [
-            { key: 'index', label: 'Index', width: 200 },
+            { key: 'index', label: 'Index', width: 214 },
             { key: 'name', label: 'Column. Name' },
-            { key: 'age', label: 'Column. Age', width: 100 }
+            { key: 'age', label: 'Column. Age', width: 114 }
         ];
 
         const rows = Vue.reactive([]);

@@ -10,7 +10,11 @@
     :height="300"
     sortable
     resizable
-    column-menu
     theme="classic"
+    variant="simple"
+    headline
     :sort-loading="true"
-/>
+    style="margin-top: 7px;"
+>
+    <template #empty>Data does not exist.</template>
+</VirtualGrid>

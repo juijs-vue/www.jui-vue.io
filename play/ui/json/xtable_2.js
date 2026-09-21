@@ -2,6 +2,9 @@
     setup() {
         const { ref } = Vue
 
+        const grid = ref(null)
+        let page = 1
+
         const columns = [
             { key: 'name', label: 'Name', sortable: true, resizable: true },
             { key: 'age', label: 'Age', sortable: true, resizable: true },
@@ -9,6 +12,12 @@
         ]
 
         const rows = ref([])
+
+        function onPage(no) {
+            page += no
+            page = (page < 1) ? 1 : page
+            grid.value?.goToPage(page)
+        }
 
         function onSubmit() {
             const result = []
@@ -22,9 +31,10 @@
                     }
                 })
             }
+            page = 1
             rows.value = result
         }
 
-        return { columns, rows, onSubmit }
+        return { columns, rows, onSubmit, onPage, grid }
     }
 }
