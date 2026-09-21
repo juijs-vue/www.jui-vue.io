@@ -1,4 +1,4 @@
-<table id="table_9" class="table simple headline">
+<table id="table_9" class="table simple headline" style="position: relative; width: 546px;">
     <thead>
     <tr>
         <th width="50px">No</th>
@@ -7,21 +7,17 @@
         <th>Location</th>
     </tr>
     </thead>
-    <tbody></tbody>
+    <tbody><tr v-for="(row, index) in rows" :key="row.id">
+        <td>{{ index }}</td>
+        <td>{{ row.data.name }}</td>
+        <td>{{ row.data.age }}</td>
+        <td>{{ row.data.location }}</td>
+    </tr></tbody>
 </table>
 
-<div id="table_9_dd" class="dropdown large">
-    <ul style="width: 150px;">
+<div id="table_9_dd" class="dropdown large" style="width: 152px; position: absolute; display: none;">
+    <ul style="width: 150px; display: block;">
         <li>Edit</li>
         <li>Close</li>
     </ul>
 </div>
-
-<script id="tpl_row" type="text/template">
-    <tr>
-        <td><!= row.index !></td>
-        <td><!= name !></td>
-        <td><!= age !></td>
-        <td><!= location !></td>
-    </tr>
-</script>

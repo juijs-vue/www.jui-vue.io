@@ -1,30 +1,37 @@
-jui.ready([ "grid.xtable" ], function(xtable) {
-    xtable_4 = xtable("#xtable_4", {
-        fields: [ "name", "age", "location" ],
-        data: [
-            { name: "Hong", age: "20", location: "Ilsan" },
-            { name: "Jung", age: "30", location: "Seoul" },
-            { name: "Park", age: "10", location: "Dangjin" }
-        ],
-        resize: true,
-        sort: true,
-        buffer: "s-page",
-        bufferCount: 20
-    });
+{
+    setup() {
+        const { ref, computed } = Vue
 
-    xtable_4_submit = function(isMulti) {
-        if(isMulti) {
-            xtable_4.filter(function(data) {
-                if(data.age >= 30 || data.name.indexOf("ng") != -1) {
-                    return true;
-                }
-            });
-        } else {
-            xtable_4.filter(function(data) {
-                if(data.location.indexOf("eo") != -1) {
-                    return true;
-                }
-            });
+        const columns = [
+            { key: 'name', label: 'Name', sortable: true, resizable: true },
+            { key: 'age', label: 'Age', sortable: true, resizable: true },
+            { key: 'location', label: 'Location', sortable: true, resizable: true }
+        ]
+
+        const allData = [
+            { id: 1, data: { name: "Hong", age: 20, location: "Ilsan" } },
+            { id: 2, data: { name: "Jung", age: 30, location: "Seoul" } },
+            { id: 3, data: { name: "Park", age: 10, location: "Dangjin" } }
+        ]
+
+        const filteredData = ref(allData)
+
+        const displayRows = computed(() => filteredData.value)
+
+        function onFilter(isMulti) {
+            if (isMulti) {
+                filteredData.value = allData.filter(row => {
+                    const data = row.data
+                    return data.age >= 30 || data.name.indexOf("ng") !== -1
+                })
+            } else {
+                filteredData.value = allData.filter(row => {
+                    const data = row.data
+                    return data.location.indexOf("eo") !== -1
+                })
+            }
         }
+
+        return { columns, displayRows, onFilter }
     }
-});
+}

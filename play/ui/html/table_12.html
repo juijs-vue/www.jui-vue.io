@@ -1,24 +1,22 @@
-<button class="btn small" onclick="table_12_submit();">
+<button class="btn small" @click="appendRows">
     <i class="icon-play"></i> Run
 </button>
 
-<table id="table_12" class="table classic" style="margin-top: 7px;">
+<div class="jui-grid-vue-root theme-classic">
+<table id="table_12" class="table classic" style="margin-top: 7px; position: relative; table-layout: fixed; width: 546px;">
     <thead>
     <tr>
-        <th>No</th>
-        <th>Name</th>
-        <th>Age</th>
+        <th>No<div class="resize" style="position: absolute; width: 8px; height: 28px; left: 136px; top: 0px; cursor: w-resize; z-index: 1;"></div></th>
+        <th>Name<div class="resize" style="position: absolute; width: 8px; height: 28px; left: 272px; top: 0px; cursor: w-resize; z-index: 1;"></div></th>
+        <th>Age<div class="resize" style="position: absolute; width: 8px; height: 28px; left: 408px; top: 0px; cursor: w-resize; z-index: 1;"></div></th>
         <th>Location</th>
     </tr>
     </thead>
-    <tbody></tbody>
+    <tbody><tr v-for="(row, index) in rows" :key="row.id">
+        <td>{{ index }}</td>
+        <td>{{ row.data.name }}</td>
+        <td>{{ row.data.age }}</td>
+        <td>{{ row.data.location }}</td>
+    </tr></tbody>
 </table>
-
-<script id="tpl_row" type="text/template">
-    <tr>
-        <td><!= row.index !></td>
-        <td><!= name !></td>
-        <td><!= age !></td>
-        <td><!= location !></td>
-    </tr>
-</script>
+</div>

@@ -1,22 +1,12 @@
-<button class="btn small" onclick="table_13_submit();">
+<button class="btn small" @click="submit">
     <i class="icon-play"></i> Run
 </button>
 
-<table id="table_13" class="table classic" style="margin-top: 7px;">
-    <thead>
-    <tr>
-        <th>Name</th>
-        <th>Age</th>
-        <th>Location</th>
-    </tr>
-    </thead>
-    <tbody></tbody>
-</table>
-
-<script data-jui="#table_13" data-tpl="row" type="text/template">
-    <tr>
-        <td><!= name !></td>
-        <td><!= age !></td>
-        <td><!= location !></td>
-    </tr>
-</script>
+<DataGrid
+    :columns="columns"
+    :rows="rows"
+    resizable
+    :scroll-height="200"
+    class="grid-13"
+    style="margin-top: 7px;"
+/>

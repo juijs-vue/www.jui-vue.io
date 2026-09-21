@@ -1,28 +1,28 @@
+<div class="jui-grid-vue-root theme-classic">
 <table id="table_6" class="table simple headline">
     <thead>
-    <tr>
-        <th>Name</th>
-        <th>Age</th>
-        <th>Location</th>
-    </tr>
+        <tr>
+            <th>Name</th>
+            <th>Age</th>
+            <th>Location</th>
+        </tr>
     </thead>
-    <tbody></tbody>
+    <tbody>
+        <tr v-for="row in data" :key="row.name" @contextmenu.prevent="showMenu($event, row)">
+            <td>{{ row.name }}</td>
+            <td>{{ row.age }}</td>
+            <td>{{ row.location }}</td>
+        </tr>
+    </tbody>
 </table>
-
-<div id="table_6_dd" class="dropdown large">
-    <ul style="width: 150px;">
-        <li>Dropdown 1</li>
-        <li class="divider"></li>
-        <li>Dropdown 2</li>
-        <li>Dropdown 3</li>
-        <li>Dropdown 4</li>
-    </ul>
 </div>
 
-<script id="tpl_row" type="text/template">
-    <tr>
-        <td><!= name !></td>
-        <td><!= age !></td>
-        <td><!= location !></td>
-    </tr>
-</script>
+<div id="table_6_dd" class="dropdown large" :style="dropdownStyle">
+    <ul style="width: 150px;">
+        <li @click="selectMenuItem('Dropdown 1')">Dropdown 1</li>
+        <li class="divider"></li>
+        <li @click="selectMenuItem('Dropdown 2')">Dropdown 2</li>
+        <li @click="selectMenuItem('Dropdown 3')">Dropdown 3</li>
+        <li @click="selectMenuItem('Dropdown 4')">Dropdown 4</li>
+    </ul>
+</div>

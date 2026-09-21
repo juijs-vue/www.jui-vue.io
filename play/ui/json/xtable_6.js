@@ -1,26 +1,23 @@
-jui.ready([ "grid.xtable" ], function(xtable) {
-    xtable_6 = xtable("#xtable_6", {
-        fields: [ "name", "age", "location" ],
-        resize: true,
-        sort: true,
-        width: 800,
-        scrollWidth: 600,
-		scrollHeight: 400,
-		rowHeight: 26,
-		buffer: "vscroll",
-		tpl: {
-			row: "<tr><td><!= name !></td><td><!= age !></td><td><!= location !></td></tr>",
-			none: "<tr><td colspan='3' class='none' align='center'>Data does not exist.</td></tr>"
-		}
-    });
+{
+    setup() {
+        const { ref } = Vue
 
-	xtable_6_submit = function() {
-		var result = [];
+        const columns = [
+            { key: 'name', label: 'Name' },
+            { key: 'age', label: 'Age' },
+            { key: 'location', label: 'Location' }
+        ]
 
-		for(var i = 0; i < 1000000; i++) {
-			result.push({ name: "Alvin" + i, age: Math.floor(Math.random() * 100) + 1, location: "LA" });
-		}
+        const rows = ref([])
 
-		xtable_6.update(result);
-	}
-});
+        function onRun() {
+            const result = []
+            for(let i = 0; i < 1000000; i++) {
+                result.push({ id: i, data: { name: "Alvin" + i, age: Math.floor(Math.random() * 100) + 1, location: "LA" } })
+            }
+            rows.value = result
+        }
+
+        return { columns, rows, onRun }
+    }
+}

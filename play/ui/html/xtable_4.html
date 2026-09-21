@@ -1,25 +1,15 @@
 <div class="group">
-    <button class="btn small" onclick="xtable_4_submit(false)">Filter</button>
-    <button class="btn small" onclick="xtable_4_submit(true)">Multiple Filter</button>
+    <button class="btn small" @click="onFilter(false)">Filter</button>
+    <button class="btn small" @click="onFilter(true)">Multiple Filter</button>
 </div>
 
-<div id="xtable_4" class="xtable" style="margin-top: 7px;">
-    <table class="table simple headline">
-        <thead>
-        <tr>
-            <th>Name</th>
-            <th>Age</th>
-            <th>Location</th>
-        </tr>
-        </thead>
-        <tbody></tbody>
-    </table>
-</div>
-
-<script data-jui="#xtable_4" data-tpl="row" type="text/template">
-    <tr>
-        <td><!= name !></td>
-        <td><!= age !></td>
-        <td><!= location !></td>
-    </tr>
-</script>
+<VirtualGrid
+    :columns="columns"
+    :rows="displayRows"
+    mode="paging"
+    :page-size="20"
+    sortable
+    resizable
+    column-menu
+    theme="classic"
+/>

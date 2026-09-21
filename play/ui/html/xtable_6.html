@@ -1,16 +1,14 @@
-<button class="btn small" onclick="xtable_6_submit()">
+<button class="btn small" @click="onRun">
 	<i class="icon-play"></i> Run
 </button>
 
-<div id="xtable_6" class="xtable scroll" style="margin-top: 7px;">
-    <table class="table classic">
-        <thead>
-        <tr>
-            <th>Name</th>
-            <th>Age</th>
-            <th>Location</th>
-        </tr>
-        </thead>
-        <tbody></tbody>
-    </table>
-</div>
+<VirtualGrid
+  :columns="columns"
+  :rows="rows"
+  mode="virtual"
+  :row-height="26"
+  :height="400"
+  sortable
+  resizable
+  theme="classic"
+/>

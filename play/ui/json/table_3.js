@@ -1,29 +1,41 @@
-jui.ready([ "grid.table" ], function(table) {
-    table_3 = table("#table_3", {
-        event: {
-            expand: function(row, e) {
-                $(row.list[0]).html("<i class='icon-right'></i>");
-            },
-            expandend: function(row, e) {
-                $(row.list[0]).html("<i class='icon-left'></i>");
+{
+    setup() {
+        const rows = Vue.reactive([
+            { id: 1, data: { name: "Hong", age: "20", location: "Ilsan" } },
+            { id: 2, data: { name: "Jung", age: "30", location: "Seoul" } },
+            { id: 3, data: { name: "Park", age: "10", location: "Dangjin" } }
+        ]);
+
+        const expandedRows = Vue.ref([]);
+
+        function toggleRow(id) {
+            const index = expandedRows.value.indexOf(id);
+            if (index > -1) {
+                expandedRows.value.splice(index, 1);
+            } else {
+                expandedRows.value.push(id);
             }
-        },
-        expand: true,
-        animate: true
-    });
+        }
 
-    table_3.update([
-        { name: "Hong", age: "20", location: "Ilsan" },
-        { name: "Jung", age: "30", location: "Seoul" },
-        { name: "Park", age: "10", location: "Dangjin" }
-    ]);
+        function collapseRow(id) {
+            const index = expandedRows.value.indexOf(id);
+            if (index > -1) {
+                expandedRows.value.splice(index, 1);
+            }
+        }
 
-    table_3_submit = function(index) {
-        var name = $(table_3.root).find(".name").val(),
-            age = $(table_3.root).find(".age").val(),
-            location = $(table_3.root).find(".location").val();
+        function onSubmit(row) {
+            collapseRow(row.id);
+        }
 
-        table_3.update(index, { name: name, age: age, location: location });
-        table_3.hideExpand();
+        function onDelete(row) {
+            const index = rows.findIndex(r => r.id === row.id);
+            if (index !== -1) {
+                rows.splice(index, 1);
+            }
+            collapseRow(row.id);
+        }
+
+        return { rows, expandedRows, toggleRow, collapseRow, onSubmit, onDelete }
     }
-});
+}

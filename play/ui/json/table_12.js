@@ -1,34 +1,31 @@
-jui.ready([ "grid.table" ], function(table) {
-    table_12 = table("#table_12", {
-        fields: [ null, "name", "age", "location" ],
-        data: [
-            { name: "Hong", age: "20", location: "Ilsan" },
-            { name: "Jung", age: "30", location: "Seoul" },
-            { name: "Park", age: "15", location: "Yeosu" },
-            { name: "Kang", age: "32", location: "Seoul" },
-            { name: "Song", age: "12", location: "Gwangju" },
-            { name: "Yoon", age: "22", location: "Damyang" },
-            { name: "Kim", age: "33", location: "Busan" },
-            { name: "Hwang", age: "21", location: "Seoul" }
-        ],
-        scroll: true,
-        resize: true,
-        tpl: {
-            row: $("#tpl_row").html()
+{
+    setup() {
+        const rows = Vue.reactive([
+            { id: 1, data: { name: "Hong", age: "20", location: "Ilsan" } },
+            { id: 2, data: { name: "Jung", age: "30", location: "Seoul" } },
+            { id: 3, data: { name: "Park", age: "15", location: "Yeosu" } },
+            { id: 4, data: { name: "Kang", age: "32", location: "Seoul" } },
+            { id: 5, data: { name: "Song", age: "12", location: "Gwangju" } },
+            { id: 6, data: { name: "Yoon", age: "22", location: "Damyang" } },
+            { id: 7, data: { name: "Kim", age: "33", location: "Busan" } },
+            { id: 8, data: { name: "Hwang", age: "21", location: "Seoul" } }
+        ])
+
+        function appendRows() {
+            const nStart = new Date().getTime()
+            let nextId = Math.max(...rows.map(r => r.id)) + 1
+
+            for (let i = 0; i < 1000; i++) {
+                rows.push({
+                    id: nextId++,
+                    data: { name: "Alvin" + i, age: i, location: "LA" }
+                })
+            }
+
+            const nEnd = new Date().getTime()
+            alert("Running time : " + (nEnd - nStart) + "ms")
         }
-    });
 
-    table_12_submit = function() {
-        var rows = [],
-            nStart = new Date().getTime();
-
-        for(var i = 0; i < 1000; i++) {
-            rows.push({ name: "Alvin" + i, age: i, location: "LA" });
-        }
-
-        table_12.append(rows);
-        var nEnd = new Date().getTime();
-
-        alert("Running time : " + (nEnd - nStart) + "ms");
+        return { rows, appendRows }
     }
-});
+}

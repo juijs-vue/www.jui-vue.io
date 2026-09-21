@@ -1,22 +1,12 @@
-<a id="table_15_btn" download="table.csv" class="btn small">
+<button class="btn small" @click="downloadCsv">
     <i class="icon-play"></i> Run
-</a>
+</button>
 
-<table id="table_15" class="table simple headline" style="margin-top: 7px;">
-    <thead>
-    <tr>
-        <th>Name</th>
-        <th>Age</th>
-        <th>Location</th>
-    </tr>
-    </thead>
-    <tbody></tbody>
-</table>
-
-<script data-jui="#table_15" data-tpl="row" type="text/template">
-    <tr>
-        <td><!= name !></td>
-        <td><!= age !></td>
-        <td><!= location !></td>
-    </tr>
-</script>
+<DataGrid
+    ref="grid"
+    :columns="columns"
+    :rows="rows"
+    sortable
+    resizable
+    style="margin-top: 7px;"
+/>

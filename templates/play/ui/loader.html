@@ -34,7 +34,7 @@
 
             var app = Vue.createApp(options);
             app.use(JuiUiVue);
-            app.use(JuiGridVue);
+            app.use(JuiGridVue.default || JuiGridVue);
 
             app.config.errorHandler = function (err) {
                 mount.innerHTML =

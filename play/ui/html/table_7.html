@@ -1,18 +1,18 @@
-<table id="table_7" class="table classic stripeless">
+<div class="jui-grid-vue-root theme-classic">
+<table id="table_7" class="table classic stripeless" style="position: relative; table-layout: fixed;">
     <thead>
     <tr>
-        <th>Name</th>
-        <th>Age</th>
-        <th>Location</th>
+        <th style="cursor: pointer;">Name<div class="resize" style="position: absolute; width: 8px; height: 28px; left: 181px; top: 0px; cursor: w-resize; z-index: 1;"></div></th>
+        <th style="cursor: pointer;">Age<div class="resize" style="position: absolute; width: 8px; height: 28px; left: 363px; top: 0px; cursor: w-resize; z-index: 1;"></div></th>
+        <th style="cursor: pointer;">Location</th>
     </tr>
     </thead>
-    <tbody></tbody>
-</table>
-
-<script data-jui="#table_7" data-tpl="row" type="text/template">
-    <tr>
-        <td><!= name !></td>
-        <td><!= age !></td>
-        <td><!= location !></td>
+    <tbody style="max-height: 150px; display: block; overflow: auto; width: 546px;">
+    <tr v-for="row in rows" :key="row.id">
+        <td style="width: 171px;">{{ row.data.name }}</td>
+        <td style="width: 171px;">{{ row.data.age }}</td>
+        <td style="width: 160px;">{{ row.data.location }}</td>
     </tr>
-</script>
+    </tbody>
+</table>
+</div>

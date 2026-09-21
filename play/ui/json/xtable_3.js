@@ -1,29 +1,30 @@
-jui.ready([ "grid.xtable" ], function(xtable) {
-    var page = 1;
+{
+    setup() {
+        const { ref } = Vue
 
-    xtable_3 = xtable("#xtable_3", {
-        fields: [ "name", "age", "location" ],
-        resize: true,
-        sort: true,
-        buffer: "s-page",
-        bufferCount: 20
-    });
+        const columns = [
+            { key: 'name', label: 'Name', sortable: true, resizable: true },
+            { key: 'age', label: 'Age', sortable: true, resizable: true },
+            { key: 'location', label: 'Location', sortable: true, resizable: true }
+        ]
 
-    xtable_3_submit = function() {
-        var result = [];
+        const rows = ref([])
 
-        for(var i = 0; i < 1000000; i++) {
-            result.push({ name: "Alvin" + i, age: Math.floor(Math.random() * 100) + 1, location: "LA" });
+        function onSubmit() {
+            const result = []
+            for (let i = 0; i < 1000000; i++) {
+                result.push({
+                    id: i,
+                    data: {
+                        name: "Alvin" + i,
+                        age: Math.floor(Math.random() * 100) + 1,
+                        location: "LA"
+                    }
+                })
+            }
+            rows.value = result
         }
 
-        page = 1;
-        xtable_3.update(result);
-        xtable_3.resize();
+        return { columns, rows, onSubmit }
     }
-
-    xtable_3_page = function(no) {
-        page += no;
-        page = (page < 1) ? 1 : page;
-        xtable_3.page(page);
-    }
-});
+}

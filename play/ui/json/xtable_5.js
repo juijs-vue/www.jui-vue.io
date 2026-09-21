@@ -1,14 +1,17 @@
-jui.ready([ "grid.xtable" ], function(xtable) {
-    xtable_5 = xtable("#xtable_5", {
-        fields: [ "name", "age", "location" ],
-        data: [
-            { name: "Hong", age: "20", location: "Ilsan" },
-            { name: "Jung", age: "30", location: "Seoul" },
-            { name: "Park", age: "10", location: "Dangjin" }
-        ],
-        resize: true,
-        sort: true,
-        width: 800,
-        scrollWidth: 600
-    });
-});
+{
+    setup() {
+        const columns = [
+            { key: 'name', label: 'Name' },
+            { key: 'age', label: 'Age' },
+            { key: 'location', label: 'Location' }
+        ]
+
+        const rows = [
+            { id: 1, data: { name: "Hong", age: "20", location: "Ilsan" } },
+            { id: 2, data: { name: "Jung", age: "30", location: "Seoul" } },
+            { id: 3, data: { name: "Park", age: "10", location: "Dangjin" } }
+        ]
+
+        return { columns, rows }
+    }
+}

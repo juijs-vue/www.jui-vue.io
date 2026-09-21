@@ -1,3 +1,4 @@
+<div class="jui-grid-vue-root theme-classic">
 <table id="table_2" class="table simple stripeless">
     <thead>
         <tr>
@@ -6,15 +7,14 @@
             <th>Location</th>
         </tr>
     </thead>
-    <tbody></tbody>
+    <tbody>
+        <template v-for="(row, index) in data" :key="index">
+            <tr>
+                <td>{{ row.name }}</td>
+                <td>{{ row.age }}</td>
+                <td v-if="index % 2 === 0" :rowspan="2">{{ row.location }}</td>
+            </tr>
+        </template>
+    </tbody>
 </table>
-
-<script id="tpl_row" type="text/template">
-    <tr>
-        <td><!= name !></td>
-        <td><!= age !></td>
-        <! if(row.index % 2 == 0) { !>
-        <td rowspan="2"><!= location !></td>
-        <! } !>
-    </tr>
-</script>
+</div>
