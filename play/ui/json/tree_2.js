@@ -49,7 +49,7 @@
             handleMove,
             handleRemove,
             handleUpdate,
-            rootData: { title: "C:\\\\" }
+            rootData: { title: "C:\\" }
         }
     }
 }

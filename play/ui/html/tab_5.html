@@ -1,6 +1,4 @@
-<Tab v-model="activeIndex" :items="items" position="top" :menu="menu" @changemenu="handleChangeMenu"></Tab>
-
-<div style="background: #dcdcdc;">
-    <div v-show="showCss">css</div>
-    <div v-show="showScript">script</div>
-</div>
+<Tab v-model="activeIndex" :items="items" position="top" :menu="menu" :content-style="{ background: '#dcdcdc' }" @changemenu="handleChangeMenu">
+    <template #panel-css>css</template>
+    <template #panel-script>script</template>
+</Tab>

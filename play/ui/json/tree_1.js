@@ -40,7 +40,7 @@
             tree3Ref,
             tree4Ref,
             onSelect,
-            rootData: { title: "C:\\\\" }
+            rootData: { title: "C:\\" }
         }
     }
 }

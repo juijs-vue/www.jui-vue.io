@@ -5,8 +5,6 @@
             { text: "Script", value: "script" }
         ]
         const activeIndex = Vue.ref(1)
-        const showCss = Vue.computed(() => activeIndex.value === 0)
-        const showScript = Vue.computed(() => activeIndex.value === 1)
         const menu = [
             { text: "Dropdown 1", value: "1" },
             { divider: true },
@@ -19,6 +17,6 @@
             alert(data.text)
         }
 
-        return { items, activeIndex, showCss, showScript, menu, handleChangeMenu }
+        return { items, activeIndex, menu, handleChangeMenu }
     }
 }

@@ -3,12 +3,16 @@
     <p>
         The first style below is the most generally used tab style.
         It is necessary to specify the <strong>top</strong> class when using it.
-    </p>
-    <Tab v-model="active1" :items="items1" position="top">
-        <template #panel-home><div></div></template>
-        <template #panel-css><div></div></template>
-        <template #panel-script><div></div></template>
-    </Tab>
+    </p><ul class="tab top">
+        <li class="active">
+            <a href="#"><i class="icon-home"></i> Home</a>
+        </li>
+        <li><a href="#">CSS</a></li>
+        <li><a href="#">Script</a></li>
+        <li class="checked">
+            <a href="#">Menu <i class="icon-arrow1"></i></a>
+        </li>
+    </ul>
     <p></p>
 </section>
 
@@ -17,12 +21,16 @@
     <p>
         A tab style that is used when the content area is located in the upper part.
     </p>
-    <p class="br"></p>
-    <Tab v-model="active2" :items="items2" position="bottom">
-        <template #panel-home><div></div></template>
-        <template #panel-css><div></div></template>
-        <template #panel-script><div></div></template>
-    </Tab>
+    <p class="br"></p><ul class="tab bottom">
+        <li class="active">
+            <a href="#">Home</a>
+        </li>
+        <li><a href="#">CSS</a></li>
+        <li><a href="#">Script</a></li>
+        <li class="checked">
+            <a href="#">Menu <i class="icon-arrow1"></i></a>
+        </li>
+    </ul>
     <p></p>
 </section>
 
@@ -30,12 +38,16 @@
     <h2>Pill</h2>
     <p>
         A UI component with use that is similar to a tab
-    </p>
-    <Tab v-model="active3" :items="items3" variant="pill">
-        <template #panel-home><div></div></template>
-        <template #panel-css><div></div></template>
-        <template #panel-script><div></div></template>
-    </Tab>
+    </p><ul class="pill">
+        <li class="active">
+            <a href="#"><i class="icon-home"></i> Home</a>
+        </li>
+        <li><a href="#">CSS</a></li>
+        <li><a href="#">Script</a></li>
+        <li>
+            <a href="#">Menu <i class="icon-arrow1"></i></a>
+        </li>
+    </ul>
     <p></p>
 </section>
 
@@ -43,12 +55,17 @@
     <h2>Pill, top</h2>
     <p>
         As in a tab, a line that distinguishes the current content area is displayed at the bottom.
-    </p>
-    <Tab v-model="active4" :items="items4" variant="pill" position="top">
-        <template #panel-home><div></div></template>
-        <template #panel-css><div></div></template>
-        <template #panel-script><div></div></template>
-    </Tab>
+    </p><ul class="pill top">
+        <li class="active">
+            <a href="#">Home</a>
+            <div class="anchor"></div>
+        </li>
+        <li><a href="#">CSS</a></li>
+        <li><a href="#">Script</a></li>
+        <li class="checked">
+            <a href="#">Menu <i class="icon-arrow1"></i></a>
+        </li>
+    </ul>
     <p></p>
 </section>
 
@@ -57,11 +74,16 @@
     <p>
         As in a tab, a line that distinguishes the current content area is displayed at the top.
     </p>
-    <p class="br"></p>
-    <Tab v-model="active5" :items="items5" variant="pill" position="bottom">
-        <template #panel-home><div></div></template>
-        <template #panel-css><div></div></template>
-        <template #panel-script><div></div></template>
-    </Tab>
+    <p class="br"></p><ul class="pill bottom">
+        <li class="active">
+            <a href="#">Home</a>
+            <div class="anchor"></div>
+        </li>
+        <li><a href="#">CSS</a></li>
+        <li><a href="#">Script</a></li>
+        <li>
+            <a href="#">Menu <i class="icon-arrow1"></i></a>
+        </li>
+    </ul>
     <p></p>
 </section>

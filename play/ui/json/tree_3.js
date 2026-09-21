@@ -23,7 +23,7 @@
 
         return {
             treeRef,
-            rootData: { title: "C:\\\\" }
+            rootData: { title: "C:\\" }
         }
     }
 }
