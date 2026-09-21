@@ -1,27 +1,21 @@
-<button class="btn small" @click="generateData">
+<button class="btn small" @click="submit">
     <i class="icon-play"></i> Run
 </button>
 
-<table class="table classic" style="margin-top: 7px;">
-    <thead>
-        <tr>
-            <th>Name</th>
-            <th>Age</th>
-            <th>Location</th>
-        </tr>
-    </thead>
-    <tbody>
-        <tr v-if="paginatedItems.length === 0">
-            <td colspan="3" class="none" align="center">Data does not exist.</td>
-        </tr>
-        <tr v-for="item in paginatedItems" :key="item.name">
-            <td>{{ item.name }}</td>
-            <td>{{ item.age }}</td>
-            <td>{{ item.location }}</td>
-        </tr>
-    </tbody>
-</table>
+<VirtualGrid
+    ref="grid"
+    :columns="columns"
+    :rows="rows"
+    mode="paging"
+    :page-size="100"
+    sortable
+    resizable
+    :sort-loading="true"
+    :show-pager="false"
+    style="margin-top: 7px;"
+    @sort="onSort"
+/>
 
 <div style="margin-top: 3px;">
-    <Paging v-model="page" :count="items.length" :page-count="pageCount" @page="onPage" />
+    <Paging ref="pagingRef" :count="rows.length" :page-count="100" @page="onPage" />
 </div>

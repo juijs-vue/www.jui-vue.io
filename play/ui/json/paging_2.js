@@ -1,33 +1,39 @@
 {
     setup() {
-        const page = Vue.ref(1)
-        const items = Vue.ref([])
-        const pageCount = 100
+        const grid = Vue.ref(null)
+        const pagingRef = Vue.ref(null)
+        const rows = Vue.ref([])
 
-        function generateData() {
+        const columns = [
+            { key: 'name', label: 'Name', sortable: true, resizable: true },
+            { key: 'age', label: 'Age', sortable: true, resizable: true },
+            { key: 'location', label: 'Location', sortable: true, resizable: true }
+        ]
+
+        function submit() {
             const result = []
-            for (let i = 0; i < 1000; i++) {
+            for (let i = 0; i < 1000000; i++) {
                 result.push({
-                    name: "Item " + (i + 1),
-                    age: Math.floor(Math.random() * 100) + 1,
-                    location: "LA"
+                    id: i,
+                    data: {
+                        name: "Alvin" + i,
+                        age: Math.floor(Math.random() * 100) + 1,
+                        location: "LA"
+                    }
                 })
             }
-            items.value = result
-            page.value = 1
+            rows.value = result
+            pagingRef.value?.reload(result.length)
         }
 
         function onPage(pNo) {
-            console.log("Page changed to:", pNo)
+            grid.value?.goToPage(pNo)
         }
 
-        const paginatedItems = Vue.computed(() => {
-            const start = (page.value - 1) * pageCount
-            const end = start + pageCount
-            return items.value.slice(start, end)
-        })
+        function onSort() {
+            pagingRef.value?.first()
+        }
 
-        return { page, items, pageCount, generateData, onPage, paginatedItems }
+        return { grid, pagingRef, rows, columns, submit, onPage, onSort }
     }
 }
-
