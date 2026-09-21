@@ -21,7 +21,9 @@
         </template>
         <template #content-0>
             <div class="has-property">
-                <Property :items="propertyItems" @change="onChange" />
+                <div class="property">
+                    <Property :items="propertyItems" @change="onChange" />
+                </div>
             </div>
         </template>
     </Accordion>

@@ -9,11 +9,17 @@
             { value: "help", icon: "help", iconExtra: "icon-white" }
         ]
         const selected = Vue.ref("a")
+        const group = Vue.ref(null)
 
         function runSetValue() {
-            selected.value = "gear"
+            group.value?.setValue("gear")
         }
 
-        return { items, selected, runSetValue }
+        function onChange({ value }) {
+            const index = items.findIndex((item) => item.value === value)
+            alert("index(" + index + "), value(" + value + ")")
+        }
+
+        return { items, selected, runSetValue, onChange, group }
     }
 }

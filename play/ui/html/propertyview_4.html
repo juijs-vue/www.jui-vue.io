@@ -19,7 +19,9 @@
             <i class="icon-left"></i> <strong>Complex Settings with Panel</strong>
         </div>
         <div class="body has-property" style="height: 300px;">
-            <Property :items="items" @change="onChange" />
+            <div class="property">
+                <Property :items="items" @change="onChange" />
+            </div>
         </div>
     </div>
 </div>

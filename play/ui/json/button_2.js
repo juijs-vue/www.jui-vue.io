@@ -9,11 +9,17 @@
             { value: "help", icon: "help" }
         ]
         const selected = Vue.ref("a")
+        const group = Vue.ref(null)
 
         function runSetIndex() {
-            selected.value = items[3].value
+            group.value?.setIndex(3)
         }
 
-        return { items, selected, runSetIndex }
+        function onChange({ value }) {
+            const index = items.findIndex((item) => item.value === value)
+            alert("index(" + index + "), value(" + value + ")")
+        }
+
+        return { items, selected, runSetIndex, onChange, group }
     }
 }

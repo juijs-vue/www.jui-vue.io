@@ -1,7 +1,15 @@
 <button class="btn large" @click="showWindow">Show property view with window</button>
 
 <Window v-model="windowOpen" title="Property view inner window" :width="500" :height="400">
-    <Property :items="items" @change="onChange" />
+    <template #actions>
+        <a href="javascript:alert('plus');"><i class="icon-plus"></i></a>
+        <a href="javascript:alert('search');"><i class="icon-search"></i></a>
+    </template>
+    <div class="has-property" style="height: 100%;">
+        <div class="property">
+            <Property :items="items" @change="onChange" />
+        </div>
+    </div>
     <template #foot>
         <a href="#" class="btn focus">Save</a> <a href="#" class="btn">Close</a>
     </template>

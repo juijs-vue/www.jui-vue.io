@@ -1,3 +1,3 @@
-<ButtonGroup v-model="selected" :items="items" type="radio" size="mini" /> <button class="btn mini" @click="runSetValue">
+<ButtonGroup ref="group" v-model="selected" :items="items" type="radio" size="mini" @change="onChange" /> <button class="btn mini" @click="runSetValue">
     <i class="icon-play"></i> Run
 </button>
