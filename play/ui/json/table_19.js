@@ -8,37 +8,23 @@
             { key: 'age', label: 'Column. Age', width: 114 }
         ];
 
+        // 원본(table.js)의 updateTree()는 중첩 구조가 아니라 flat 배열을 받는다 - 각 행의
+        // index가 dot-path 문자열("0", "0.0", "0.0.0", ...)이고 depth는 그 dot 개수다.
+        // 토글도 없이 항상 전부 펼쳐진 채로 보인다 - table_17/table_18과 같은 이유로,
+        // children을 쓰지 않고 depth를 직접 붙인 flat 배열을 그대로 DataGrid에 넘긴다.
         const rows = Vue.reactive([]);
-
-        function buildTreeRow(depth, currentDepth = 0) {
-            if (currentDepth >= depth) return null;
-
-            const id = Array(currentDepth + 1).fill(0).join('.');
-            const row = {
-                id: id,
-                data: {
-                    index: id,
-                    name: "Hong" + currentDepth,
-                    age: Math.floor(Math.random() * 100)
-                },
-                children: []
-            };
-
-            if (currentDepth < depth - 1) {
-                const child = buildTreeRow(depth, currentDepth + 1);
-                if (child) {
-                    row.children.push(child);
-                }
-            }
-
-            return row;
-        }
 
         function submit(depth) {
             rows.length = 0;
-            const rootRow = buildTreeRow(depth, 0);
-            if (rootRow) {
-                rows.push(rootRow);
+
+            let key = "0";
+            for (let i = 0; i < depth; i++) {
+                rows.push({
+                    id: key,
+                    data: { index: key, name: "Hong" + i, age: Math.floor(Math.random() * 100) },
+                    depth: i
+                });
+                key += ".0";
             }
         }
 

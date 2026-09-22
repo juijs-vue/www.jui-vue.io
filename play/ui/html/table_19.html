@@ -8,5 +8,10 @@
     nowrap
     style="margin-top: 7px;"
 >
+    <template #cell-name="{ row, value }">
+        <span :style="{ display: 'block', paddingLeft: (5 + row.depth * 20) + 'px' }">
+            <template v-if="row.depth"><i class="icon-left"></i>&nbsp;</template>{{ value }}
+        </span>
+    </template>
     <template #empty>Data does not exist.</template>
 </DataGrid>
