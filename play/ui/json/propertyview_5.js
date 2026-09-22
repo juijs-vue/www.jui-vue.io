@@ -1,9 +1,12 @@
 {
     setup() {
+        // 원본은 콘텐츠 <div>가 실제로 1개뿐이라(accordion.js가 클릭한 title 뒤로 그 하나를
+        // insertAfter로 옮기는 구조), 어떤 title을 열어도 같은 Property 패널이 그 자리로
+        // 옮겨와서 보인다 - 세 패널 다 같은 내용을 보여주는 게 legacy 데모의 실제 동작이다.
         const accordionItems = Vue.reactive([
             { title: "Default Settings", contentClass: "has-property" },
-            { title: "View Settings" },
-            { title: "Data Server Settings" }
+            { title: "View Settings", contentClass: "has-property" },
+            { title: "Data Server Settings", contentClass: "has-property" }
         ])
 
         const propertyItems = Vue.reactive([
