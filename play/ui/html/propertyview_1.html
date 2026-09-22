@@ -1,21 +1,5 @@
-<style type="text/css">
-    .property-container {
-        width: 500px;
-        height: 500px;
-        position: relative;
-        overflow: auto;
-        border: 1px solid #ececec;
-    }
-
-    .property-container h1 {
-        color: #333;
-        margin-top: 10px;
-        margin-bottom: 10px;
-        border-bottom: 0px;
-    }
-</style>
-<div class="property-container">
-    <h1>Presentation Settings</h1>
+<div class="property-container" style="width: 500px; height: 500px; position: relative; overflow: auto; border: 1px solid #ececec;">
+    <h1 style="color: #333; margin-top: 10px; margin-bottom: 10px; border-bottom: 0px;">Presentation Settings</h1>
     <div class="property">
         <Property :items="items" @change="onChange" />
     </div>
