@@ -1,7 +1,7 @@
 {
     setup() {
         const accordionItems = Vue.reactive([
-            { title: "Default Settings" },
+            { title: "Default Settings", contentClass: "has-property" },
             { title: "View Settings" },
             { title: "Data Server Settings" }
         ])

@@ -1,29 +1,12 @@
-<style type="text/css">
-    .property-container {
-        width: 500px;
-        height: 500px;
-        position: relative;
-        overflow: auto;
-    }
-
-    .property-container h1 {
-        color: #333;
-        margin-top: 10px;
-        margin-bottom: 10px;
-        border-bottom: 0px;
-    }
-</style>
-<div class="property-container">
-    <h1>Property view with Accordion</h1>
+<div class="property-container" style="width: 500px; height: 500px; position: relative; overflow: auto;">
+    <h1 style="color: #333; margin-top: 10px; margin-bottom: 10px; border-bottom: 0px;">Property view with Accordion</h1>
     <Accordion v-model="accordionOpen" :items="accordionItems" :auto-fold="true">
         <template #icon="{ open }">
             <i :class="open ? 'icon-arrow3' : 'icon-arrow1'"></i>
         </template>
         <template #content-0>
-            <div class="has-property">
-                <div class="property">
-                    <Property :items="propertyItems" @change="onChange" />
-                </div>
+            <div class="property">
+                <Property :items="propertyItems" @change="onChange" />
             </div>
         </template>
     </Accordion>
