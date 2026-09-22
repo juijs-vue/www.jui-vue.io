@@ -3,7 +3,8 @@
 </button>
 
 <div class="jui-grid-vue-root theme-classic">
-<table id="table_12" class="table classic body-scroll" style="margin-top: 7px; position: relative; table-layout: fixed; width: 546px;">
+<div style="max-height: 262px; overflow: auto; position: relative; margin-top: 7px;">
+<table id="table_12" class="table classic has-scroll">
     <thead>
     <tr>
         <th>No<div class="resize" style="position: absolute; width: 8px; height: 28px; left: 136px; top: 0px; cursor: w-resize; z-index: 1;"></div></th>
@@ -12,11 +13,12 @@
         <th>Location</th>
     </tr>
     </thead>
-    <tbody style="max-height: 200px; width: 540px;"><tr v-for="(row, index) in rows" :key="row.id">
-        <td style="width: 137px;">{{ index }}</td>
-        <td style="width: 137px;">{{ row.data.name }}</td>
-        <td style="width: 137px;">{{ row.data.age }}</td>
-        <td style="width: 127px;">{{ row.data.location }}</td>
+    <tbody><tr v-for="(row, index) in rows" :key="row.id">
+        <td>{{ index }}</td>
+        <td>{{ row.data.name }}</td>
+        <td>{{ row.data.age }}</td>
+        <td>{{ row.data.location }}</td>
     </tr></tbody>
 </table>
+</div>
 </div>
