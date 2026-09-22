@@ -14,19 +14,32 @@
         const dropdownStyle = Vue.ref({});
         const selectedRow = Vue.ref(null);
 
+        // .dropdown은 CSS 기본값이 display:none이라(원본 ui.dropdown의 dd.show()/hide()가 이걸
+        // 토글한다), position만 잡아주는 것만으로는 아예 안 보인다 - display도 같이 켜줘야 한다.
         function showMenu(event, row) {
             selectedRow.value = row;
             dropdownStyle.value = {
+                display: 'block',
                 position: 'fixed',
                 left: event.clientX + 'px',
                 top: event.clientY + 'px'
             };
         }
 
-        function selectMenuItem(text) {
-            alert(text);
+        function hideMenu() {
             dropdownStyle.value = {};
         }
+
+        function selectMenuItem(text) {
+            alert(text);
+            hideMenu();
+        }
+
+        function onDocClick(e) {
+            if (!e.target.closest('#table_6_dd')) hideMenu();
+        }
+        Vue.onMounted(() => document.addEventListener('click', onDocClick));
+        Vue.onBeforeUnmount(() => document.removeEventListener('click', onDocClick));
 
         return { data, dropdownStyle, selectedRow, showMenu, selectMenuItem }
     }
