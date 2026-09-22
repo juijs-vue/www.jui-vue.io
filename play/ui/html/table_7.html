@@ -1,5 +1,6 @@
 <div class="jui-grid-vue-root theme-classic">
-<table id="table_7" class="table classic stripeless" style="position: relative; table-layout: fixed;">
+<div style="max-height: 181px; overflow: auto; position: relative;">
+<table id="table_7" class="table classic stripeless has-scroll">
     <thead>
     <tr>
         <th style="cursor: pointer;">Name<div class="resize" style="position: absolute; width: 8px; height: 28px; left: 181px; top: 0px; cursor: w-resize; z-index: 1;"></div></th>
@@ -7,12 +8,13 @@
         <th style="cursor: pointer;">Location</th>
     </tr>
     </thead>
-    <tbody style="max-height: 150px; display: block; overflow: auto; width: 546px;">
+    <tbody>
     <tr v-for="row in rows" :key="row.id">
-        <td style="width: 171px;">{{ row.data.name }}</td>
-        <td style="width: 171px;">{{ row.data.age }}</td>
-        <td style="width: 160px;">{{ row.data.location }}</td>
+        <td>{{ row.data.name }}</td>
+        <td>{{ row.data.age }}</td>
+        <td>{{ row.data.location }}</td>
     </tr>
     </tbody>
 </table>
+</div>
 </div>
