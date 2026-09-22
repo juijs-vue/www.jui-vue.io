@@ -19,17 +19,20 @@
             { id: 8, data: { name: "Hwang", age: "21", location: "Seoul" } }
         ]);
 
-        function onRowMove(fromId, toId) {
+        // beforeId는 드래그한 행이 들어갈 자리의 "바로 앞에 남는 행"의 id다(끝으로 옮기면
+        // undefined) - 원본의 index 기반 move(y,c)를 id 기준으로 그대로 옮긴 것.
+        function onRowMove(fromId, beforeId) {
             if (!confirm("Do you want to change the row position?")) {
                 return;
             }
 
             const fromIndex = rows.findIndex((r) => r.id === fromId);
-            const toIndex = rows.findIndex((r) => r.id === toId);
-            if (fromIndex === -1 || toIndex === -1) return;
+            if (fromIndex === -1) return;
 
             const [moved] = rows.splice(fromIndex, 1);
-            rows.splice(toIndex, 0, moved);
+            const toIndex = beforeId == null ? -1 : rows.findIndex((r) => r.id === beforeId);
+            if (toIndex === -1) rows.push(moved);
+            else rows.splice(toIndex, 0, moved);
 
             console.log("Completed.");
         }
