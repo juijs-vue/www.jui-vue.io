@@ -8,18 +8,30 @@
         <th>Location</th>
     </tr>
     </thead>
-    <tbody><tr v-for="(row, index) in rows" :key="row.id">
-        <td>{{ index }}</td>
-        <td>{{ row.data.name }}</td>
-        <td>{{ row.data.age }}</td>
-        <td>{{ row.data.location }}</td>
+    <tbody><tr v-for="(row, index) in rows" :key="row.id" :class="{ selected: selectedId === row.id }" @contextmenu.prevent="showMenu($event, row)">
+        <td>
+            <div v-if="isEditingRow(row)" class="edit" disabled style="width: 100%;">{{ index }}</div>
+            <template v-else>{{ index }}</template>
+        </td>
+        <td>
+            <input v-if="isEditingRow(row)" type="text" class="edit" style="width: 100%;" v-model="draft.name" @keyup.enter="commitEdit(row)" />
+            <template v-else>{{ row.data.name }}</template>
+        </td>
+        <td>
+            <input v-if="isEditingRow(row)" type="text" class="edit" style="width: 100%;" v-model="draft.age" @keyup.enter="commitEdit(row)" />
+            <template v-else>{{ row.data.age }}</template>
+        </td>
+        <td>
+            <input v-if="isEditingRow(row)" type="text" class="edit" style="width: 100%;" v-model="draft.location" @keyup.enter="commitEdit(row)" />
+            <template v-else>{{ row.data.location }}</template>
+        </td>
     </tr></tbody>
 </table>
 </div>
 
-<div id="table_9_dd" class="dropdown large" style="width: 152px; position: absolute; display: none;">
+<div id="table_9_dd" class="dropdown large" style="width: 152px;" :style="dropdownStyle">
     <ul style="width: 150px; display: block;">
-        <li>Edit</li>
-        <li>Close</li>
+        <li @click="onMenuSelect(0)">Edit</li>
+        <li @click="onMenuSelect(1)">Close</li>
     </ul>
 </div>
