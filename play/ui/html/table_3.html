@@ -21,15 +21,15 @@
                     <div class="row">
                         <div class="group">
                             <label class="label small">Name</label>
-                            <input v-model="row.data.name" type="text" class="input small" style="width: 80px" />
+                            <input v-model="drafts[row.id].name" type="text" class="input small" style="width: 80px" />
                         </div>
                         <div class="group">
                             <label class="label small">Age</label>
-                            <input v-model="row.data.age" type="text" class="input small" style="width: 80px" />
+                            <input v-model="drafts[row.id].age" type="text" class="input small" style="width: 80px" />
                         </div>
                         <div class="group">
                             <label class="label small">Location</label>
-                            <input v-model="row.data.location" type="text" class="input small" style="width: 80px" />
+                            <input v-model="drafts[row.id].location" type="text" class="input small" style="width: 80px" />
                         </div>
                     </div>
                     <br/>
