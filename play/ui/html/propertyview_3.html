@@ -1,6 +1,6 @@
 <button class="btn large" @click="showWindow">Show property view with window</button>
 
-<Window v-model="windowOpen" title="Property view inner window" :width="500" :height="400">
+<Window v-model="windowOpen" modal title="Property view inner window" :width="500" :height="379">
     <template #actions>
         <a href="javascript:alert('plus');"><i class="icon-plus"></i></a>
         <a href="javascript:alert('search');"><i class="icon-search"></i></a>
