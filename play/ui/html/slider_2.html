@@ -3,6 +3,6 @@
         <Slider type="double" v-model:from="from" v-model:to="to" :min="0" :max="100" :step="1" :tooltip="false" @change="onSliderChange" />
     </div>
     <div class="col col-4">
-        <div class="label small" :style="{ display: showInfo ? 'block' : 'none' }">{{ info }}</div>
+        <div class="label small" :style="{ display: showInfo ? 'inline-block' : 'none' }">{{ info }}</div>
     </div>
 </div>
