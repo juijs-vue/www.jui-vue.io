@@ -96,6 +96,7 @@
 		{ "type": "xtable", "title": "Virtual scrolling", "code": "xtable_6" },
 		{ "type": "xtable", "title": "Virtual scrolling (Append Tree)", "code": "xtable_7" },
 		{ "type": "xtable", "title": "Virtual scrolling (Update Tree)", "code": "xtable_8" },
+		{ "type": "xtable", "title": "Editable rows (custom editors)", "code": "xtable_9" },
 		{ "type": "dropdown", "title": "Show & Hide dropdown", "code": "dropdown_1" },
 		{ "type": "dropdown", "title": "Auto Close prevention", "code": "dropdown_2" },
 		{ "type": "dropdown", "title": "Control by keyboard", "code": "dropdown_3" },
