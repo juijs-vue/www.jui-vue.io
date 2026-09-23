@@ -13,4 +13,7 @@
   @row-click="onRowClick"
 >
     <template #empty>Data does not exist.</template>
+    <template #tree-toggle="{ expanded }">
+        <i :class="expanded ? 'icon-right' : 'icon-left'"></i>
+    </template>
 </VirtualGrid>
