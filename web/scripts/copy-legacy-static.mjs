@@ -24,3 +24,14 @@ for (const { from, to } of ENTRIES) {
     fs.cpSync(src, dest, { recursive: true })
     console.log(`copied ${from} -> dist/${to}`)
 }
+
+// GitHub Pages serves static files only - there's no server-side rewrite to
+// send a path-based route like /play/ui/ to the SPA's index.html the way a
+// real webserver's SPA-fallback config would. vue-router's createWebHistory
+// only needs *some* copy of index.html to load and then reads
+// window.location.pathname itself at runtime, so placing a literal copy at
+// play/ui/index.html (a real file GitHub Pages can serve directly) sidesteps
+// needing a 404.html fallback trick entirely.
+fs.mkdirSync(path.join(DIST, "play/ui"), { recursive: true })
+fs.copyFileSync(path.join(DIST, "index.html"), path.join(DIST, "play/ui/index.html"))
+console.log("copied dist/index.html -> dist/play/ui/index.html (path-based route)")

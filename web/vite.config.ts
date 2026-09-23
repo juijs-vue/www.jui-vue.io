@@ -5,7 +5,21 @@ import { resolve } from "path"
 // Deployed to https://juijs-vue.github.io/jui-ui-vue/ (replacing jui-ui-vue's own
 // component playground at that same GitHub Pages slot) - base must match.
 export default defineConfig({
-    plugins: [vue()],
+    plugins: [
+        vue({
+            template: {
+                compilerOptions: {
+                    // play/ui demos rely on this (matches the old loader.html's
+                    // app.config.compilerOptions.whitespace = "preserve") - Vue's
+                    // default 'condense' mode strips whitespace-only text nodes
+                    // spanning a line break, which some demos' CSS (e.g. a button
+                    // group's `.group > * + *` negative margin) assumes survives,
+                    // same as plain (non-Vue) HTML parsing does.
+                    whitespace: "preserve"
+                }
+            }
+        })
+    ],
     base: "/jui-ui-vue/",
     // jui-ui-vue is consumed via a "file:" link (an npm symlink) - forces a
     // single shared Vue instance instead of risking two separate copies
