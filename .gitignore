@@ -8,6 +8,8 @@
 
 # NodeJS
 node_modules/
+web/dist/
+web/src/generated/
 
 # Python / uv
 .venv/

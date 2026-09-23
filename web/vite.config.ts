@@ -1,0 +1,20 @@
+import { defineConfig } from "vite"
+import vue from "@vitejs/plugin-vue"
+import { resolve } from "path"
+
+// Deployed to https://juijs-vue.github.io/jui-ui-vue/ (replacing jui-ui-vue's own
+// component playground at that same GitHub Pages slot) - base must match.
+export default defineConfig({
+    plugins: [vue()],
+    base: "/jui-ui-vue/",
+    // jui-ui-vue is consumed via a "file:" link (an npm symlink) - forces a
+    // single shared Vue instance instead of risking two separate copies
+    // resolving through jui-ui-vue's own (symlink-real-path) node_modules.
+    resolve: {
+        dedupe: ["vue"]
+    },
+    build: {
+        outDir: resolve(import.meta.dirname, "dist"),
+        emptyOutDir: true
+    }
+})
