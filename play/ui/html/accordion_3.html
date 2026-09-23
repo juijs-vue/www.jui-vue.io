@@ -1,6 +1,0 @@
-<Accordion v-model="open" :items="items" variant="simple" multipanel autoFold @open="onOpen" @fold="onFold" @init="onInit">
-    <template v-for="item in items" :key="item.value" #[`content-${item.value}`]>
-        {{ item.text }}
-    </template>
-    <template #icon="{ index }"><i :class="icons[index]"></i></template>
-</Accordion>

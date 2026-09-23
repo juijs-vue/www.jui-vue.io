@@ -1,9 +1,0 @@
-<div class="group">
-    <button class="btn small" @click="handleMove">Move</button> <button class="btn small" @click="handleRemove">Remove</button> <button class="btn small" @click="handleUpdate">Update</button>
-</div>
-
-<div class="row" style="margin-top: 15px;">
-    <Tree ref="treeRef" variant="line-file" :root="rootData" @select="onSelect">
-        <template #default="{ node }"><i></i> {{ node.data.title }}</template>
-    </Tree>
-</div>

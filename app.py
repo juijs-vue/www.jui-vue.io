@@ -2,11 +2,15 @@
 Flask 3.0 port of the original PHP site (index.php, gallery/*.php, play/*.php).
 
 Ported 1:1 in behavior and URL scheme (query-string routing on `/`, the same
-`/play/chart/`, `/play/ui/` paths) so every existing hardcoded link in
-doc/*.html keeps working unchanged. The legacy .php files this replaces have
-been removed; everything else (lib/, res/, doc/*.html content fragments,
-gallery/*/ demo pages, play/**/*.css|js|json) is untouched and served as
-static files.
+`/play/chart/` path) so every existing hardcoded link in doc/*.html keeps
+working unchanged. The legacy .php files this replaces have been removed;
+everything else (lib/, res/, doc/*.html content fragments, gallery/*/ demo
+pages, play/**/*.css|js|json) is untouched and served as static files.
+
+This app is no longer what's deployed (web/ - a static Vue3 SPA - is), and
+is now only useful for local play/chart development (play/chart hasn't been
+converted yet). play/ui has been fully replaced by web/ and its routes
+removed accordingly.
 
 Content fragments under doc/ contain no PHP logic (confirmed while porting -
 they're plain HTML), so they're reused verbatim via Jinja `{% include %}`
@@ -203,42 +207,10 @@ def play_chart_export():
     return send_file(buf, mimetype="application/octet-stream", as_attachment=True, download_name=filename)
 
 
-# --------------------------------------------------------------------------
-# Play: UI (was play/ui/index.php, metadata.php, loader.php)
-# --------------------------------------------------------------------------
-
-UI_DIR = "play/ui"
-
-
-@app.route("/play/ui/")
-def play_ui_index():
-    page_code = request.args.get("p")
-    group, data, data_index = load_menu(f"{UI_DIR}/menu.json", page_code)
-    code_content = read_text(f"{UI_DIR}/json/{data['code']}.js", default="") if data else ""
-    html_content = read_text(f"{UI_DIR}/html/{data['code']}.html", default="") if data else ""
-
-    return render_template(
-        "play/ui/index.html",
-        group=group, data=data, data_index=data_index,
-        code_content=code_content, html_content=html_content,
-    )
-
-
-@app.route("/play/ui/loader.php", methods=["POST"])
-def play_ui_loader():
-    # Intentionally unsanitized: this is a live code-preview iframe target for
-    # the playground editor, same as the original (which also sets
-    # X-XSS-Protection: 0) - it echoes back exactly what the user just typed
-    # into the editor on the same page, not third-party input.
-    resp = render_template(
-        "play/ui/loader.html",
-        theme=request.form.get("theme", ""),
-        code=request.form.get("code", ""),
-        html=request.form.get("html", ""),
-    )
-    response = app.make_response(resp)
-    response.headers["X-XSS-Protection"] = "0"
-    return response
+# play/ui (was play/ui/index.php, metadata.php, loader.php) has been fully
+# replaced by web/ (the Vue3 SPA's PlayUi.vue + src/demos/ui/*.vue) - routes
+# removed along with the templates/html/json they rendered. play/ui/menu.json
+# is still served as a static asset (web/'s PlayUiMenu.vue reads it directly).
 
 
 if __name__ == "__main__":
