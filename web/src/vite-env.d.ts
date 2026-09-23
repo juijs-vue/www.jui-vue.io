@@ -7,6 +7,7 @@ declare module "jui-ui-vue" {
     import type { Plugin } from "vue"
     export const Dropdown: any
     export const Tooltip: any
+    export const Tab: any
     const plugin: Plugin
     export default plugin
 }

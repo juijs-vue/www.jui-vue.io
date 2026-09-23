@@ -9,6 +9,7 @@ import menu from "../../../play/ui/menu.json"
 import { useBodyClass } from "../composables/useBodyClass"
 import { useStylesheet } from "../composables/useStylesheet"
 import PlayUiMenu from "../components/PlayUiMenu.vue"
+import { Tab } from "jui-ui-vue"
 import playUiStyleHref from "../styles/play-ui.css?url"
 import playShellStyleHref from "../styles/play-shell.css?url"
 import playUiComponentStyleHref from "../styles/play-ui-component.css?url"
@@ -92,7 +93,16 @@ function goHome() {
                 <img :src="`${base}res/img/play_logo.png`" align="absmiddle" @click="goHome" />
             </div>
             <div class="toolbar">
-                <span class="theme-label">Themes: Jennifer</span>
+                <span>
+                    Themes
+                    <!-- 원본(uiplay.jui.io)엔 Jennifer/Dark 두 옵션이 있지만, 이 포팅은
+                         Jennifer만 실제로 지원한다(다른 데모들도 전부 .jui.jennifer 기준으로
+                         맞춰져 있음) - Dark 옵션까지 마크업만 흉내 내면 눌러도 아무 일도 안
+                         일어나는 죽은 컨트롤이 되므로, 실제로 되는 것만 제공. -->
+                    <select disabled title="This port only ships the Jennifer theme">
+                        <option value="jennifer">Jennifer</option>
+                    </select>
+                </span>
                 <a class="chart_comments" href="#" title="Comments aren't available in this port yet" @click.prevent>Leave a comment</a>
                 <i id="sidemenu" class="icon-menu"></i>
             </div>
@@ -104,7 +114,14 @@ function goHome() {
             <div class="content">
                 <div class="chart_data">
                     <div class="chart_data_main">
-                        <pre class="source-view"><code ref="codeEl" class="language-markup">{{ source }}</code></pre>
+                        <!-- 원본은 Code/HTML 두 탭(jQuery.table() 등록 코드 vs 대상 마크업)인데,
+                             이 포팅의 데모는 둘이 분리된 파일이 아니라 하나의 .vue SFC라 별도
+                             HTML 탭을 만들 대상 자체가 없다 - Code 탭 하나만 제공. -->
+                        <Tab :items="[{ text: 'Code', value: 'code' }]" content-style="height: calc(100% - 33px); overflow: auto;">
+                            <template #panel-code>
+                                <pre class="source-view"><code ref="codeEl" class="language-markup">{{ source }}</code></pre>
+                            </template>
+                        </Tab>
                     </div>
                 </div>
                 <div class="splitter splitter-2"></div>
@@ -142,8 +159,7 @@ function goHome() {
     word-break: break-word;
 }
 
-.theme-label {
-    color: #aaa;
+.toolbar span {
     margin-right: 20px;
 }
 
