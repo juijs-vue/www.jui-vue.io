@@ -6,6 +6,19 @@
 import { computed, defineAsyncComponent, type Component } from "vue"
 import { useRoute } from "vue-router"
 import menu from "../../../play/ui/menu.json"
+import { useBodyClass } from "../composables/useBodyClass"
+import { useStylesheet } from "../composables/useStylesheet"
+import playUiStyleHref from "../styles/play-ui.css?url"
+
+// loader.html's editor defaults to the "jennifer" theme (changeTheme("jennifer")
+// on load) - jui-ui-vue's .jui.jennifer-scoped rules (heading colors, the boxed
+// table "well" background these demos rely on, etc.) don't apply without it.
+useBodyClass("jui jennifer")
+// play/ui/style.css (demo-content presentation: h2 headings, the boxed
+// "well" table, etc.) - has bare-tag selectors, so it's loaded/unloaded with
+// this page rather than bundled globally (would otherwise bleed into the
+// shell's own pages).
+useStylesheet(playUiStyleHref)
 
 const demos = import.meta.glob<{ default: Component }>("../demos/ui/*.vue")
 

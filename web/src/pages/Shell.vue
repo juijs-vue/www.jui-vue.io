@@ -6,6 +6,9 @@ import DownloadMenu from "../components/DownloadMenu.vue"
 import AppFooter from "../components/AppFooter.vue"
 import SubNav from "../components/SubNav.vue"
 import { useLang } from "../composables/useLang"
+import { useBodyClass } from "../composables/useBodyClass"
+
+useBodyClass("jui")
 
 import HomeEn from "./en/Home.vue"
 import AboutEn from "./en/About.vue"
