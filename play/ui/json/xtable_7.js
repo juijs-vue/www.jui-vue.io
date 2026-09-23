@@ -5,7 +5,7 @@
         const columns = [
             { key: 'name', label: 'Name' },
             { key: 'age', label: 'Age' },
-            { key: 'location', label: 'Location' }
+            { key: 'location', label: 'Location', sortable: false }
         ]
 
         const rows = ref([])
