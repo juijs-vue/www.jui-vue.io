@@ -28,11 +28,30 @@
             var htmlText = document.getElementById("__play_html__").textContent;
 
             // Style-only examples (the "Common Styles" group) have no Code tab content -
-            // treat blank/whitespace-only code as "no setup options", not a syntax error.
-            var options = codeText.trim() ? (0, eval)("(" + codeText + ")") : {};
+            // the original never ran these through any templating at all, just raw HTML.
+            // Feeding them through Vue's `template` option instead would still work for
+            // the DOM structure, but Vue's compiler condenses whitespace-only text nodes
+            // that span a line break (its default `whitespace: 'condense'` mode) - e.g. the
+            // newline-separated "Save"/"Close" buttons in window.html lose the space that a
+            // plain HTML parser (uiplay) keeps between them. Skipping Vue here entirely for
+            // no-JS examples sidesteps that and matches the original byte-for-byte.
+            if (!codeText.trim()) {
+                mount.innerHTML = htmlText;
+                return;
+            }
+
+            var options = (0, eval)("(" + codeText + ")");
             options.template = htmlText;
 
             var app = Vue.createApp(options);
+            // Vue's default whitespace mode ('condense') strips whitespace-only text nodes
+            // that span a line break - e.g. two <button class="btn mini"> written on separate
+            // lines lose the natural inline-block gap a plain HTML parser (uiplay) keeps
+            // between them. That gap isn't cosmetic here: button-group CSS (.group > * + *)
+            // applies a negative margin sized assuming that gap is still there, so losing it
+            // makes buttons visibly overlap more than intended (e.g. xtable_2/xtable_3's
+            // Prev/Next pager). 'preserve' matches how uiplay's own (non-Vue) HTML renders.
+            app.config.compilerOptions.whitespace = "preserve";
             app.use(JuiUiVue);
             app.use(JuiGridVue.default || JuiGridVue);
 
