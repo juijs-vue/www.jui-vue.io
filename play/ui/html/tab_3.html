@@ -3,6 +3,13 @@
 </div>
 
 <div class="row" style="padding-top: 15px;">
-    <Tab ref="tabRef" v-model="activeIndex" :items="items" position="top" @change="handleChange"></Tab>
-    <div style="background: #dcdcdc;">{{ contentText }}</div>
+    <Tab ref="tabRef" v-model="activeIndex" v-model:items="items" position="top" :content-style="{ background: '#dcdcdc' }">
+        <template v-for="item in items" :key="item.value" #[`panel-${item.value}`]="{ item: slotItem }">
+            <h3>{{ slotItem.text }}</h3>
+            <p>이 탭은 Append/Prepend/Insert로 런타임에 추가됐을 수도 있는데, 슬롯도 그때그때 같이 생긴다.</p>
+            <ul>
+                <li>value: {{ slotItem.value }}</li>
+            </ul>
+        </template>
+    </Tab>
 </div>
