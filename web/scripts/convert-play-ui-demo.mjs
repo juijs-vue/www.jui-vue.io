@@ -193,6 +193,22 @@ export function convertOne(code) {
                 return name
             })
     }
+    // Some demos destructure the whole namespace instead of calling through it
+    // (`const { ref, onMounted } = Vue`) rather than `Vue.ref(...)` - the names
+    // are already bare identifiers afterward, so there's nothing to rewrite in
+    // the body, just the declaration line itself to drop (its names still need
+    // to end up imported).
+    function stripDestructuring(text, ns, namesSet) {
+        return text.replace(
+            new RegExp(`^[ \\t]*(?:const|let|var)\\s*\\{\\s*([^}]+)\\}\\s*=\\s*${ns}\\s*\\n?`, "gm"),
+            (_, names) => {
+                for (const n of names.split(",").map((s) => s.trim()).filter(Boolean)) namesSet.add(n)
+                return ""
+            }
+        )
+    }
+    bodyText = stripDestructuring(bodyText, "Vue", vueNames)
+    bodyText = stripDestructuring(bodyText, "JuiGridVue", gridNames)
     bodyText = stripNamespaces(bodyText)
 
     // Alias lines for returned names that don't match their local binding
