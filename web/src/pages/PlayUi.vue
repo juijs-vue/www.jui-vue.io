@@ -5,11 +5,17 @@
 // is a separate follow-up once @vue/repl is wired in.
 import { computed, defineAsyncComponent, type Component } from "vue"
 import { useRoute } from "vue-router"
+import menu from "../../../play/ui/menu.json"
 
 const demos = import.meta.glob<{ default: Component }>("../demos/ui/*.vue")
 
+// The nav's "Components" link (and production's own /play/ui/) has no ?p= at
+// all - defaults to the menu's first entry, matching app.py's
+// play_ui_index(): `data = flat_list[0] if flat_list else None`.
+const defaultCode = menu.list[0]?.code ?? ""
+
 const route = useRoute()
-const code = computed(() => (typeof route.query.p === "string" ? route.query.p : ""))
+const code = computed(() => (typeof route.query.p === "string" ? route.query.p : defaultCode))
 const loader = computed(() => demos[`../demos/ui/${code.value}.vue`])
 const component = computed(() => (loader.value ? defineAsyncComponent(loader.value) : null))
 </script>
