@@ -3,7 +3,7 @@
 // templates/play/ui/index.html's layout - the code panel is still
 // read-only (shows the converted .vue SFC's own source) rather than a live
 // editor; @vue/repl-based live editing is the next increment.
-import { computed, defineAsyncComponent, ref, watch, type Component } from "vue"
+import { computed, defineAsyncComponent, nextTick, onMounted, ref, watch, type Component } from "vue"
 import { useRoute } from "vue-router"
 import menu from "../../../play/ui/menu.json"
 import { useBodyClass } from "../composables/useBodyClass"
@@ -22,7 +22,7 @@ useBodyClass("jui jennifer")
 // shell's own pages). Order matters: play-ui-component.css's 50/50 split
 // overrides play-shell.css's 45/55 one, same cascade order as the original
 // <link>s in templates/play/ui/index.html.
-useStylesheet(playShellStyleHref)
+const shellCss = useStylesheet(playShellStyleHref)
 useStylesheet(playUiComponentStyleHref)
 useStylesheet(playUiStyleHref)
 
@@ -42,13 +42,42 @@ const component = computed(() => (loader.value ? defineAsyncComponent(loader.val
 
 const sourceLoader = computed(() => demoSources[demoPath.value])
 const source = ref<string>("")
+const codeEl = ref<HTMLElement | null>(null)
 watch(
     sourceLoader,
     async (load) => {
         source.value = load ? await load() : ""
+        await nextTick()
+        // @ts-expect-error - Prism is a global from lib/prism.js (index.html)
+        if (codeEl.value && window.Prism) window.Prism.highlightElement(codeEl.value)
     },
     { immediate: true }
 )
+
+// 원본의 $(".menu").scrollTop($target.offset().top - 100) 포팅 - 현재 데모로 스크롤.
+// 사이드바 링크는(PlayUiMenu.vue) 일반 <a href> 풀 리로드라 code가 마운트 이후 바뀔 일이
+// 없다 - onMounted 한 번이면 충분.
+// play-shell.css (loaded via useStylesheet, above) is what gives .menu its
+// scrollable height in the first place - until its link's "load" event
+// fires, .menu isn't overflowing yet and scrollTop assignment is a no-op.
+const menuEl = ref<HTMLElement | null>(null)
+onMounted(async () => {
+    await shellCss.loaded
+    const menu = menuEl.value
+    const active = menu?.querySelector("li.active") as HTMLElement | null
+    if (active && menu) {
+        // active.offsetTop is relative to its nearest positioned ancestor,
+        // which isn't necessarily .menu itself (jui-ui-vue's own .vmenu/a
+        // rules position some intermediate element) - measure via
+        // getBoundingClientRect instead, matching jQuery's document-based
+        // $target.offset().top the original used.
+        const contentTop = active.getBoundingClientRect().top - menu.getBoundingClientRect().top + menu.scrollTop
+        menu.scrollTop = contentTop - 100
+    }
+})
+
+// 원본 component.js의 setFunctions() 포팅 - .chart_view를 전체 너비로 넓혔다 되돌렸다.
+const fullscreen = ref(false)
 
 const base = import.meta.env.BASE_URL
 function goHome() {
@@ -63,28 +92,32 @@ function goHome() {
                 <img :src="`${base}res/img/play_logo.png`" align="absmiddle" @click="goHome" />
             </div>
             <div class="toolbar">
-                <span class="jui-ui-vue-badge">jui-ui-vue</span>
-                <i class="icon-menu"></i>
+                <span class="theme-label">Themes: Jennifer</span>
+                <a class="chart_comments" href="#" title="Comments aren't available in this port yet" @click.prevent>Leave a comment</a>
+                <i id="sidemenu" class="icon-menu"></i>
             </div>
         </div>
         <div class="container">
-            <div class="menu">
+            <div class="menu" ref="menuEl">
                 <PlayUiMenu :code="code" />
             </div>
             <div class="content">
                 <div class="chart_data">
                     <div class="chart_data_main">
-                        <pre class="source-view">{{ source }}</pre>
+                        <pre class="source-view"><code ref="codeEl" class="language-markup">{{ source }}</code></pre>
                     </div>
                 </div>
                 <div class="splitter splitter-2"></div>
-                <div class="chart_view">
+                <div class="chart_view" :class="{ fullscreen }" :style="{ left: fullscreen ? '0%' : undefined }">
                     <div class="chart-main">
                         <div id="chart-content-title">
                             <h2>
                                 Result
                                 <div class="group">
                                     <a class="btn btn-api" title="Chart API" href="http://api.jui.io/" target="_blank">API</a>
+                                    <a class="btn btn-fullscreen" title="Full Screen" @click="fullscreen = !fullscreen"
+                                        ><i class="icon-new-window"></i
+                                    ></a>
                                 </div>
                             </h2>
                         </div>
@@ -107,5 +140,14 @@ function goHome() {
     font-size: 12px;
     white-space: pre-wrap;
     word-break: break-word;
+}
+
+.theme-label {
+    color: #aaa;
+    margin-right: 20px;
+}
+
+.chart_view {
+    transition: left 0.4s;
 }
 </style>
