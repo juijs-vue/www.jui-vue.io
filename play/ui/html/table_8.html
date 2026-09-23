@@ -19,7 +19,7 @@
             <template v-else>{{ row.data.name }}</template>
         </td>
         <td @dblclick="startEdit(row, 'age')">
-            <input v-if="isEditingRow(row)" type="text" class="edit" style="width: 100%;" v-model="draft.age" @keyup.enter="commitEdit(row)" />
+            <input v-if="isEditingRow(row)" type="number" class="edit" style="width: 100%;" v-model="draft.age" @keyup.enter="commitEdit(row)" />
             <template v-else>{{ row.data.age }}</template>
         </td>
         <td>
