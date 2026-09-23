@@ -38,7 +38,12 @@ function viewCodeEditor(code) {
 		editor.setValue(code);
 	}
 
-	changeTheme($("select").find("option:selected").val());
+	// 원본에는 헤더에 Themes(Jennifer/Dark) <select>가 있어서 여기서 그 선택값을 읽어왔는데,
+	// 이 포팅엔 그 셀렉터 자체가 없다(사이트가 Jennifer 하나만 지원). 그래서
+	// $("select").find("option:selected").val()가 항상 undefined를 반환해 changeTheme()의
+	// "jennifer가 아니면 어두운 배경" 분기를 타 버렸다 - Code/HTML 에디터가 항상 검게
+	// 보인 원인. 사이트가 실제로 지원하는 유일한 테마를 그대로 하드코딩한다.
+	changeTheme("jennifer");
 }
 
 function setFunctions() {
