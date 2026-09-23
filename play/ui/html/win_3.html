@@ -1,19 +1,14 @@
-<!-- NOTE: production renders this as class="msgbox detail" (its own distinct head layout: no
-     .left/.right split, plain text + .subtext + a single .close, no move/resize chrome) rather
-     than the generic Window's class="window" .head structure used here. jui-ui-vue's own
-     msgbox.less/.theme.less already has this CSS ported, but Window.vue has no msgbox variant
-     yet to emit that markup/class - using Window with :move="false" :resize="false" is the
-     closest approximation for now. Revisit if a msgbox-variant prop gets added to Window.vue. -->
 <button class="btn" @click="visible = true">
     <i class="icon-play"></i> Run
 </button>
 
-<Window v-model="visible" title="[Title] Detail Message" :width="350" :height="150" :left="'50%'" :top="175" :move="false" :resize="false">
-    <template #title>
-        <div>
-            [Title] Detail Message
-            <div style="font-size: 12px; color: #666; margin-top: 2px;">2014.02.25 17:18:38</div>
-        </div>
-    </template>
-    <p>Contents...</p>
-</Window>
+<div v-if="visible" class="msgbox detail" style="width: 350px; height: 150px; left: 50%; top: 175px;">
+    <div class="head">
+        [Title] Detail Message
+        <div class="subtext">2014.02.25 17:18:38</div>
+        <a href="#" class="close" @click.prevent="visible = false"><i class="icon-exit"></i></a>
+    </div>
+    <div class="body">
+        Contents...<br>
+    </div>
+</div>
