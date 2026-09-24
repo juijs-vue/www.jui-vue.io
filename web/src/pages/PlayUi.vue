@@ -18,14 +18,22 @@ import PlayUiMenu from "../components/PlayUiMenu.vue"
 import playUiStyleHref from "../styles/play-ui.css?url"
 import playShellStyleHref from "../styles/play-shell.css?url"
 import playUiComponentStyleHref from "../styles/play-ui-component.css?url"
-// jui-ui-vue/jui-grid-vue aren't on any CDN (unlike Vue itself, which
-// useVueImportMap() below resolves from jsdelivr) - self-host their already-
-// built ES module + CSS output as ordinary Vite assets and point the
-// sandbox's import map at the resulting URLs.
+// jui-ui-vue/jui-grid-vue aren't on any CDN - self-host their already-built
+// ES module + CSS output as ordinary Vite assets and point the sandbox's
+// import map at the resulting URLs.
 import juiUiVueEsUrl from "jui-ui-vue?url"
 import juiUiVueCssUrl from "jui-ui-vue/style.css?url"
 import juiGridVueEsUrl from "jui-grid-vue?url"
 import juiGridVueCssUrl from "jui-grid-vue/style.css?url"
+// useVueImportMap()'s default "vue" entry is @vue/runtime-dom (a CDN,
+// runtime-only build with no template compiler) - fine for demos that are
+// just a compiled SFC, but some (e.g. tab_3, which defines extra components
+// inline with a runtime `template: "..."` string) need actual in-browser
+// template compilation, which throws "runtime compilation is not supported
+// in this build of Vue" without it. Self-host our own full build (which
+// jui-ui-vue/jui-grid-vue's own "vue" imports resolve to as well, so
+// there's exactly one Vue instance in the sandbox either way) instead.
+import vueEsmBrowserUrl from "vue/dist/vue.esm-browser.js?url"
 
 // loader.html's editor defaults to the "jennifer" theme (changeTheme("jennifer")
 // on load) - jui-ui-vue's .jui.jennifer-scoped rules (heading colors, the boxed
@@ -103,6 +111,7 @@ const store = useStore({
     builtinImportMap: ref(
         mergeImportMap(vueImportMap.value, {
             imports: {
+                vue: vueEsmBrowserUrl,
                 "jui-ui-vue": juiUiVueEsUrl,
                 "jui-grid-vue": juiGridVueEsUrl
             }
