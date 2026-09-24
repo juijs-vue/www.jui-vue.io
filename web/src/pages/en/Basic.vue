@@ -6,149 +6,111 @@ useTitle("JUI Framework: Basic")
 
 <template>
 <div class="col col-12 manual">
-	<section>
-		<h2>UI Ready</h2>
-		<p>
-			The JUI library can be used only in markup where a jui class is configured and <strong>&lt;!DOCTYPE HTML&gt;</strong> is declared in the uppermost part of the document.
+    <section>
+        <h2>Using a component</h2>
+        <p>
+            Once registered (see <strong>Getting Started</strong>), every component is just a tag in your template - no
+            <strong>jui.ready()</strong> callback, no selector-based lookup. Props configure it, <strong>@event</strong> listens
+            to it, same as any other Vue component.
 
-			<pre><code class="language-markup">&lt;body class=&quot;jui&quot;&gt;
-	...
-&lt;/body&gt;</code></pre>
-		</p>
-		<p class="br">
-			Use a component module inside of the <strong>ready</strong> method callback.
+            <pre><code class="language-markup">&lt;script setup&gt;
+import { ref } from "vue"
 
-			<pre><code class="language-javascript">jui.ready([ "ui.combo", "grid.table" ], function(combo, table) {
-	var combo = combo(selector, options),
-		table = table(selector, options);
+const tips = ref("Tooltip Message")
+&lt;/script&gt;
 
-	//...
-});</code></pre>
-		</p>
-		<p>
-			A method for creating a component object dynamically, even outside of the callback of the <strong>ready</strong> method. OHowever, the <strong>create</strong> method can only be used once the callback of the <strong>ready</strong> method is complete.
+&lt;template&gt;
+  &lt;Tooltip :text="tips" position="top"&gt;
+    &lt;button&gt;Hover me&lt;/button&gt;
+  &lt;/Tooltip&gt;
+&lt;/template&gt;</code></pre>
+        </p>
+        <p class="br">
+            Multiple instances are just multiple tags - there's no separate "get the array of matched elements" step the way the
+            old selector-based API needed.
 
-	<pre><code class="language-javascript">var combo = jui.create(&quot;ui.combo&quot;, selector, options),
-	table = jui.create(&quot;grid.table&quot;, selector, options);
+            <pre><code class="language-markup">&lt;Tooltip text="Tooltip Message"&gt;&lt;span&gt;Tooltip 1&lt;/span&gt;&lt;/Tooltip&gt;
+&lt;Tooltip text="Tooltip Message"&gt;&lt;span&gt;Tooltip 2&lt;/span&gt;&lt;/Tooltip&gt;</code></pre>
+        </p>
+    </section>
 
-//...</code></pre>
-		</p>
-	</section>
+    <section>
+        <h2>Rows and columns instead of a template engine</h2>
+        <p>
+            The grid no longer reads its row markup from a <strong>&lt;script type="text/template"&gt;</strong> tag - <strong>columns</strong>
+            and <strong>rows</strong> are plain props, and Vue's own reactivity re-renders the table whenever they change.
 
-	<section>
-		<h2>UI Objects</h2>
-		<p>
-			When creating a component object, if there are multiple selectors rather than a single selector, the result value is retrieved as an array, not an object.
+            <pre><code class="language-markup">&lt;script setup lang="ts"&gt;
+import { reactive } from "vue"
+import { DataGrid } from "jui-grid-vue"
+import type { GridColumn, GridRow } from "jui-grid-vue"
 
+const columns: GridColumn[] = [
+  { key: "name", label: "Name" },
+  { key: "age", label: "Age" },
+  { key: "location", label: "Location" }
+]
 
-	<pre><code class="language-markup">&lt;span class=&quot;tooltip&quot; title=&quot;Tooltip Message&quot;&gt;Tooltip 1&lt;/span&gt;
-&lt;span class=&quot;tooltip&quot; title=&quot;Tooltip Message&quot;&gt;Tooltip 2&lt;/span&gt;</code></pre>
+const rows = reactive&lt;GridRow[]&gt;([
+  { id: 1, data: { name: "Hong", age: 29, location: "Ilsan" } },
+  { id: 2, data: { name: "Jung", age: 25, location: "Dangsan" } }
+])
+&lt;/script&gt;
 
-			<pre><code class="language-javascript">jui.ready([ "ui.tooltip" ], function(tooltip) {
-	var tips = tooltip(&quot;.tooltip&quot;);
+&lt;template&gt;
+  &lt;DataGrid :columns="columns" :rows="rows" sortable resizable /&gt;
+&lt;/template&gt;</code></pre>
+        </p>
+        <p class="br">
+            Updating the table is just mutating <strong>rows</strong> - push, splice, or reassign it, and the grid follows along.
+            There's no separate <strong>table.update(...)</strong> call, and no template string to reuse across tables: a custom
+            cell layout is a <strong>#cell-&lt;key&gt;</strong> scoped slot instead.
 
-	tips[0].show();
-	tips[1].show();
-});</code></pre>
-		</p>
-	</section>
+            <pre><code class="language-markup">&lt;DataGrid :columns="columns" :rows="rows"&gt;
+  &lt;template #cell-name="{ row }"&gt;
+    &lt;strong&gt;&#123;&#123; row.data.name &#125;&#125;&lt;/strong&gt;
+  &lt;/template&gt;
+&lt;/DataGrid&gt;</code></pre>
+        </p>
+    </section>
 
-	<section>
-		<h2>Template Engine</h2>
-		<p>
-			JUI is a template-based UI library. To set a template, there are two methods, as follows.<br/> First, input the selector of the target table in the <strong>data-jui</strong> property of the template script tag, then configure the template type in the <strong>data-tpl</strong> property.
+    <section>
+        <h2>Imperative API via template refs</h2>
+        <p>
+            Most things are declarative props/events, but a handful of actions (select a row, open a tree node, export CSV) are
+            still called imperatively - through a template ref instead of the old selector-returned instance.
 
-	<pre><code class="language-markup">&lt;table id=&quot;table&quot; class=&quot;table table-classic&quot;&gt;
-	&lt;thead&gt;
-		&lt;tr&gt;
-			&lt;th&gt;Name&lt;/th&gt;
-			&lt;th&gt;Age&lt;/th&gt;
-			&lt;th&gt;Location&lt;/th&gt;
-		&lt;/tr&gt;
-	&lt;/thead&gt;
-	&lt;tbody&gt;&lt;/tbody&gt;
-&lt;/table&gt;</code></pre>
+            <pre><code class="language-markup">&lt;script setup lang="ts"&gt;
+import { ref } from "vue"
+import { DataGrid } from "jui-grid-vue"
 
-		<pre><code class="language-markup">&lt;script data-jui=&quot;#table&quot; data-tpl=&quot;row&quot; type=&quot;text/template&quot;&gt;
-	&lt;tr&gt;
-		&lt;td&gt;&lt;!= name !&gt;&lt;/td&gt;
-		&lt;td&gt;&lt;!= age !&gt;&lt;/td&gt;
-		&lt;td&gt;&lt;!= location !&gt;&lt;/td&gt;
-	&lt;/tr&gt;
-&lt;/script&gt;</code></pre>
+const grid = ref&lt;InstanceType&lt;typeof DataGrid&gt;&gt;()
 
-			<pre><code class="language-javascript">jui.ready([ "grid.table" ], function(table) {
-	var table = table(&quot;#table&quot;);
+function selectFirstRow() {
+  grid.value?.select(rows[0].id)
+}
+&lt;/script&gt;
 
-	table.update([
-		{ name: &quot;Hong&quot;, age: 29, location: &quot;Ilsan&quot; },
-		{ name: &quot;Jung&quot;, age: 25, location: &quot;Dangsan&quot; }
-	]);
-});</code></pre>
+&lt;template&gt;
+  &lt;DataGrid ref="grid" :columns="columns" :rows="rows" selectable /&gt;
+&lt;/template&gt;</code></pre>
+        </p>
+        <p class="br">
+            <strong>DataGrid</strong>/<strong>VirtualGrid</strong> expose <strong>select</strong>/<strong>check</strong>/<strong>uncheckAll</strong>,
+            tree methods (<strong>open</strong>, <strong>fold</strong>, <strong>openAll</strong>, <strong>foldAll</strong>), column
+            visibility (<strong>showColumn</strong>, <strong>hideColumn</strong>), and CSV (<strong>getCsv</strong>,
+            <strong>exportCsv</strong>, <strong>setCsv</strong>) this way - see each component's own demo pages under
+            <strong>Components</strong> for the full list.
+        </p>
+    </section>
 
-			<p class="br">
-			As shown above, the method of adding as a tpl option when creating a table object after getting the content of an applicable template script tag is also provided. Configuring a template using this method minimizes code redundancy as the template can be commonly used in multiple table objects.
-
-			<pre><code class="language-markup">&lt;script id=&quot;tpl_table&quot; type=&quot;text/template&quot;&gt;
-	&lt;tr&gt;
-		&lt;td&gt;&lt;!= name !&gt;&lt;/td&gt;
-		&lt;td&gt;&lt;!= age !&gt;&lt;/td&gt;
-		&lt;td&gt;&lt;!= location !&gt;&lt;/td&gt;
-	&lt;/tr&gt;
-&lt;/script&gt;</code></pre>
-
-			<pre><code class="language-javascript">jui.ready([ "grid.table" ], function(table) {
-	var table = table(&quot;#table&quot;, {
-		tpl: {
-			row: $(&quot;#tpl_table&quot;).html();
-		}
-	});
-
-	table.update([
-		{ name: &quot;Hong&quot;, age: 29, location: &quot;Ilsan&quot; },
-		{ name: &quot;Jung&quot;, age: 25, location: &quot;Dangsan&quot; }
-	]);
-});</code></pre>
-			</p>
-
-			<p class="br">
-				In the JUI library, a total of 10 types of UI component use a template.<br/> <span class="label label-gray label-small" style="width: 100%; margin-top: 5px;"><i>table, xtable, tree-table, dropdown, tab, tree, paging, autocomplete, datepicker, notify</i></span>
-			</p>
-		</p>
-	</section>
-
-	<section>
-		<h2>Module Definition</h2>
-		<p>
-			In order to define a new component module to set the module name to the list to create a load module name and parameters for the method.
-			And a module object is loaded through the callback function can be the last in the order.
-
-			<pre><code class="language-javascript">jui.defineUI(&quot;ui.test&quot;, [ &quot;util.base&quot; ], function(_) {
-	var UI = function() {
-		this.init = function() {
-			// initially implemented part
-		}
-
-		this.func1 = function(val) {
-			// open method 1
-		}
-	}
-
-	UI.setup = function() {
-		return { // default UI option settings
-			option1: 1000,
-			option2: true
-		}
-	}
-
-	return UI;
-});</code></pre>
-		</p>
-
-		<p class="br">
-			<strong>UI.setup</strong> is a method to define the options available in the component, <strong>init</strong> is a method that is executed first when an object is created components.
-			To define a new component therefore it must implement essential.
-		</p>
-	</section>
+    <section>
+        <h2>TypeScript</h2>
+        <p>
+            Both libraries are written in TypeScript and ship their own types - <strong>GridColumn</strong>/<strong>GridRow</strong>
+            from <strong>jui-grid-vue</strong> above are real exported types, not documentation shorthand. Component props are typed
+            too, so an editor with Vue/TS support will flag a typo'd prop name or a wrong value type as you write it.
+        </p>
+    </section>
 </div>
 </template>

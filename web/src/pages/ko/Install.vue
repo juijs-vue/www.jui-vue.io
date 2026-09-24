@@ -7,86 +7,71 @@ useTitle("JUI Framework: Getting Started")
 <template>
 <div class="col col-12 manual">
     <section>
-        <h2>Loading resources</h2>
+        <h2>Installing the packages</h2>
 
         <p>
-            JUI 프레임워크는 스타일만 별도로 사용할 수 있으며, 이번에 프로젝트가 분리되어 기존의 UI와 그리드를 따로 로드해야 합니다.<br/>
-            그리고 테마 파일은 다르게 사용할 수 있으며, 테마를 쉽게 만들 수 있는 JUI 스토어 서비스를 제공합니다. (<a href="http://store.jui.io" target="_blank">Link</a>)
+            스타일 컴포넌트와 그리드는 서로 다른 npm 패키지로 분리되어 있습니다. 필요한 것만 설치하면 됩니다.
+            <pre><code class="language-javascript">npm install jui-ui-vue
+npm install jui-grid-vue</code></pre>
+        </p>
+        <p class="br">
+            둘 다 jQuery나 기존 <strong>juijs</strong> 코어에 의존하지 않는, 순수 Vue 3(Composition API)로 새로 작성된 라이브러리입니다.
+            <strong>jui-grid-vue</strong>는 컬럼 표시/숨김 메뉴 때문에 <strong>jui-ui-vue</strong>에 의존하므로, 그리드를 쓴다면 둘 다 설치해야 합니다.
+        </p>
+    </section>
 
-            <pre><code class="language-markup">&lt;!-- Basic style components --&gt;
-&lt;link rel="stylesheet" href="/jui/dist/ui.min.css" />
-&lt;link rel="stylesheet" href="/jui/dist/ui-jennifer.min.css" />
+    <section>
+        <h2>Registering components</h2>
 
-&lt;!-- Grid style components --&gt;
-&lt;link rel="stylesheet" href="/jui-grid/dist/grid.min.css" />
-&lt;link rel="stylesheet" href="/jui-grid/dist/grid-jennifer.min.css" /></code></pre>
+        <p>
+            Vue 플러그인으로 한 번에 등록하면, 템플릿에서 컴포넌트 태그를 바로 쓸 수 있습니다 - 별도의 <strong>ready</strong> 콜백이나
+            이름으로 컴포넌트를 찾는 과정이 필요 없습니다.
+            <pre><code class="language-javascript">import { createApp } from "vue"
+import JuiUiVue from "jui-ui-vue"
+import "jui-ui-vue/style.css"
+
+createApp(App).use(JuiUiVue).mount("#app")</code></pre>
         </p>
         <p>
-            <strong>jui</strong> 클래스가 설정되어 있는 마크업의 하위에서만 사용할 수 있습니다.
-            <pre><code class="language-markup">&lt;body class="jui">
+            아니면 실제로 쓰는 컴포넌트만 개별로 import해서, 번들러가 나머지를 트리쉐이킹하도록 할 수도 있습니다.
+            <pre><code class="language-markup">&lt;script setup&gt;
+import { Select, Datepicker } from "jui-ui-vue"
+import "jui-ui-vue/style.css"
+&lt;/script&gt;</code></pre>
+        </p>
+        <p class="br">
+            <strong>jui-grid-vue</strong>도 두 컴포넌트(<strong>DataGrid</strong>, <strong>VirtualGrid</strong>)를 같은 방식으로 export하며,
+            자체 스타일시트도 따로 로드해야 합니다.
+            <pre><code class="language-javascript">import { DataGrid } from "jui-grid-vue"
+import "jui-grid-vue/style.css"
+import "jui-ui-vue/style.css" // 컬럼 표시/숨김 메뉴가 jui-ui-vue의 Dropdown 컴포넌트입니다</code></pre>
+        </p>
+    </section>
+
+    <section>
+        <h2>Required markup</h2>
+
+        <p>
+            모든 컴포넌트의 스타일은 여전히 <strong>jui</strong> 클래스 하위로 스코프되어 있으므로, 상위 요소 어딘가에 이 클래스가
+            있어야 합니다 - 가장 간단한 방법은 <strong>&lt;body&gt;</strong>에 붙이는 것입니다.
+            <pre><code class="language-markup">&lt;body class="jui"&gt;
     ...
-&lt;/body></code></pre>
-        </p>
-
-        <p class="br">
-            차트를 제외한 모든 컴포넌트들은 <strong>jQuery 1.8</strong> 이상에서만 동작하므로 해당 라이브러리를 먼저 로드해야 합니다.<br/>
-            그리고 이번 JUI 코어와 유틸리티가 별도의 프로젝트로 분리되었기 때문에 별도로 로드해야 합니다.
-            <pre><code class="language-markup">&lt;!-- Required script files -->
-&lt;script src="jquery.min.js">&lt;/script>
-&lt;script src="/jui-core/dist/core.min.js">&lt;/script>
-
-&lt;!-- Basic script components -->
-&lt;script src="/jui/dist/ui.min.js">&lt;/script>
-
-&lt;!-- Grid script components -->
-&lt;script src="/jui-grid/dist/grid.min.js">&lt;/script></code></pre>
-        </p>
-
-        <p class="br">
-            아래는 차트를 사용하기 위해 로드해야할 스크립트 파일입니다.
-            <pre><code class="language-markup">&lt;script src="/jui-core/dist/core.min.js">&lt;/script>
-&lt;script src="/jui-chart/dist/chart.min.js">&lt;/script></code></pre>
+&lt;/body&gt;</code></pre>
         </p>
     </section>
 
     <section>
-        <h2>Installing in command</h2>
+        <h2>Components</h2>
 
         <p>
-            JUI 프레임워크는 <strong>npm</strong>이나 <strong>bower</strong>와 같은 패키지 매니저를 통해서도 설치할 수 있습니다.
-            <pre><code class="language-javascript">npm install jui
-npm install jui-core
-npm install jui-grid
-npm install jui-chart</code></pre>
-        </p>
-    </section>
-
-    <section>
-        <h2>To build the project</h2>
-
-        <p>
-            테스트를 수행하고 패키지에 포함된 <strong>.less</strong>와 <strong>.js</strong> 파일을 하나의 파일로 합치기 위해서는 아래와 같은 명령어를 실행하면 됩니다.<br/>
-            참고로 빌드 도구인 <strong>Grunt</strong> 모듈은 <strong>NodeJS</strong>가 설치되어 있어야 합니다.
-
-            <span class="label small" style="width: 100%; height: 100px; margin-top: 5px;">
-                npm install grunt-cli -g<br/>
-                cd jui<br/>
-                npm install<br/>
-                grunt
-            </span>
+            <strong>jui-ui-vue</strong>는 24개 컴포넌트를 제공합니다: Switch, ButtonGroup, Tab, NumberChecker, Accordion, Progress,
+            AutoComplete, StringChecker, Paging, Notify, Tooltip, Select, Modal, TimePicker, Window, Splitter, Dropdown, Combo,
+            Colorpicker, Slider, Layout, Datepicker, Property, Tree.
         </p>
         <p class="br">
-            빌드 및 테스트 명령어는 아래와 같이 기능 별로 따로 수행할 수 있습니다.
-        </p>
-        <p>
-            <strong>grunt js</strong> 명령어는 js 파일의 merge와 minify를 수행하고, <strong>grunt test</strong>는 컴포넌트의 테스트를 수행합니다.<br/>
-            또한 <strong>grunt css</strong> 명령어는 less 파일을 css로 변환하고, merge와 minify를 수행합니다.
-
-            <span class="label small" style="width: 100%; height: 75px; margin-top: 5px;">
-                grunt js<br/>
-                grunt css<br/>
-                grunt test
-            </span>
+            <strong>jui-grid-vue</strong>는 두 개를 제공합니다: <strong>DataGrid</strong>(정렬, 리사이즈, 선택/체크, 인라인 편집,
+            행 드래그 순서 변경, 트리 행, CSV 내보내기)와, 대용량 데이터를 위한 <strong>VirtualGrid</strong>(가상 스크롤 또는
+            페이징 렌더링, 다중 컬럼 정렬, 클라이언트 사이드 필터링 등 동일한 기능을 지원).
         </p>
     </section>
 </div>

@@ -7,81 +7,71 @@ useTitle("JUI Framework: Getting Started")
 <template>
 <div class="col col-12 manual">
     <section>
-        <h2>Loading resources</h2>
+        <h2>Installing the packages</h2>
 
         <p>
-            JUI library only requires the user to load a double package file.<br/>
-            You can use the theme file and otherwise, will provide additional tools to make the theme easily.
+            The style components and the grid are two separate npm packages - install whichever you need.
+            <pre><code class="language-javascript">npm install jui-ui-vue
+npm install jui-grid-vue</code></pre>
+        </p>
+        <p class="br">
+            Both are a native Vue 3 (Composition API) rewrite - no jQuery, no <strong>juijs</strong> core dependency. <strong>jui-grid-vue</strong>
+            depends on <strong>jui-ui-vue</strong> for its column show/hide menu, so install both if you're using the grid.
+        </p>
+    </section>
 
-            <pre><code class="language-markup">&lt;!-- Basic style components --&gt;
-&lt;link rel="stylesheet" href="/jui/dist/ui.min.css" />
-&lt;link rel="stylesheet" href="/jui/dist/ui-jennifer.min.css" />
+    <section>
+        <h2>Registering components</h2>
 
-&lt;!-- Grid style components --&gt;
-&lt;link rel="stylesheet" href="/jui-grid/dist/grid.min.css" />
-&lt;link rel="stylesheet" href="/jui-grid/dist/grid-jennifer.min.css" /></code></pre>
+        <p>
+            Register everything as a Vue plugin, then use any component's tag directly in a template - no separate <strong>ready</strong>
+            callback or component lookup by name.
+            <pre><code class="language-javascript">import { createApp } from "vue"
+import JuiUiVue from "jui-ui-vue"
+import "jui-ui-vue/style.css"
+
+createApp(App).use(JuiUiVue).mount("#app")</code></pre>
         </p>
         <p>
-            Access to the <strong>jui</strong> class must then be configured in the markup.
-            <pre><code class="language-markup">&lt;body class=&quot;jui&quot;&gt;
+            Or import only the components you use, to let bundlers tree-shake the rest.
+            <pre><code class="language-markup">&lt;script setup&gt;
+import { Select, Datepicker } from "jui-ui-vue"
+import "jui-ui-vue/style.css"
+&lt;/script&gt;</code></pre>
+        </p>
+        <p class="br">
+            <strong>jui-grid-vue</strong> exports its two components (<strong>DataGrid</strong>, <strong>VirtualGrid</strong>) the same way, and
+            needs its own stylesheet too.
+            <pre><code class="language-javascript">import { DataGrid } from "jui-grid-vue"
+import "jui-grid-vue/style.css"
+import "jui-ui-vue/style.css" // the column show/hide menu is jui-ui-vue's Dropdown component</code></pre>
+        </p>
+    </section>
+
+    <section>
+        <h2>Required markup</h2>
+
+        <p>
+            Every component's styles are still scoped under a <strong>jui</strong> class, so it needs to sit on an ancestor element -
+            <strong>&lt;body&gt;</strong> is simplest.
+            <pre><code class="language-markup">&lt;body class="jui"&gt;
     ...
 &lt;/body&gt;</code></pre>
         </p>
-
-        <p class="br">
-            All components except the chart, you must first load the jQuery 1.8 or later.<br/>
-            And because the JUI-core and separate utility in the project must be loaded separately.
-
-            <pre><code class="language-markup">&lt;!-- Required script files -->
-&lt;script src="jquery.min.js">&lt;/script>
-&lt;script src="/jui-core/dist/core.min.js">&lt;/script>
-
-&lt;!-- Basic script components -->
-&lt;script src="/jui/dist/ui.min.js">&lt;/script>
-
-&lt;!-- Grid script components -->
-&lt;script src="/jui-grid/dist/grid.min.js">&lt;/script></code></pre>
-        </p>
-
-        <p class="br">
-        Below is the script file need to first load the chart.
-            <pre><code class="language-markup">&lt;script src="/jui-core/dist/core.min.js">&lt;/script>
-&lt;script src="/jui-chart/dist/chart.min.js">&lt;/script></code></pre>
-        </p>
     </section>
 
     <section>
-        <h2>Installing in command</h2>
+        <h2>Components</h2>
 
         <p>
-            JUI library can be installed via the package manager like <strong>npm</strong> or <strong>bower</strong>.
-            <pre><code class="language-javascript">npm install jui
-npm install jui-core
-npm install jui-grid
-npm install jui-chart</code></pre>
-        </p>
-    </section>
-
-    <section>
-        <h2>To build the project</h2>
-
-        <p>
-            To test and merge a <strong>.less</strong> file and a <strong>.js</strong> file contained in the package, run the command below.<br/> For reference, the <strong>Grunt</strong> module, which is a build tool, requires the installation of <strong>NodeJS</strong>.
-
-            <span class="label small" style="width: 100%; height: 100px; margin-top: 5px;">
-                npm install grunt-cli -g<br/>
-                cd jui<br/>
-                npm install<br/>
-                grunt
-            </span>
+            <strong>jui-ui-vue</strong> ships 24 components: Switch, ButtonGroup, Tab, NumberChecker, Accordion, Progress, AutoComplete,
+            StringChecker, Paging, Notify, Tooltip, Select, Modal, TimePicker, Window, Splitter, Dropdown, Combo, Colorpicker, Slider,
+            Layout, Datepicker, Property, Tree.
         </p>
         <p class="br">
-            The build &amp; test command can be performed for each function as follows.
-        </p>
-        <p>
-            The <strong>grunt.js</strong> command performs merge and minify on a .js file, and <strong>grunt-test</strong> performs a component test.<br/> In addition, the <strong>grunt-class</strong> command converts a .less file into css and performs merge and minify.
-
-            <span class="label small" style="width: 100%; height: 75px; margin-top: 5px;">grunt js<br/> grunt css<br/> grunt test</span>
+            <strong>jui-grid-vue</strong> ships two: <strong>DataGrid</strong> (sort, resize, select/check, inline edit, row drag-reorder,
+            tree rows, CSV export) and <strong>VirtualGrid</strong> (the same, for large datasets - virtual-scroll or paged rendering,
+            multi-column sort, client-side filtering).
         </p>
     </section>
 </div>

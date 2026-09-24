@@ -6,156 +6,114 @@ useTitle("JUI Framework: Basic")
 
 <template>
 <div class="col col-12 manual">
-	<section>
-		<h2>UI Ready</h2>
-		<p>
-			JUI 프레임워크의 스타일은 <strong>jui</strong> 클래스가 설정되어 있는 마크업의 하위에서만 사용할 수 있으며, 문서 최상단에 <strong>&lt;!DOCTYPE HTML></strong>가 선언되어 있어야 합니다.
+    <section>
+        <h2>Using a component</h2>
+        <p>
+            (<strong>Getting Started</strong>에서) 등록만 해두면, 각 컴포넌트는 템플릿의 태그 하나일 뿐입니다 - <strong>jui.ready()</strong>
+            콜백도, 셀렉터로 찾는 과정도 필요 없습니다. prop으로 설정하고, <strong>@event</strong>로 이벤트를 받는 것도 다른 Vue
+            컴포넌트와 똑같습니다.
 
-			<pre><code class="language-markup">&lt;body class="jui"&gt;
-	...
-&lt;/body&gt;</code></pre>
-		</p>
+            <pre><code class="language-markup">&lt;script setup&gt;
+import { ref } from "vue"
 
-		<p class="br">
-			<strong>ready</strong> 메소드의 콜백 내부에서 컴포넌트 모듈을 사용할 수 있습니다.
+const tips = ref("Tooltip Message")
+&lt;/script&gt;
 
-			<pre><code class="language-javascript">jui.ready([ "ui.combo", "grid.table" ], function(combo, table) {
-	var combo = combo(selector, options),
-		table = table(selector, options);
+&lt;template&gt;
+  &lt;Tooltip :text="tips" position="top"&gt;
+    &lt;button&gt;Hover me&lt;/button&gt;
+  &lt;/Tooltip&gt;
+&lt;/template&gt;</code></pre>
+        </p>
+        <p class="br">
+            여러 개를 쓸 때도 그냥 태그를 여러 번 쓰면 됩니다 - 예전 셀렉터 기반 API처럼 "일치하는 엘리먼트 배열을 받아오는" 별도
+            단계가 없습니다.
 
-	//...
-});</code></pre>
-		</p>
+            <pre><code class="language-markup">&lt;Tooltip text="Tooltip Message"&gt;&lt;span&gt;Tooltip 1&lt;/span&gt;&lt;/Tooltip&gt;
+&lt;Tooltip text="Tooltip Message"&gt;&lt;span&gt;Tooltip 2&lt;/span&gt;&lt;/Tooltip&gt;</code></pre>
+        </p>
+    </section>
 
-		<p>
-			<strong>ready</strong> 메소드의 콜백 외부에서도 컴포넌트 객체를 동적으로 생성할 수 있는 기능을 제공합니다.
-			한가지 주의해야 할 사항은 <strong>create</strong> 메소드는 <strong>ready</strong> 메소드의 콜백이 실행된 이후에 사용할 수 있습니다.
+    <section>
+        <h2>Rows and columns instead of a template engine</h2>
+        <p>
+            그리드는 더 이상 <strong>&lt;script type="text/template"&gt;</strong> 태그에서 행 마크업을 읽어오지 않습니다 -
+            <strong>columns</strong>와 <strong>rows</strong>는 평범한 prop이고, 이 값이 바뀌면 Vue의 반응형 시스템이 알아서
+            테이블을 다시 그립니다.
 
-	<pre><code class="language-javascript">var combo = jui.create("ui.combo", selector, options),
-	table = jui.create("grid.table", selector, options);
+            <pre><code class="language-markup">&lt;script setup lang="ts"&gt;
+import { reactive } from "vue"
+import { DataGrid } from "jui-grid-vue"
+import type { GridColumn, GridRow } from "jui-grid-vue"
 
-	//...</code></pre>
-		</p>
+const columns: GridColumn[] = [
+  { key: "name", label: "Name" },
+  { key: "age", label: "Age" },
+  { key: "location", label: "Location" }
+]
 
-	</section>
+const rows = reactive&lt;GridRow[]&gt;([
+  { id: 1, data: { name: "Hong", age: 29, location: "Ilsan" } },
+  { id: 2, data: { name: "Jung", age: 25, location: "Dangsan" } }
+])
+&lt;/script&gt;
 
-	<section>
-		<h2>UI Objects</h2>
-		<p>
-			컴포넌트 객체를 생성할 때, 셀렉터가 단일이 아닌 다수일 경우에는 결과 값은 객체가 아닌 배열로 가져옵니다.
+&lt;template&gt;
+  &lt;DataGrid :columns="columns" :rows="rows" sortable resizable /&gt;
+&lt;/template&gt;</code></pre>
+        </p>
+        <p class="br">
+            테이블을 갱신하는 것도 그냥 <strong>rows</strong>를 바꾸는 것뿐입니다 - push하든, splice하든, 통째로 재할당하든
+            그리드가 그대로 따라갑니다. 별도의 <strong>table.update(...)</strong> 호출도, 여러 테이블에서 재사용할 템플릿
+            문자열도 필요 없습니다: 셀을 커스텀하게 그리고 싶으면 <strong>#cell-&lt;key&gt;</strong> scoped slot을 쓰면 됩니다.
 
+            <pre><code class="language-markup">&lt;DataGrid :columns="columns" :rows="rows"&gt;
+  &lt;template #cell-name="{ row }"&gt;
+    &lt;strong&gt;&#123;&#123; row.data.name &#125;&#125;&lt;/strong&gt;
+  &lt;/template&gt;
+&lt;/DataGrid&gt;</code></pre>
+        </p>
+    </section>
 
-	<pre><code class="language-markup">&lt;span class="tooltip" title="Tooltip Message"&gt;Tooltip 1&lt;/span&gt;
-	&lt;span class="tooltip" title="Tooltip Message"&gt;Tooltip 2&lt;/span&gt;</code></pre>
+    <section>
+        <h2>Imperative API via template refs</h2>
+        <p>
+            대부분은 선언적인 prop/event로 처리하지만, 몇몇 동작(행 선택, 트리 노드 열기, CSV 내보내기)은 여전히 명령형으로
+            호출합니다 - 예전처럼 셀렉터가 반환하던 인스턴스 대신, 템플릿 ref를 통해서입니다.
 
-		<pre><code class="language-javascript">jui.ready([ "ui.tooltip" ], function(tooltip) {
-	var tips = tooltip(".tooltip");
+            <pre><code class="language-markup">&lt;script setup lang="ts"&gt;
+import { ref } from "vue"
+import { DataGrid } from "jui-grid-vue"
 
-	tips[0].show();
-	tips[1].show();
-});</code></pre>
-	</p>
-	</section>
+const grid = ref&lt;InstanceType&lt;typeof DataGrid&gt;&gt;()
 
-	<section>
-		<h2>Template Engine</h2>
-		<p>
-			JUI는 템플릿 기반의 UI 라이브러리입니다. 템플릿을 설정하는 방법은 아래와 같이 두 가지를 제공합니다.<br/>
-			먼저 템플릿 스크립트 태그에 대상 테이블의 셀렉터를 <strong>data-jui</strong> 속성에 입력하고, 추가로 템플릿 타입을 <strong>data-tpl</strong> 속성에 설정합니다.
+function selectFirstRow() {
+  grid.value?.select(rows[0].id)
+}
+&lt;/script&gt;
 
-	<pre><code class="language-markup">&lt;table id="table" class="table classic"&gt;
-	&lt;thead&gt;
-		&lt;tr&gt;
-			&lt;th&gt;Name&lt;/th&gt;
-			&lt;th&gt;Age&lt;/th&gt;
-			&lt;th&gt;Location&lt;/th&gt;
-		&lt;/tr&gt;
-	&lt;/thead&gt;
-	&lt;tbody&gt;&lt;/tbody&gt;
-&lt;/table&gt;</code></pre>
+&lt;template&gt;
+  &lt;DataGrid ref="grid" :columns="columns" :rows="rows" selectable /&gt;
+&lt;/template&gt;</code></pre>
+        </p>
+        <p class="br">
+            <strong>DataGrid</strong>/<strong>VirtualGrid</strong>는 이런 식으로
+            <strong>select</strong>/<strong>check</strong>/<strong>uncheckAll</strong>, 트리 메서드(<strong>open</strong>,
+            <strong>fold</strong>, <strong>openAll</strong>, <strong>foldAll</strong>), 컬럼 표시 여부
+            (<strong>showColumn</strong>, <strong>hideColumn</strong>), CSV(<strong>getCsv</strong>, <strong>exportCsv</strong>,
+            <strong>setCsv</strong>)를 제공합니다 - 전체 목록은 <strong>Components</strong> 메뉴의 각 컴포넌트 데모 페이지를
+            참고하세요.
+        </p>
+    </section>
 
-		<pre><code class="language-markup">&lt;script data-jui="#table" data-tpl="row" type="text/template"&gt;
-	&lt;tr&gt;
-		&lt;td&gt;&lt;!= name !&gt;&lt;/td&gt;
-		&lt;td&gt;&lt;!= age !&gt;&lt;/td&gt;
-		&lt;td&gt;&lt;!= location !&gt;&lt;/td&gt;
-&lt;/tr&gt;
-&lt;/script&gt;</code></pre>
-
-		<pre><code class="language-javascript">jui.ready([ "grid.table" ], function(table) {
-	var table = table("#table");
-
-	table.update([
-		{ name: "Hong", age: 29, location: "Ilsan" },
-		{ name: "Jung", age: 25, location: "Dangsan" }
-	]);
-});</code></pre>
-
-		<p class="br">
-		위와 같이 <strong>data-jui</strong>와 <strong>data-tpl</strong> 속성을 설정하지 않고, 해당 템플릿 스크립트 태그의 내용을 직접 가져와서 테이블 객체 생성시에 <strong>tpl</strong> 옵션으로 추가하는 방법도 제공합니다.
-		이와 같은 방법으로 템플릿을 설정하면 다수의 테이블 객체에서 같이 사용할 수 있기 때문에 중복 코드를 최소화 할 수 있습니다.
-
-		<pre><code class="language-markup">&lt;script id="tpl_table" type="text/template"&gt;
-	&lt;tr&gt;
-		&lt;td&gt;&lt;!= name !&gt;&lt;/td&gt;
-		&lt;td&gt;&lt;!= age !&gt;&lt;/td&gt;
-		&lt;td&gt;&lt;!= location !&gt;&lt;/td&gt;
-	&lt;/tr&gt;
-&lt;/script&gt;</code></pre>
-
-		<pre><code class="language-javascript">jui.ready([ "grid.table" ], function(table) {
-	var table = table("#table", {
-		tpl: {
-			row: $("#tpl_table").html();
-		}
-	});
-
-	table.update([
-		{ name: "Hong", age: 29, location: "Ilsan" },
-		{ name: "Jung", age: 25, location: "Dangsan" }
-	]);
-});</code></pre>
-		</p>
-
-		<p class="br">
-			참고로 JUI 프레임워크에서 총 10종의 UI 컴포넌트가 템플릿을 사용합니다.<br/>
-			<span class="label label-gray label-small" style="width: 100%; margin-top: 5px;">
-				<i>table, xtable, tree-table, dropdown, tab, tree, paging, autocomplete, datepicker, notify</i>
-			</span>
-		</p>
-	</p>
-</section>
-
-<section>
-	<h2>Module Definition</h2>
-	<p>
-		컴포넌트 모듈을 새로 정의하기 위해서는 해당 메소드의 매개변수를 <strong>생성할 모듈명</strong>과 <strong>로드할 모듈명 리스트</strong>를 설정하고, 마지막 콜백 함수를 통해 로드된 모듈 객체를 순서대로 받을 수 있습니다.
-		<pre><code class="language-javascript">jui.defineUI("ui.test", [ "util.base" ], function(_) {
-	var UI = function() {
-		this.init = function() {
-			// 초기 구현부
-		}
-
-		this.func1 = function(val) {
-			// 공개 메소드 1
-		}
-	}
-
-    UI.setup = function() {
-        return { // UI 옵션 기본값 설정
-			option1: 1000,
-			option2: true
-        }
-    }
-
-	return UI;
-});</code></pre>
-	</p>
-
-	<p class="br">
-		<strong>UI.setup</strong>은 해당 컴포넌트에서 사용할 옵션을 정의하는 메소드이며, <strong>init</strong>은 컴포넌트 객체가 생성되었을 경우에 최초로 실행되는 메소드입니다.
-		그렇기 때문에 신규 컴포넌트를 정의하기 위해서는 필수적으로 구현해야 합니다.
-	</p>
-</section>
+    <section>
+        <h2>TypeScript</h2>
+        <p>
+            두 라이브러리 모두 TypeScript로 작성되어 자체 타입을 제공합니다 - 위에서 쓴 <strong>jui-grid-vue</strong>의
+            <strong>GridColumn</strong>/<strong>GridRow</strong>는 문서용 표기가 아니라 실제로 export되는 타입입니다.
+            컴포넌트 prop에도 타입이 붙어 있어서, Vue/TS를 지원하는 에디터라면 prop 이름 오타나 잘못된 값 타입을 작성하는
+            즉시 잡아줍니다.
+        </p>
+    </section>
 </div>
 </template>
