@@ -118,6 +118,15 @@ const store = useStore({
         })
     )
 })
+// useStore() unconditionally calls its own internal setDefaultFile() at
+// creation time unless given a `serializedState` - it adds a "Hello
+// World!" welcome file keyed as `src/${mainFile}` regardless of the
+// `files`/`mainFile` we already passed in, showing up as a second,
+// deletable "App.vue" tab next to our real one (both display the same
+// label - FileSelector strips the "src/" prefix for display). Direct
+// deletion (not store.deleteFile(), which pops a confirm() dialog) right
+// after creation, before <Repl> ever mounts/renders it.
+delete store.files["src/App.vue"]
 
 // 원본의 $(".menu").scrollTop($target.offset().top - 100) 포팅 - 현재 데모로 스크롤.
 // 사이드바 링크는(PlayUiMenu.vue) 일반 <a href> 풀 리로드라 code가 마운트 이후 바뀔 일이

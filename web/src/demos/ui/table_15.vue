@@ -45,6 +45,10 @@ function onDownloadClick() {
 <button class="btn small" @click="onDownloadClick">
     <i class="icon-play"></i> Run
 </button>
+<p style="font-size: 12px; color: #999; margin: 6px 0 0;">
+    Note: this preview runs inside a sandboxed iframe that blocks file downloads, so clicking Run won't actually
+    save table.csv here (it works normally once this code runs outside the live editor).
+</p>
 
 <DataGrid
     ref="grid"
