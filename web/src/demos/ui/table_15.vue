@@ -31,14 +31,18 @@ const csvColumns = [
     { key: 'age', label: 'Age' }
 ];
 
-function downloadCsv() {
+// Named onDownloadClick (not downloadCsv) - a local function called
+// downloadCsv would shadow the imported one, so the call on the next line
+// would recurse into itself instead of jui-grid-vue's real implementation
+// (stack overflow on click).
+function onDownloadClick() {
     const csv = rowsToCsv(csvColumns, rows);
     downloadCsv('table.csv', csv);
 }
 </script>
 
 <template>
-<button class="btn small" @click="downloadCsv">
+<button class="btn small" @click="onDownloadClick">
     <i class="icon-play"></i> Run
 </button>
 
