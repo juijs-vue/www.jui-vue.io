@@ -1,52 +1,4 @@
 <template>
-﻿<style type='text/css'>
-
-    .dark ul.icon-list {
-        color:white;
-    }
-
-    ul.icon-list {
-        width:100%;
-        margin:0px;
-        padding:0px;
-        list-style:none;
-    }
-
-    ul.icon-list li {
-        float:left;
-        width:20%;
-        min-height:100px;
-        text-align:center;
-    }
-
-    ul.icon-list li > div {
-        border:1px solid gray;
-        padding:10px;
-        margin:2px;
-    }
-
-    .dark ul.icon-list li > div {
-        border:1px solid gray;
-    }
-
-    ul.icon-list li > div:hover {
-        background: #a57ff2;
-        color:white;
-    }
-
-    ul.icon-list li .icon {
-        font-size:2em;
-        margin-top:20px;
-    }
-
-    ul.icon-list li .icon-name {
-        display:block;
-        margin-top:2px;
-        margin-bottom: 20px;
-    }
-
-</style>
-
 <section>
     <h2>Default</h2>
     <p>
@@ -283,3 +235,55 @@
 	</table>
 </section>
 </template>
+
+<style>
+/* Vue's template compiler drops a literal <style> tag nested inside
+   <template> (a "tag with side effect" - see ignoreSideEffectTags in
+   @vue/compiler-dom) rather than rendering it - moved here as a real SFC
+   style block so it actually takes effect, matching the original html's
+   inline <style>. Unscoped: .dark is a theme class on an ancestor, not
+   this component's own root. */
+.dark ul.icon-list {
+    color: white;
+}
+
+ul.icon-list {
+    width: 100%;
+    margin: 0px;
+    padding: 0px;
+    list-style: none;
+}
+
+ul.icon-list li {
+    float: left;
+    width: 20%;
+    min-height: 100px;
+    text-align: center;
+}
+
+ul.icon-list li > div {
+    border: 1px solid gray;
+    padding: 10px;
+    margin: 2px;
+}
+
+.dark ul.icon-list li > div {
+    border: 1px solid gray;
+}
+
+ul.icon-list li > div:hover {
+    background: #a57ff2;
+    color: white;
+}
+
+ul.icon-list li .icon {
+    font-size: 2em;
+    margin-top: 20px;
+}
+
+ul.icon-list li .icon-name {
+    display: block;
+    margin-top: 2px;
+    margin-bottom: 20px;
+}
+</style>

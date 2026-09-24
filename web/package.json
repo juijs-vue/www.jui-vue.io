@@ -10,6 +10,7 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@vue/repl": "^4.7.2",
     "jui-grid-vue": "file:../../jui-grid-vue",
     "jui-ui-vue": "file:../../jui-ui-vue",
     "vue": "^3.4.0",

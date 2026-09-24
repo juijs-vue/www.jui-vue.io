@@ -1,5 +1,12 @@
 <script setup lang="ts">
 // @ts-nocheck
+// The original html also had this exact same CSS as a raw <style> tag
+// nested inside its markup, redundant with this script-injected copy -
+// dropped it since Vue's template compiler doesn't render a literal
+// <style> found inside <template> anyway (see ignoreSideEffectTags in
+// @vue/compiler-dom - a "tag with side effect", always stripped from the
+// render output, and @vue/repl's in-browser compiler treats that as a
+// fatal error rather than Vite's silent tolerance of it).
 const style = document.createElement('style');
 style.textContent = `
     .splitter-container {
@@ -21,14 +28,6 @@ document.head.appendChild(style);
 </script>
 
 <template>
-<style type="text/css">
-	.splitter-container {
-		width:500px;
-		height:500px;
-		position:relative;
-		border:1px solid #ececec;
-	}
-</style>
 <h3>Splitter for Horizontal</h3>
 <div class="splitter-container">
 	<Splitter direction="horizontal">

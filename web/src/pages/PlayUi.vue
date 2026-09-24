@@ -1,18 +1,31 @@
 <script setup lang="ts">
-// Full page chrome (header/sidebar/result panel), matching
-// templates/play/ui/index.html's layout - the code panel is still
-// read-only (shows the converted .vue SFC's own source) rather than a live
-// editor; @vue/repl-based live editing is the next increment.
-import { computed, defineAsyncComponent, nextTick, onMounted, ref, watch, type Component } from "vue"
+// Full page chrome (header/sidebar/live editor), matching
+// templates/play/ui/index.html's layout - the code+result panes are now a
+// real @vue/repl-based live editor (replaces the old read-only
+// Prism-highlighted source view): edits recompile and re-render immediately
+// in a sandboxed iframe, same live-preview experience the legacy
+// loader.php + CodeMirror setup gave, just via an in-browser SFC compiler
+// instead of a server round-trip.
+import { computed, onMounted, ref, watch } from "vue"
 import { useRoute } from "vue-router"
+import { mergeImportMap, Repl, useStore, useVueImportMap } from "@vue/repl"
+import CodeMirror from "@vue/repl/codemirror-editor"
+import "@vue/repl/style.css"
 import menu from "../../../play/ui/menu.json"
 import { useBodyClass } from "../composables/useBodyClass"
 import { useStylesheet } from "../composables/useStylesheet"
 import PlayUiMenu from "../components/PlayUiMenu.vue"
-import { Tab } from "jui-ui-vue"
 import playUiStyleHref from "../styles/play-ui.css?url"
 import playShellStyleHref from "../styles/play-shell.css?url"
 import playUiComponentStyleHref from "../styles/play-ui-component.css?url"
+// jui-ui-vue/jui-grid-vue aren't on any CDN (unlike Vue itself, which
+// useVueImportMap() below resolves from jsdelivr) - self-host their already-
+// built ES module + CSS output as ordinary Vite assets and point the
+// sandbox's import map at the resulting URLs.
+import juiUiVueEsUrl from "jui-ui-vue?url"
+import juiUiVueCssUrl from "jui-ui-vue/style.css?url"
+import juiGridVueEsUrl from "jui-grid-vue?url"
+import juiGridVueCssUrl from "jui-grid-vue/style.css?url"
 
 // loader.html's editor defaults to the "jennifer" theme (changeTheme("jennifer")
 // on load) - jui-ui-vue's .jui.jennifer-scoped rules (heading colors, the boxed
@@ -27,7 +40,8 @@ const shellCss = useStylesheet(playShellStyleHref)
 useStylesheet(playUiComponentStyleHref)
 useStylesheet(playUiStyleHref)
 
-const demos = import.meta.glob<{ default: Component }>("../demos/ui/*.vue")
+const base = import.meta.env.BASE_URL
+
 const demoSources = import.meta.glob<string>("../demos/ui/*.vue", { query: "?raw", import: "default" })
 
 // The nav's "Components" link (and production's own /play/ui/) has no ?p= at
@@ -38,19 +52,58 @@ const defaultCode = menu.list[0]?.code ?? ""
 const route = useRoute()
 const code = computed(() => (typeof route.query.p === "string" ? route.query.p : defaultCode))
 const demoPath = computed(() => `../demos/ui/${code.value}.vue`)
-const loader = computed(() => demos[demoPath.value])
-const component = computed(() => (loader.value ? defineAsyncComponent(loader.value) : null))
-
 const sourceLoader = computed(() => demoSources[demoPath.value])
-const source = ref<string>("")
-const codeEl = ref<HTMLElement | null>(null)
+
+// The sandbox preview is a fully separate iframe document - none of our
+// page's globally-loaded stylesheets reach it, so every stylesheet a demo
+// might need is injected here instead. The mount point (`<div id="app">`) is
+// a hardcoded string baked into @vue/repl's own template, so its class can't
+// be set directly - a MutationObserver re-applies the "jui jennifer" class
+// onto <body> instead, since @vue/repl replaces body's entire innerHTML (and
+// so the class) on every single recompile, not just the first one (a plain
+// DOMContentLoaded listener would only catch that first render).
+const previewHeadHtml = `
+<link rel="stylesheet" href="${base}lib/jui/css/ui.min.css">
+<link rel="stylesheet" href="${base}lib/jui/css/ui-jennifer.min.css">
+<link rel="stylesheet" href="${base}lib/jui/css/grid.min.css">
+<link rel="stylesheet" href="${base}lib/jui/css/grid-jennifer.min.css">
+<link rel="stylesheet" href="${juiUiVueCssUrl}">
+<link rel="stylesheet" href="${juiGridVueCssUrl}">
+<link rel="stylesheet" href="${playUiStyleHref}">
+<script>
+  new MutationObserver(() => document.body && document.body.classList.add("jui", "jennifer"))
+    .observe(document.documentElement, { childList: true, subtree: true })
+<\/script>
+`
+
+// Demos use <DataGrid>/<Tooltip>/etc without importing them, relying on
+// global registration - same as production's loader.html and our own
+// main.ts (`app.use(JuiUiVue); app.use(JuiGridVue)`). @vue/repl's generated
+// preview entry creates its own separate `app` with neither plugin
+// installed by default; customCode splices this in at the exact same two
+// points main.ts does it (see @vue/repl's compileModulesForPreview).
+const previewCustomCode = {
+    importCode: `import JuiUiVue from "jui-ui-vue"\nimport JuiGridVue from "jui-grid-vue"`,
+    useCode: `app.use(JuiUiVue)\napp.use(JuiGridVue)`
+}
+
+const { importMap: vueImportMap } = useVueImportMap()
+const store = useStore({
+    builtinImportMap: ref(
+        mergeImportMap(vueImportMap.value, {
+            imports: {
+                "jui-ui-vue": juiUiVueEsUrl,
+                "jui-grid-vue": juiGridVueEsUrl
+            }
+        })
+    )
+})
+
 watch(
     sourceLoader,
     async (load) => {
-        source.value = load ? await load() : ""
-        await nextTick()
-        // @ts-expect-error - Prism is a global from lib/prism.js (index.html)
-        if (codeEl.value && window.Prism) window.Prism.highlightElement(codeEl.value)
+        const src = load ? await load() : `<template>\n  <div>Unknown demo: ${code.value}</div>\n</template>\n`
+        await store.setFiles({ "App.vue": src }, "App.vue")
     },
     { immediate: true }
 )
@@ -77,10 +130,11 @@ onMounted(async () => {
     }
 })
 
-// 원본 component.js의 setFunctions() 포팅 - .chart_view를 전체 너비로 넓혔다 되돌렸다.
+// 원본 component.js의 setFunctions()의 .btn-fullscreen 포팅 - 원본은 결과창(iframe)만
+// 넓혔지만, 여기서는 Repl이 코드+결과를 한 위젯으로 합쳐 렌더링하므로 그 위젯 전체가
+// 사이드바를 덮으며 넓어지는 형태로 재해석했다.
 const fullscreen = ref(false)
 
-const base = import.meta.env.BASE_URL
 function goHome() {
     location.href = base
 }
@@ -108,42 +162,25 @@ function goHome() {
             </div>
         </div>
         <div class="container">
-            <div class="menu" ref="menuEl">
+            <div class="menu" ref="menuEl" :class="{ hidden: fullscreen }">
                 <PlayUiMenu :code="code" />
             </div>
-            <div class="content">
-                <div class="chart_data">
-                    <div class="chart_data_main">
-                        <!-- 원본은 Code/HTML 두 탭(jQuery.table() 등록 코드 vs 대상 마크업)인데,
-                             이 포팅의 데모는 둘이 분리된 파일이 아니라 하나의 .vue SFC라 별도
-                             HTML 탭을 만들 대상 자체가 없다 - Code 탭 하나만 제공. -->
-                        <Tab :items="[{ text: 'Code', value: 'code' }]" content-style="height: calc(100% - 33px); overflow: auto;">
-                            <template #panel-code>
-                                <pre class="source-view"><code ref="codeEl" class="language-markup">{{ source }}</code></pre>
-                            </template>
-                        </Tab>
-                    </div>
+            <div class="content" :class="{ fullscreen }">
+                <div class="repl-toolbar">
+                    <a class="btn btn-api" title="Chart API" href="http://api.jui.io/" target="_blank">API</a>
+                    <a class="btn btn-fullscreen" title="Full Screen" @click="fullscreen = !fullscreen"><i class="icon-new-window"></i></a>
                 </div>
-                <div class="splitter splitter-2"></div>
-                <div class="chart_view" :class="{ fullscreen }" :style="{ left: fullscreen ? '0%' : undefined }">
-                    <div class="chart-main">
-                        <div id="chart-content-title">
-                            <h2>
-                                Result
-                                <div class="group">
-                                    <a class="btn btn-api" title="Chart API" href="http://api.jui.io/" target="_blank">API</a>
-                                    <a class="btn btn-fullscreen" title="Full Screen" @click="fullscreen = !fullscreen"
-                                        ><i class="icon-new-window"></i
-                                    ></a>
-                                </div>
-                            </h2>
-                        </div>
-                        <div id="chart-content">
-                            <div v-if="!code">Pick a demo via ?p=&lt;code&gt;</div>
-                            <div v-else-if="!component">Unknown demo: {{ code }}</div>
-                            <component v-else :is="component" />
-                        </div>
-                    </div>
+                <div class="repl-wrap">
+                    <Repl
+                        :store="store"
+                        :editor="CodeMirror"
+                        :show-compile-output="false"
+                        :show-open-source-map="false"
+                        :show-import-map="false"
+                        :show-ts-config="false"
+                        :preview-options="{ headHTML: previewHeadHtml, customCode: previewCustomCode }"
+                        layout="horizontal"
+                    />
                 </div>
             </div>
         </div>
@@ -151,19 +188,31 @@ function goHome() {
 </template>
 
 <style scoped>
-.source-view {
-    margin: 0;
-    padding: 12px;
-    font-size: 12px;
-    white-space: pre-wrap;
-    word-break: break-word;
-}
-
 .toolbar span {
     margin-right: 20px;
 }
 
-.chart_view {
-    transition: left 0.4s;
+.menu.hidden {
+    display: none;
+}
+
+.content.fullscreen {
+    left: 0;
+}
+
+.repl-toolbar {
+    position: absolute;
+    z-index: 4;
+    top: 8px;
+    right: 8px;
+}
+
+.repl-wrap {
+    position: absolute;
+    inset: 0;
+}
+
+.repl-wrap :deep(.vue-repl) {
+    height: 100%;
 }
 </style>
