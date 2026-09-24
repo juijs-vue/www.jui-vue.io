@@ -6,9 +6,9 @@
 // in a sandboxed iframe, same live-preview experience the legacy
 // loader.php + CodeMirror setup gave, just via an in-browser SFC compiler
 // instead of a server round-trip.
-import { computed, onMounted, ref, watch } from "vue"
+import { computed, onMounted, ref } from "vue"
 import { useRoute } from "vue-router"
-import { mergeImportMap, Repl, useStore, useVueImportMap } from "@vue/repl"
+import { File, mergeImportMap, Repl, useStore, useVueImportMap } from "@vue/repl"
 import CodeMirror from "@vue/repl/codemirror-editor"
 import "@vue/repl/style.css"
 import menu from "../../../play/ui/menu.json"
@@ -42,7 +42,16 @@ useStylesheet(playUiStyleHref)
 
 const base = import.meta.env.BASE_URL
 
-const demoSources = import.meta.glob<string>("../demos/ui/*.vue", { query: "?raw", import: "default" })
+// Eager (not the usual per-demo-dynamic-chunk `?raw` glob) so the exact
+// right source is available synchronously, before useStore()/<Repl> ever
+// run - navigating between demos is a full page reload (see PlayUiMenu.vue),
+// so there's no case where this needs to change reactively after mount, and
+// loading it lazily left a brief gap between @vue/repl's own default
+// "Hello World!" welcome SFC (store.init()'s fallback, shown the instant the
+// sandbox iframe mounts) and this demo's real source arriving asynchronously
+// a tick later - visible as the preview flashing unrelated content before
+// settling on the right one.
+const demoSources = import.meta.glob<string>("../demos/ui/*.vue", { query: "?raw", import: "default", eager: true })
 
 // The nav's "Components" link (and production's own /play/ui/) has no ?p= at
 // all - defaults to the menu's first entry, matching app.py's
@@ -52,7 +61,7 @@ const defaultCode = menu.list[0]?.code ?? ""
 const route = useRoute()
 const code = computed(() => (typeof route.query.p === "string" ? route.query.p : defaultCode))
 const demoPath = computed(() => `../demos/ui/${code.value}.vue`)
-const sourceLoader = computed(() => demoSources[demoPath.value])
+const initialSource = demoSources[demoPath.value] ?? `<template>\n  <div>Unknown demo: ${code.value}</div>\n</template>\n`
 
 // The sandbox preview is a fully separate iframe document - none of our
 // page's globally-loaded stylesheets reach it, so every stylesheet a demo
@@ -89,6 +98,8 @@ const previewCustomCode = {
 
 const { importMap: vueImportMap } = useVueImportMap()
 const store = useStore({
+    files: ref({ "App.vue": new File("App.vue", initialSource) }),
+    mainFile: ref("App.vue"),
     builtinImportMap: ref(
         mergeImportMap(vueImportMap.value, {
             imports: {
@@ -98,15 +109,6 @@ const store = useStore({
         })
     )
 })
-
-watch(
-    sourceLoader,
-    async (load) => {
-        const src = load ? await load() : `<template>\n  <div>Unknown demo: ${code.value}</div>\n</template>\n`
-        await store.setFiles({ "App.vue": src }, "App.vue")
-    },
-    { immediate: true }
-)
 
 // 원본의 $(".menu").scrollTop($target.offset().top - 100) 포팅 - 현재 데모로 스크롤.
 // 사이드바 링크는(PlayUiMenu.vue) 일반 <a href> 풀 리로드라 code가 마운트 이후 바뀔 일이
