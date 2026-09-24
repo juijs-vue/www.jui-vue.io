@@ -6,7 +6,7 @@
 // in a sandboxed iframe, same live-preview experience the legacy
 // loader.php + CodeMirror setup gave, just via an in-browser SFC compiler
 // instead of a server round-trip.
-import { computed, onMounted, ref } from "vue"
+import { computed, onMounted, ref, watch } from "vue"
 import { useRoute } from "vue-router"
 import { File, mergeImportMap, Repl, useStore, useVueImportMap } from "@vue/repl"
 import CodeMirror from "@vue/repl/codemirror-editor"
@@ -51,14 +51,12 @@ useStylesheet(playUiStyleHref)
 const base = import.meta.env.BASE_URL
 
 // Eager (not the usual per-demo-dynamic-chunk `?raw` glob) so the exact
-// right source is available synchronously, before useStore()/<Repl> ever
-// run - navigating between demos is a full page reload (see PlayUiMenu.vue),
-// so there's no case where this needs to change reactively after mount, and
+// right source is available synchronously, before useStore() ever runs -
 // loading it lazily left a brief gap between @vue/repl's own default
-// "Hello World!" welcome SFC (store.init()'s fallback, shown the instant the
-// sandbox iframe mounts) and this demo's real source arriving asynchronously
-// a tick later - visible as the preview flashing unrelated content before
-// settling on the right one.
+// "Hello World!" welcome SFC (store.init()'s fallback, shown the instant
+// the sandbox iframe mounts) and this demo's real source arriving
+// asynchronously a tick later - visible as the preview flashing unrelated
+// content before settling on the right one.
 const demoSources = import.meta.glob<string>("../demos/ui/*.vue", { query: "?raw", import: "default", eager: true })
 
 // The nav's "Components" link (and production's own /play/ui/) has no ?p= at
@@ -128,14 +126,23 @@ const store = useStore({
 // after creation, before <Repl> ever mounts/renders it.
 delete store.files["src/App.vue"]
 
+// PlayUiMenu.vue's links are RouterLinks now (in-place query change, same
+// route/component - no full reload), so `code` genuinely changes after
+// mount. Swap the editor's file to match - `initialSource` already covers
+// the very first render, so this only needs to fire on subsequent changes.
+watch(code, () => {
+    const src = demoSources[demoPath.value] ?? `<template>\n  <div>Unknown demo: ${code.value}</div>\n</template>\n`
+    store.setFiles({ "App.vue": src }, "App.vue")
+})
+
 // 원본의 $(".menu").scrollTop($target.offset().top - 100) 포팅 - 현재 데모로 스크롤.
-// 사이드바 링크는(PlayUiMenu.vue) 일반 <a href> 풀 리로드라 code가 마운트 이후 바뀔 일이
-// 없다 - onMounted 한 번이면 충분.
 // play-shell.css (loaded via useStylesheet, above) is what gives .menu its
 // scrollable height in the first place - until its link's "load" event
-// fires, .menu isn't overflowing yet and scrollTop assignment is a no-op.
+// fires, .menu isn't overflowing yet and scrollTop assignment is a no-op
+// (only actually matters for the very first run - `flush: 'post'` on later
+// runs already lands after everything's settled).
 const menuEl = ref<HTMLElement | null>(null)
-onMounted(async () => {
+async function scrollToActive() {
     await shellCss.loaded
     const menu = menuEl.value
     const active = menu?.querySelector("li.active") as HTMLElement | null
@@ -148,7 +155,9 @@ onMounted(async () => {
         const contentTop = active.getBoundingClientRect().top - menu.getBoundingClientRect().top + menu.scrollTop
         menu.scrollTop = contentTop - 100
     }
-})
+}
+onMounted(scrollToActive)
+watch(code, () => scrollToActive(), { flush: "post" })
 
 // 원본 component.js의 setFunctions()의 .btn-fullscreen 포팅 - 원본은 결과창(iframe)만
 // 넓혔지만, 여기서는 Repl이 코드+결과를 한 위젯으로 합쳐 렌더링하므로 그 위젯 전체가

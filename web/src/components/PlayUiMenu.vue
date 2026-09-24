@@ -3,8 +3,6 @@ import { usePlayUiMenu } from "../composables/usePlayUiMenu"
 
 const props = defineProps<{ code: string }>()
 const { groups, activeGroupType } = usePlayUiMenu(() => props.code)
-
-const base = import.meta.env.BASE_URL
 </script>
 
 <template>
@@ -13,7 +11,13 @@ const base = import.meta.env.BASE_URL
             <a :data-type="g.type" :class="{ active: g.type === activeGroupType }">{{ g.title }}</a>
             <ul class="submenu">
                 <li v-for="item in g.list" :key="item.code" :class="{ active: item.code === code }">
-                    <a :href="`${base}play/ui/?p=${item.code}`">{{ item.title }}</a>
+                    <!-- RouterLink (in-place query change, same route/component -
+                         PlayUi.vue's own reactive watcher swaps the live editor's
+                         file, no full reload) instead of the shell's full-reload
+                         <a href> pattern - unlike the shell's language/page
+                         switches, this doesn't touch anything (like res/chart.js)
+                         that depends on a real reload to rebind cleanly. -->
+                    <RouterLink :to="{ path: '/play/ui/', query: { p: item.code } }">{{ item.title }}</RouterLink>
                 </li>
             </ul>
         </template>
