@@ -6,6 +6,29 @@ var chart_1, chart_2, chart_3, tab_1;
 var realtimeIndex = 0;
 var realtimeInterval = null;
 
+// jui-chart-vue 기반 신규 엔진 연동: 레거시 "chart.builder" 모듈을 jui-graph-ts의 실제 Builder로
+// 재정의한다. 데모 코드(json/*.js)는 전부 `jui.include("chart.builder")`로 팩토리를 얻어
+// `builder("#result", options)` 형태로 호출하므로, 데모 파일 자체는 한 글자도 바꿀 필요가 없다.
+// 생성된 인스턴스는 Builder.axis()/.render()/.updateBrush()/.updateWidget()/.theme()/.setTheme()를
+// 레거시와 동일한 시그니처로 제공하므로, 이 파일의 나머지 함수들도 대부분 그대로 유지된다.
+var chartInstances = [];
+
+function createChartBuilder(selector, options) {
+    var el = (typeof selector === "string") ? document.querySelector(selector) : selector;
+    if (el) el.innerHTML = "";
+
+    var b = new JuiChartVue.Builder();
+    Object.assign(b, { gridTypes: JuiChartVue.GRID_TYPES });
+    b.mount(el, options);
+
+    chartInstances.push(b);
+    return b;
+}
+
+jui.redefine("chart.builder", [], function() {
+    return createChartBuilder;
+});
+
 function getTodayData() {
     var start = new Date(2014, 10, 7),
         end = time.add(start, time.hours, 23);
@@ -55,11 +78,13 @@ function runRealtimeData(realtime) {
 
 function changeTheme(value) {
 	var name = !value ? $("select").find("option:selected").val() : value,
-		chart = jui.get("chart.builder").pop();
+		chart = chartInstances[chartInstances.length - 1];
+
+    if(chart == null) return;
 
     if(name != null) {
         if (typeof(chart.options.theme) != "object") {
-            chart[chart.length - 1].setTheme(name);
+            chart.setTheme(name);
         }
 
         if (table_2 != null) {
@@ -117,13 +142,13 @@ function createTable() {
         },
         event: {
             editend: function(d, e) {
+                window.currentChart.axis(0).update(this.listData());
                 localStorage.setItem("jui.chartplay.data." + getChartKey(), getCsvToObject(this.getCsv()));
             }
         }
     });
 
     table_1.resize();
-    window.currentChart.bindUI(0, table_1);
 }
 
 function createTableStyle() {
@@ -238,13 +263,7 @@ function createTab() {
 }
 
 function resetChart() {
-    var charts = jui.getAll();
-
-    for(var i = 0; i < charts.length; i++) {
-        if(charts[i].type == "chart.builder") {
-            jui.remove(i);
-        }
-    }
+    chartInstances.length = 0;
 }
 
 function viewCodeEditor(code) {
@@ -274,8 +293,7 @@ function viewCodeEditor(code) {
                 resetChart();
                 $.globalEval(cm.getValue());
 
-                var chart = jui.get("chart.builder").pop();
-                window.currentChart = chart[chart.length -1];
+                window.currentChart = chartInstances[chartInstances.length - 1];
 
                 // 현재 데이터 적용
                 if(data != null) {
