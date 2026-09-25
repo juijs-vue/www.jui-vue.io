@@ -6,28 +6,40 @@ var chart_1, chart_2, chart_3, tab_1;
 var realtimeIndex = 0;
 var realtimeInterval = null;
 
-// jui-chart-vue 기반 신규 엔진 연동: 레거시 "chart.builder" 모듈을 jui-graph-ts의 실제 Builder로
-// 재정의한다. 데모 코드(json/*.js)는 전부 `jui.include("chart.builder")`로 팩토리를 얻어
-// `builder("#result", options)` 형태로 호출하므로, 데모 파일 자체는 한 글자도 바꿀 필요가 없다.
-// 생성된 인스턴스는 Builder.axis()/.render()/.updateBrush()/.updateWidget()/.theme()/.setTheme()를
-// 레거시와 동일한 시그니처로 제공하므로, 이 파일의 나머지 함수들도 대부분 그대로 유지된다.
-var chartInstances = [];
+// jui-chart-vue 기반 신규 엔진 연동: 데모 코드(json/*.js)는 이제 레거시 `chart.builder(selector,
+// options)` 함수 호출이 아니라, 실제 Vue 앱을 만들고 <Chart> 컴포넌트를 템플릿에 쓰는 형태다
+// (`Vue.createApp({ data(){...}, template:'<Chart ref="chartRef" :axis="axis" ... />' }).mount("#result")`).
+// `Vue.createApp`을 감싸서 (1) "Chart" 컴포넌트를 앱마다 자동 등록해주고(데모 코드에서
+// app.component(...)를 반복할 필요 없게), (2) 마지막으로 mount된 앱/루트 인스턴스를 추적해서
+// Data/Style 탭과 테마 드롭다운이 접근할 수 있게 한다. 템플릿에 ref="chartRef"를 쓴 데모는
+// getCurrentBuilder()로 실제 jui-graph-ts Builder 인스턴스(axis()/render()/theme()/setTheme() 등
+// 레거시와 동일한 시그니처)에 접근할 수 있다.
+var currentApp = null;
+var currentVM = null;
 
-function createChartBuilder(selector, options) {
-    var el = (typeof selector === "string") ? document.querySelector(selector) : selector;
-    if (el) el.innerHTML = "";
+(function() {
+    var origCreateApp = Vue.createApp;
 
-    var b = new JuiChartVue.Builder();
-    Object.assign(b, { gridTypes: JuiChartVue.GRID_TYPES });
-    b.mount(el, options);
+    Vue.createApp = function(options) {
+        var app = origCreateApp(options);
+        app.component("Chart", JuiChartVue.Chart);
 
-    chartInstances.push(b);
-    return b;
+        var origMount = app.mount.bind(app);
+        app.mount = function(selector) {
+            var vm = origMount(selector);
+            currentApp = app;
+            currentVM = vm;
+            return vm;
+        };
+
+        return app;
+    };
+})();
+
+function getCurrentBuilder() {
+    var ref = currentVM && currentVM.$refs && currentVM.$refs.chartRef;
+    return ref ? ref.getBuilder() : null;
 }
-
-jui.redefine("chart.builder", [], function() {
-    return createChartBuilder;
-});
 
 function getTodayData() {
     var start = new Date(2014, 10, 7),
@@ -78,7 +90,7 @@ function runRealtimeData(realtime) {
 
 function changeTheme(value) {
 	var name = !value ? $("select").find("option:selected").val() : value,
-		chart = chartInstances[chartInstances.length - 1];
+		chart = getCurrentBuilder();
 
     if(chart == null) return;
 
@@ -263,7 +275,12 @@ function createTab() {
 }
 
 function resetChart() {
-    chartInstances.length = 0;
+    if (currentApp) {
+        currentApp.unmount();
+    }
+
+    currentApp = null;
+    currentVM = null;
 }
 
 function viewCodeEditor(code) {
@@ -288,12 +305,12 @@ function viewCodeEditor(code) {
                 theme = localStorage.getItem("jui.chartplay.theme." + getChartKey());
 
             try {
+                resetChart();
                 $("#result").empty();
 
-                resetChart();
                 $.globalEval(cm.getValue());
 
-                window.currentChart = chartInstances[chartInstances.length - 1];
+                window.currentChart = getCurrentBuilder();
 
                 // 현재 데이터 적용
                 if(data != null) {
