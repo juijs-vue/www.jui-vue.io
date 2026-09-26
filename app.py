@@ -186,12 +186,11 @@ CHART_DIR = "play/chart"
 def play_chart_index():
     page_code = request.args.get("p")
     group, data, data_index = load_menu(f"{CHART_DIR}/menu.json", page_code)
-    csv = data.get("csv", True) if data else True
     code_content = read_text(f"{CHART_DIR}/json/{data['code']}.js", default="") if data else ""
 
     return render_template(
         "play/chart/index.html",
-        group=group, data=data, data_index=data_index, csv=csv, code_content=code_content,
+        group=group, data=data, data_index=data_index, code_content=code_content,
     )
 
 

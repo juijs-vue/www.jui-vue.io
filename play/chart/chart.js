@@ -1,7 +1,7 @@
 var editor;
 var comments;
 var notify;
-var table_1, table_2, colors_win, colors_table, color_pick;
+var table_2, colors_win, colors_table, color_pick;
 var chart_1, chart_2, chart_3, tab_1;
 var realtimeIndex = 0;
 var realtimeInterval = null;
@@ -113,56 +113,6 @@ function changeTheme(value) {
     }
 }
 
-function createTableFields(fields) {
-    var $head = $('#table_1 thead tr');
-    // create thead
-    $head.empty();
-
-    for(var i = 0; i < fields.length; i++) {
-        $head.append("<th>" + fields[i] + "</th>");
-    }
-
-    var list = [];
-
-    for(var i = 0; i < fields.length; i++) {
-        list.push("<td><!= " + fields[i] + " !></td>");
-    }
-
-    return ["<tr>", list.join("") ,"</tr>"].join("");
-}
-
-function createTable() {
-    if(jui.include("util.base").browser.msie) return;
-
-    var chart = window.currentChart,
-        data = chart.get("axis", 0).data,
-        obj = data[0],
-        fields = [];
-
-    for(var key in obj) {
-        if (typeof obj[key] == 'function') continue;
-        fields.push(key);
-    }
-
-    table_1 = jui.create("grid.table", "#table_1", {
-        fields: fields,
-        data: data,
-        editRow: true,
-        resize: true,
-        tpl: {
-            row: createTableFields(fields)
-        },
-        event: {
-            editend: function(d, e) {
-                window.currentChart.axis(0).update(this.listData());
-                localStorage.setItem("jui.chartplay.data." + getChartKey(), getCsvToObject(this.getCsv()));
-            }
-        }
-    });
-
-    table_1.resize();
-}
-
 function createTableStyle() {
     if(jui.include("util.base").browser.msie) return;
 
@@ -252,19 +202,11 @@ function createTab() {
             change: function(data) {
                 if(data.index == 0) {
                     $("#save_btn").show();
-                    $(".tools").find(".csv").hide();
                     $(".tools").find(".theme").hide();
                 } else if(data.index == 1) {
-                    createTable();
-
-                    $("#save_btn").hide();
-                    $(".tools").find(".csv").css("display", "inline-block");
-                    $(".tools").find(".theme").hide();
-                } else if(data.index == 2) {
                     createTableStyle();
 
                     $("#save_btn").hide();
-                    $(".tools").find(".csv").hide();
                     $(".tools").find(".theme").css("display", "inline-block");
                 }
             }
@@ -300,10 +242,6 @@ function viewCodeEditor(code) {
         });
 
         editor.on("change", function(cm) {
-            // 데이터 및 테마 가져오기
-            var data = localStorage.getItem("jui.chartplay.data." + getChartKey()),
-                theme = localStorage.getItem("jui.chartplay.theme." + getChartKey());
-
             try {
                 resetChart();
                 $("#result").empty();
@@ -311,12 +249,6 @@ function viewCodeEditor(code) {
                 $.globalEval(cm.getValue());
 
                 window.currentChart = getCurrentBuilder();
-
-                // 현재 데이터 적용
-                if(data != null) {
-                    window.currentChart.axis(0).update(eval(data));
-                }
-                createTable();
 
 				// 현재 테마 적용
 				changeTheme();
@@ -382,34 +314,6 @@ function setFunctions() {
         var chart = window.currentChart;
         chart.svg.download("jui_image");
     });
-}
-
-function getCsvToObject(csv) {
-    var _ = jui.include("util.base"),
-        data = [],
-        rows = csv.split("\n"),
-        fields = rows[0].split(",");
-
-    for(var i = 1; i < rows.length - 1; i++) {
-        var cells = rows[i].split(",");
-
-        for(var j = 0; j < cells.length; j++) {
-            var v = $.trim(cells[j]);
-
-            if (/^[0-9]*$/.test(v) ||
-                (_.startsWith(v, '"') && _.endsWith(v, '"')) ||
-                (_.startsWith(v, "'") && _.endsWith(v, "'"))
-            ) {
-                cells[j] = fields[j] + ":" + v;
-            } else {
-                cells[j] = fields[j] + ":'" + v + "'";
-            }
-        }
-
-        data.push("{" + cells.join(",") + "}");
-    }
-
-    return "[" + data.join(",") + "]";
 }
 
 function exportTextFile(name, text) {
@@ -529,7 +433,6 @@ jui.ready([ "util.base", "ui.window", "ui.notify", "grid.table", "ui.colorpicker
     // IE일 경우, 탭 제거
     if(_.browser.msie) {
         $("#tab_1").hide();
-        $("#table_1").hide();
         $("#table_2").hide();
     }
 
@@ -540,34 +443,6 @@ jui.ready([ "util.base", "ui.window", "ui.notify", "grid.table", "ui.colorpicker
         } else {
             $("body").addClass("menu-open");
         }
-    });
-
-    // CSV 내보내기
-    $("#export_csv_btn").on("click", function (e) {
-        var csv = table_1.getCsv(),
-			code = getChartKey();
-
-        exportTextFile(code.split(".").join("_") + ".csv", csv);
-
-        // 로컬 스토리지에 저장
-        localStorage.setItem("jui.chartplay.data." + code, getCsvToObject(csv));
-    });
-
-    // CSV 가져오기
-    $("#import_csv_input").on("change", function (e) {
-        var reader = new FileReader();
-
-        reader.onload = function(readerEvt) {
-            var result = getCsvToObject(readerEvt.target.result);
-
-            localStorage.setItem("jui.chartplay.data." + getChartKey(), result);
-            window.currentChart.axis(0).update(eval(result));
-
-            createTable();
-            $("#import_csv_input").val("");
-        };
-
-        reader.readAsText(e.target.files[0]);
     });
 
     // Theme 내보내기
@@ -618,7 +493,6 @@ jui.ready([ "util.base", "ui.window", "ui.notify", "grid.table", "ui.colorpicker
             var code = getChartKey();
 
             localStorage.removeItem("jui.chartplay.code." + code);
-            localStorage.removeItem("jui.chartplay.data." + code);
             location.reload();
         }
     });
