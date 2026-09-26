@@ -159,22 +159,67 @@ textarea {
     width: 100%;
 }
 
-#tab_1 a {
+#chart-tab-app > .tab.top > li > a {
     padding: 10px 25px;
 }
 
-#tab_contents_1 {
+#chart-tab-app .jui-tab-content {
     background: #ddd;
+    padding: 5px;
 }
 
-#tab_contents_1 .panel {
+#chart-tab-app .jui-tab-content .panel {
     height: 400px;
     background: white;
     padding: 5px;
 }
 
-#tab_contents_1 table {
+#chart-tab-app .jui-tab-content table {
     margin-bottom: 20px;
+}
+
+#chart-tab-app textarea#chart-code-text {
+    padding: 0;
+}
+
+.theme-grid {
+    background: white;
+}
+
+.theme-colors-preview {
+    display: inline-flex;
+    align-items: center;
+}
+
+.theme-color-swatch {
+    display: inline-block;
+    min-width: 60px;
+    padding: 2px 6px;
+    border: 1px solid #ccc;
+}
+
+.theme-colors-preview .theme-color-swatch {
+    min-width: 18px;
+    height: 18px;
+    padding: 0;
+    margin-right: 2px;
+}
+
+.theme-color-swatch-wide {
+    display: block;
+}
+
+.theme-image-preview {
+    max-height: 20px;
+}
+
+.theme-edit-colors,
+.theme-edit-color {
+    padding: 4px 0;
+}
+
+.theme-edit-color-actions {
+    margin-top: 4px;
 }
 
 .chart_view {
@@ -255,7 +300,6 @@ textarea {
     margin-left: 0px !important;
 }
 
-#color_pick {
-    position: absolute;
-    z-index: 10000;
+#chart-shell-modals .theme-grid {
+    margin: 8px 0;
 }

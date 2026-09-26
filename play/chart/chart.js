@@ -1,8 +1,7 @@
 var editor;
-var comments;
-var notify;
-var table_2, colors_win, colors_table, color_pick;
-var chart_1, chart_2, chart_3, tab_1;
+var comments = { show: function () {} }; // "Leave a comment" 링크의 대상 DOM(#comments)이 애초에
+                                          // 이 템플릿에 없어서 죽은 기능이었다 - 클릭해도 에러 없이
+                                          // 아무 일도 일어나지 않던 기존 동작을 그대로 유지한다.
 var realtimeIndex = 0;
 var realtimeInterval = null;
 
@@ -16,6 +15,12 @@ var realtimeInterval = null;
 // setTheme() 등 레거시와 동일한 시그니처)에 접근할 수 있다.
 var currentApp = null;
 var currentVM = null;
+
+// 플레이그라운드 셸(Tab/Style 그리드/컬러 목록 창/Notify) 자체도 이제 Vue 앱이지만, 바로 아래의
+// 데모 엔진 연동용 Vue.createApp 래핑과는 완전히 분리해야 한다 - 패치된 Vue.createApp으로 셸 앱을
+// 만들면 currentApp/currentVM이 데모가 아니라 셸을 가리키게 되어 getCurrentBuilder()/resetChart()가
+// 깨진다. 패치되기 전의 원본을 셸 전용으로 따로 보관해 둔다.
+var nativeCreateApp = Vue.createApp;
 
 (function() {
     var origCreateApp = Vue.createApp;
@@ -39,6 +44,219 @@ var currentVM = null;
 function getCurrentBuilder() {
     var ref = currentVM && currentVM.$refs && currentVM.$refs.chartRef;
     return ref ? ref.getBuilder() : null;
+}
+
+// ---------------------------------------------------------------------------------------------
+// 플레이그라운드 셸 UI(Tab / Style 테마 그리드 / 컬러 목록 창 / 인라인 컬러피커 / 토스트 알림)는
+// jui-ui-vue(Tab/Window/Notify/Colorpicker) + jui-grid-vue(DataGrid)로 구현한다. Tab 영역과
+// Window/Notify 영역은 DOM상 서로 떨어져 있어(Tab은 .chart_data_main 안, Window/Notify는 body
+// 끝) 별도의 두 Vue 앱으로 마운트하되, 아래 모듈 스코프의 reactive 상태를 공유해서 하나처럼
+// 동작하게 한다.
+// ---------------------------------------------------------------------------------------------
+
+var tabIndex = Vue.ref(0);
+var tabItems = [
+    { text: "Code", value: "code" },
+    { text: "Style", value: "style" }
+];
+
+var themeColumns = [
+    { key: "key", label: "Key", resizable: true },
+    { key: "value", label: "Value", editable: true, resizable: true }
+];
+var themeRows = Vue.reactive([]);
+
+var colorsWinVisible = Vue.ref(false);
+var colorsColumns = [ { key: "color", label: "Color", editable: true } ];
+var colorsRows = Vue.reactive([]);
+var colorsWinDraft = null;
+var colorsWinCommit = null;
+var colorsWinCancel = null;
+
+var notifyRef = Vue.ref(null);
+
+var chartTabApp = null;
+var chartModalApp = null;
+
+// Window의 제목줄 닫기(X) 아이콘처럼, Save/Cancel 버튼을 거치지 않고 v-model이 그냥 false로
+// 바뀌는 경로(모달 바깥 클릭 등)로 닫혔을 때는 편집을 취소한 것으로 간주한다. Save 경로는
+// saveColorsWindow()가 참조를 먼저 비우고 나서 hide()를 호출하므로 여기서 다시 취소되지 않는다.
+Vue.watch(colorsWinVisible, function(visible) {
+    if (!visible && colorsWinCommit) {
+        cancelColorsWindow();
+    }
+});
+
+function isColorKey(key) {
+    return typeof key === "string" && key.indexOf("Color") !== -1;
+}
+
+function isImageKey(key) {
+    return typeof key === "string" && key.indexOf("Image") !== -1;
+}
+
+function themeRowsToObject() {
+    var theme = {};
+
+    for (var i = 0; i < themeRows.length; i++) {
+        var d = themeRows[i].data;
+        theme[d.key] = d.key === "colors" ? String(d.value).split("|") : d.value;
+    }
+
+    return theme;
+}
+
+function applyThemeRows() {
+    var chart = window.currentChart;
+    if (!chart) return;
+
+    chart.setTheme(themeRowsToObject());
+
+    // 로컬 스토리지에 저장
+    localStorage.setItem("jui.chartplay.theme." + getChartKey(), getDataToObject());
+}
+
+function onThemeRowEdit() {
+    applyThemeRows();
+}
+
+function onTabChange(data) {
+    if (data.index === 0) {
+        $("#save_btn").show();
+        $(".tools").find(".csv").css("display", "inline-block");
+        $(".tools").find(".theme").hide();
+    } else if (data.index === 1) {
+        createTableStyle();
+
+        $("#save_btn").hide();
+        $(".tools").find(".csv").hide();
+        $(".tools").find(".theme").css("display", "inline-block");
+    }
+}
+
+function createTableStyle() {
+    if (jui.include("util.base").browser.msie) return;
+
+    // 아직 jui-chart-vue로 이관되지 않은 데모(레거시 chart.builder를 그대로 쓰는 json/*.js)에서는
+    // Vue.createApp(...).mount("#result")가 호출되지 않아 currentVM/getCurrentBuilder()가 null을
+    // 반환하고, window.currentChart도 갱신되지 않는다 - 이런 데모에서 Style 탭을 열어도 그냥
+    // 빈 그리드로 두고 조용히 무시한다(레거시 코드도 이 경우 changeTheme()의 null 체크로 동일하게
+    // 아무 것도 하지 않았다 - 데모 엔진 연동은 이번 작업 범위 밖이라 여기서 고치지 않는다).
+    var chart = window.currentChart;
+
+    if (chart == null) {
+        themeRows.splice(0, themeRows.length);
+        return;
+    }
+
+    var themes = chart.theme(),
+        rows = [];
+
+    for (var key in themes) {
+        rows.push({
+            id: key,
+            data: {
+                key: key,
+                value: key === "colors" ? themes[key].join("|") : themes[key]
+            }
+        });
+    }
+
+    themeRows.splice(0, themeRows.length);
+    for (var i = 0; i < rows.length; i++) {
+        themeRows.push(rows[i]);
+    }
+}
+
+function openColorsWindow(draft, commit, cancel) {
+    colorsWinDraft = draft;
+    colorsWinCommit = commit;
+    colorsWinCancel = cancel;
+
+    var list = String(draft.value).split("|"),
+        rows = [];
+
+    for (var i = 0; i < list.length; i++) {
+        rows.push({ id: i, data: { color: list[i] } });
+    }
+
+    colorsRows.splice(0, colorsRows.length);
+    for (var j = 0; j < rows.length; j++) {
+        colorsRows.push(rows[j]);
+    }
+
+    colorsWinVisible.value = true;
+}
+
+function saveColorsWindow() {
+    if (!colorsWinDraft || !colorsWinCommit) return;
+
+    var newData = [];
+    for (var i = 0; i < colorsRows.length; i++) {
+        newData.push(colorsRows[i].data.color);
+    }
+
+    colorsWinDraft.value = newData.join("|");
+    colorsWinCommit();
+
+    colorsWinDraft = null;
+    colorsWinCommit = null;
+    colorsWinCancel = null;
+}
+
+function cancelColorsWindow() {
+    if (colorsWinCancel) {
+        colorsWinCancel();
+    }
+
+    colorsWinDraft = null;
+    colorsWinCommit = null;
+    colorsWinCancel = null;
+}
+
+function mountShellApps() {
+    var tabApp = nativeCreateApp({
+        setup: function() {
+            return {
+                tabIndex: tabIndex,
+                tabItems: tabItems,
+                onTabChange: onTabChange,
+                themeColumns: themeColumns,
+                themeRows: themeRows,
+                onThemeRowEdit: onThemeRowEdit,
+                isColorKey: isColorKey,
+                isImageKey: isImageKey,
+                openColorsWindow: openColorsWindow
+            };
+        }
+    });
+
+    tabApp.use(JuiUiVue);
+    tabApp.use(JuiGridVue.default || JuiGridVue);
+    tabApp.mount("#chart-tab-app");
+    chartTabApp = tabApp;
+
+    // Tab 컴포넌트는 최초 활성 탭(index:0, Code)에 대해서는 change 이벤트를 쏘지 않으므로,
+    // Code 탭과 함께 보여야 하는 csv 툴 그룹의 초기 표시 상태를 직접 맞춰준다.
+    $(".tools").find(".csv").css("display", "inline-block");
+
+    var modalApp = nativeCreateApp({
+        setup: function() {
+            return {
+                colorsWinVisible: colorsWinVisible,
+                colorsColumns: colorsColumns,
+                colorsRows: colorsRows,
+                saveColorsWindow: saveColorsWindow,
+                cancelColorsWindow: cancelColorsWindow,
+                notifyRef: notifyRef
+            };
+        }
+    });
+
+    modalApp.use(JuiUiVue);
+    modalApp.use(JuiGridVue.default || JuiGridVue);
+    modalApp.mount("#chart-shell-modals");
+    chartModalApp = modalApp;
 }
 
 function getTodayData() {
@@ -99,11 +317,11 @@ function changeTheme(value) {
             chart.setTheme(name);
         }
 
-        if (table_2 != null) {
+        if (chartTabApp != null) {
             createTableStyle();
         }
     } else {
-        notify.add({
+        notifyRef.value && notifyRef.value.add({
             title: getChartKey(),
             message: "The theme does not exist.",
             color: "warning"
@@ -111,115 +329,6 @@ function changeTheme(value) {
 
         $("select").find("option:first-child")[0].selected = true;
     }
-}
-
-function createTableStyle() {
-    if(jui.include("util.base").browser.msie) return;
-
-    var themes = window.currentChart.theme();
-
-    table_2 = jui.create("grid.table", "#table_2", {
-        fields: [ "key", "value" ],
-        editRow: [ 1 ],
-        resize: true,
-        event: {
-            editstart: function(row, e) {
-                if(row.data.key == "colors") {
-                    colors_win.show();
-
-                    var list = row.data.value.split("|"),
-                        data = [];
-
-                    for(var i = 0; i < list.length; i++) {
-                        data.push({ color: list[i] });
-                    }
-
-                    colors_table.update(data);
-
-                    // 윈도우 닫기 버튼에 저장 이벤트 설정
-                    $(colors_win.root).find(".close").off("click").on("click", function(e2) {
-                        var newList = colors_table.listData(),
-                            newData = [];
-
-                        for(var i = 0; i < newList.length; i++) {
-                            newData.push(newList[i].color);
-                        }
-
-                        // 데이터 갱신 및 포커스
-                        $(e.target).find(".edit").val(newData.join("|")).focus();
-
-                        colors_win.hide();
-                        colors_table.reset();
-
-                        return false;
-                    });
-                } else if(row.data.key.indexOf("Color") != -1) {
-                    showTableColorPick(row, e);
-                }
-            },
-            editend: function(row, e) {
-                var chart = window.currentChart,
-                    theme = chart.theme(),
-                    data = row.data;
-
-                if(data.key == "colors") {
-                    theme[data.key] = data.value.split("|");
-                } else {
-                    theme[data.key] = data.value;
-                }
-
-                chart.setTheme(theme);
-
-                // 로컬 스토리지에 저장
-                localStorage.setItem("jui.chartplay.theme." + getChartKey(), getDataToObject());
-
-                // 컬러 픽커 숨기기
-                $(color_pick.root).hide();
-            }
-        },
-        tpl: {
-            row: $("#tpl_table_2").html()
-        }
-    });
-
-    // 테이블 초기화
-    table_2.reset();
-
-    for(var key in themes) {
-        if(key == "colors") {
-            table_2.append({ key: key, value: themes[key].join("|") });
-        } else {
-            table_2.append({ key: key, value: themes[key] });
-        }
-    }
-}
-
-function createTab() {
-    if(jui.include("util.base").browser.msie) return;
-
-    tab_1 = jui.create("ui.tab", "#tab_1", {
-        event: {
-            change: function(data) {
-                if(data.index == 0) {
-                    $("#save_btn").show();
-                    $(".tools").find(".csv").css("display", "inline-block");
-                    $(".tools").find(".theme").hide();
-                } else if(data.index == 1) {
-                    createTableStyle();
-
-                    $("#save_btn").hide();
-                    $(".tools").find(".csv").hide();
-                    $(".tools").find(".theme").css("display", "inline-block");
-                }
-            }
-        },
-        target: "#tab_contents_1",
-        index: 0
-    });
-
-    // 탭 컴포넌트는 최초 활성 탭(index:0, Code)에 대해서는 change 이벤트를 쏘지 않으므로,
-    // Code 탭과 함께 보여야 하는 csv 툴 그룹의 초기 표시 상태를 직접 맞춰준다.
-    $(".tools").find(".csv").css("display", "inline-block");
 }
 
 function resetChart() {
@@ -296,21 +405,8 @@ function setFunctions() {
     });
 
     $(".btn-style").on("click", function() {
-        if(table_2 != null) {
-            var rows = table_2.list(),
-                data = [];
-
-            for(var i = 0; i < rows.length; i++) {
-                var val = rows[i].data.value;
-
-                if(typeof(val) == "string") {
-                    data.push(rows[i].data.key + " : \"" + val + "\"");
-                } else {
-                    data.push(rows[i].data.key + " : " + val);
-                }
-            }
-
-            table_2.downloadCsv("jui_style");
+        if(themeRows.length > 0) {
+            JuiGridVue.downloadCsv("jui_style.csv", JuiGridVue.rowsToCsv(themeColumns, themeRows));
         } else {
             alert("Style data is not loaded.");
         }
@@ -392,8 +488,6 @@ function exportTextFile(name, text) {
 }
 
 function getDataToObject() {
-    var data = table_2.listData();
-
     var head = [
             "jui.redefine('chart.theme.custom', [], function() {",
             "\treturn {\n",
@@ -404,12 +498,12 @@ function getDataToObject() {
         ],
         body = [];
 
-    for(var i = 0; i < data.length; i++) {
-        var d = data[i],
+    for(var i = 0; i < themeRows.length; i++) {
+        var d = themeRows[i].data,
             r = '\t\t' + d.key + ' : ';
 
         if(d.key == "colors") {
-            var colors = d.value.split("|");
+            var colors = String(d.value).split("|");
 
             for(var j = 0; j < colors.length; j++) {
                 colors[j] = '"' + colors[j] + '"';
@@ -430,70 +524,13 @@ function getDataToObject() {
     return head.join("\n") + body.join(",\n") + foot.join("\n");
 }
 
-function showTableColorPick(row, e) {
-    var $edit = $(e.target).find(".edit"),
-        offset = $edit.offset();
-
-    $(color_pick.root).css({
-        left: offset.left,
-        top: offset.top + 22
-    }).show();
-
-    color_pick.setColor($edit.val());
-    color_pick.off("change");
-    color_pick.on("change", function(color) {
-        $edit.val(color);
-    });
-}
-
-jui.ready([ "util.base", "ui.window", "ui.notify", "grid.table", "ui.colorpicker" ],
-    function(_, uiWin, uiNotify, gridTable, uiColor) {
+jui.ready([ "util.base" ], function(_) {
     setFunctions();
-    createTab();
-
-    notify = uiNotify("body", {
-        position: "top-right",
-        timeout: 3000,
-        tpl: {
-            item: $("#tpl_alarm").html()
-        }
-    });
-
-    // 댓글 모달 윈도우
-    comments = uiWin("#comments", {
-        width: "90%",
-        height: "90%",
-        modal: true
-    });
-
-    // 컬러 변경 윈도우
-    colors_win = uiWin("#colors_win", {
-        width: 400,
-        height: 400,
-        modal: true
-    });
-
-    colors_table = gridTable("#colors_table", {
-        fields: [ "color" ],
-        editRow: [ 0 ],
-        tpl: {
-            row: "<tr><td style='background: <!= color !>'><!= color !></td></tr>"
-        },
-        event: {
-            editstart: showTableColorPick,
-            editend: function(row, e) {
-                $(color_pick.root).hide();
-            }
-        }
-    });
-
-    color_pick = uiColor("#color_pick");
-    $(color_pick.root).hide();
+    mountShellApps();
 
     // IE일 경우, 탭 제거
     if(_.browser.msie) {
-        $("#tab_1").hide();
-        $("#table_2").hide();
+        $("#chart-tab-app").hide();
     }
 
     // 모바일 버전 이벤트
@@ -565,7 +602,7 @@ jui.ready([ "util.base", "ui.window", "ui.notify", "grid.table", "ui.colorpicker
 
         localStorage.setItem("jui.chartplay.code." + code, editor.getValue());
 
-        notify.add({
+        notifyRef.value && notifyRef.value.add({
             title: code,
             message: "The source code has been saved.",
             color: "danger"

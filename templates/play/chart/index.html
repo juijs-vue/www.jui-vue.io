@@ -8,8 +8,12 @@
     <link rel="stylesheet" href="chart.css">
     <link rel="stylesheet" href="responsive.css">
     <link rel="stylesheet" href="../../lib/jui-chart-vue/style.css">
+    <link rel="stylesheet" href="../../lib/jui-ui-vue/style.css">
+    <link rel="stylesheet" href="../../lib/jui-grid-vue/style.css">
     <script src="../../lib/vue/vue.global.js"></script>
     <script src="../../lib/jui-chart-vue/jui-chart-vue.umd.js"></script>
+    <script src="../../lib/jui-ui-vue/jui-ui-vue.umd.js"></script>
+    <script src="../../lib/jui-grid-vue/jui-grid-vue.umd.js"></script>
     <script src="chart.js" type="text/javascript"></script>
     <script src="resource/f16_model.js" type="text/javascript"></script>
 </head>
@@ -28,7 +32,6 @@
                 <option value="pastel">Pastel</option>
                 <option value="gradient">Gradient</option>
                 <option value="pattern">Pattern</option>
-                <option value="custom">Custom</option>
             </select>
         </span>
 
@@ -44,14 +47,39 @@
     <div class="content">
         <div class="chart_data">
             <div class="chart_data_main">
-                <ul id="tab_1" class="tab top">
-                    <li>
-                        <a href="#chart-code">Code</a>
-                    </li>
-                    <li>
-                        <a href="#chart-style">Style</a>
-                    </li>
-                </ul>
+                <div id="chart-tab-app">
+                    <Tab v-model="tabIndex" :items="tabItems" position="top" @change="onTabChange">
+                        <template #panel-code>
+                            <textarea id="chart-code-text" v-pre>{{ code_content }}</textarea>
+                        </template>
+                        <template #panel-style>
+                            <data-grid class="theme-grid" :columns="themeColumns" :rows="themeRows" editable resizable theme="classic" variant="simple" headline @row-edit="onThemeRowEdit">
+                                <template #cell-value="{ row, value }">
+                                    <span v-if="row.data.key === 'colors'" class="theme-colors-preview">
+                                        <span v-for="(c, i) in String(value).split('|')" :key="i" class="theme-color-swatch" :style="{ background: c }" :title="c"></span>
+                                    </span>
+                                    <span v-else-if="isColorKey(row.data.key)" class="theme-color-swatch theme-color-swatch-wide" :style="{ background: value }" v-text="value"></span>
+                                    <img v-else-if="isImageKey(row.data.key)" :src="value" class="theme-image-preview" />
+                                    <span v-else v-text="value"></span>
+                                </template>
+                                <template #edit-value="{ row, draft, commit, cancel }">
+                                    <div v-if="row.data.key === 'colors'" class="theme-edit-colors">
+                                        <button type="button" class="btn small" @click="openColorsWindow(draft, commit, cancel)">Edit Colors&hellip;</button>
+                                        <button type="button" class="btn small" @click="cancel">Cancel</button>
+                                    </div>
+                                    <div v-else-if="isColorKey(row.data.key)" class="theme-edit-color">
+                                        <Colorpicker v-model="draft.value"></Colorpicker>
+                                        <div class="theme-edit-color-actions">
+                                            <button type="button" class="btn small" @click="commit">Apply</button>
+                                            <button type="button" class="btn small" @click="cancel">Cancel</button>
+                                        </div>
+                                    </div>
+                                    <input v-else class="edit" type="text" v-model="draft.value" @keyup.enter="commit" @blur="commit" @keyup.esc="cancel" />
+                                </template>
+                            </data-grid>
+                        </template>
+                    </Tab>
+                </div>
 
                 <div class="tools">
                     <div class="group">
@@ -71,23 +99,6 @@
                         <a class="btn small" id="export_theme_btn" title="Export Theme file"><i class="icon-download"></i></a>
                         <input type="file" id="import_theme_input" />
                         <a class="btn small" id="import_theme_btn" title="Import Theme file"><i class="icon-upload"></i></a>
-                    </div>
-                </div>
-
-                <div id="tab_contents_1" class="tab-contents">
-                    <div id="chart-code">
-                        <textarea id="chart-code-text">{{ code_content }}</textarea>
-                    </div>
-                    <div id="chart-style">
-                        <table id="table_2" class="table simple nowrap">
-                            <thead>
-                            <tr>
-                                <th>Key</th>
-                                <th>Value</th>
-                            </tr>
-                            </thead>
-                            <tbody></tbody>
-                        </table>
                     </div>
                 </div>
             </div>
@@ -112,45 +123,29 @@
     </div>
 </div>
 
-<div id="colors_win" class="msgbox" style="display: none;">
-    <div class="head">
-        Edit Colors
-        <a href="#" class="close"><i class="icon-exit"></i></a>
-    </div>
-    <div class="body">
-        <table id="colors_table" class="table simple small">
-            <thead>
-            <tr>
-                <th>Color</th>
-            </tr>
-            </thead>
-            <tbody></tbody>
-        </table>
-    </div>
+<div id="chart-shell-modals">
+    <Window v-model="colorsWinVisible" title="Edit Colors" :width="360" :height="420" modal :move="true" :resize="true">
+        <data-grid class="theme-grid" :columns="colorsColumns" :rows="colorsRows" editable resizable theme="classic" variant="simple" headline>
+            <template #cell-color="{ value }">
+                <span class="theme-color-swatch theme-color-swatch-wide" :style="{ background: value }" v-text="value"></span>
+            </template>
+            <template #edit-color="{ draft, commit, cancel }">
+                <Colorpicker v-model="draft.color"></Colorpicker>
+                <div class="theme-edit-color-actions">
+                    <button type="button" class="btn small" @click="commit">Apply</button>
+                    <button type="button" class="btn small" @click="cancel">Cancel</button>
+                </div>
+            </template>
+        </data-grid>
+
+        <template #foot="{ hide }">
+            <a href="#" class="btn focus" @click.prevent="saveColorsWindow(); hide()">Save</a>
+            <a href="#" class="btn" @click.prevent="cancelColorsWindow(); hide()">Cancel</a>
+        </template>
+    </Window>
+
+    <Notify ref="notifyRef" position="top-right" :timeout="3000"></Notify>
 </div>
-
-<div id="color_pick" class="colorpicker"></div>
-
-<script id="tpl_alarm" type="text/template">
-    <div class="notify <!= color !>">
-        <div class="title"><!= title !></div>
-        <div class="message"><!= message !></div>
-    </div>
-</script>
-
-<script id="tpl_table_2" type="text/template">
-<tr>
-    <td><!= key !></td>
-
-    <! if(key.indexOf("Color") != -1) { !>
-    <td style="background: <!= value !>"><!= value !></td>
-    <! } else if(key.indexOf("Image") != -1) { !>
-    <td><img src="<!= value !>"/></td>
-    <! } else { !>
-    <td><!= value !></td>
-    <! } !>
-</tr>
-</script>
 
 {% include "play/footer.html" %}
 <script>
