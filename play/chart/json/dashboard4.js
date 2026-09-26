@@ -1,5 +1,3 @@
-var chart = jui.include("chart.builder");
-
 var dataSource = [
     { date : "J", profit1 : 48000, profit2 : 110 },
     { date : "F", profit1 : 31000, profit2 : 58 },
@@ -19,6 +17,17 @@ var dataSource2 = [
     { unit1 : 16, unit2 : 21, unit3 : 15, unit4 : 18, unit5 : 20 }
 ]
 
+// 레거시 Builder는 top-level `format`을 axis.y.format이 따로 없을 때의 기본 포맷터로 썼다.
+// jui-chart-vue의 <Chart>는 top-level `format` 옵션 자체를 forward하지 않으므로(Chart.vue의
+// defineProps에 없음), 대신 이 값이 필요한 각 axis의 y에 직접 넣어서 동일한 동작을 재현한다.
+function defaultFormat(v) {
+    if(typeof(v) == "number") {
+        return ((v > 1000) ? Math.floor(v / 1000) + "k" : v);
+    }
+
+    return v;
+}
+
 var dataSource3 = [
     { date: "Jan", sales1: 31000, sales2: 11500, sales3: 21500 },
     { date: "Feb", sales1: 39500, sales2: 36750, sales3: 29550 },
@@ -34,7 +43,9 @@ var dataSource3 = [
     { date: "Dec", sales1: 17500, sales2: 14300, sales3: 16000 }
 ];
 
-chart("#result", {
+Vue.createApp({
+    data() {
+        return {
     padding : {
         left : 60
     },
@@ -49,7 +60,8 @@ chart("#result", {
             type : "range",
             domain : [ 0, 100000 ],
             step : 4,
-            line : true
+            line : true,
+            format : defaultFormat
         },
         area : {
             width : "65%",
@@ -61,7 +73,8 @@ chart("#result", {
         },
         y : {
             domain : [ 0, 500 ],
-            orient : "right"
+            orient : "right",
+            format : defaultFormat
         },
         area : {
             width : "65%",
@@ -78,7 +91,8 @@ chart("#result", {
     }, {
         data : dataSource3,
         y : {
-            domain : [ 0, 50000 ]
+            domain : [ 0, 50000 ],
+            format : defaultFormat
         },
         area : {
             width : "100%",
@@ -149,12 +163,8 @@ chart("#result", {
         scatterBorderWidth : 1.5,
         titleFontSize : "11px",
         titleFontWeight : "bold"
-    },
-    format : function(v) {
-        if(typeof(v) == "number") {
-            return ((v > 1000) ? Math.floor(v / 1000) + "k" : v);
-        }
-
-        return v;
     }
-});
+        };
+    },
+    template: '<Chart ref="chartRef" :padding="padding" :height="height" :axis="axis" :brush="brush" :widget="widget" :style="style" />'
+}).mount("#result");

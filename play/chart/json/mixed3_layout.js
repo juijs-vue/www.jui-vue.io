@@ -1,4 +1,3 @@
-var chart = jui.include("chart.builder");
 var time = jui.include("util.time");
 
 var dataSource = [
@@ -71,60 +70,69 @@ var dataSource = [
 
 var day_cnt = 0;
 
-chart("#result", {
-    data : dataSource,
-    axis : [{
-        x : {
-            type : "block",  // default type is block
-            domain : "date",
-            full : true,
-            hide : true
-        },
-        y : {
-            type : "range",
-            domain : [ 20, 30 ],
-            step : 5,
-            line : false,
-            size : "69%",
-            orient : "right"
-        }
-    }, {
-        x : {
-            type : "block",  // default type is block
-            domain : "date",
-            format : function(d) {
-                day_cnt++;
-
-                if(day_cnt % 7 == 0) {
-                    return time.format(d, "MM-dd");
+// 레거시 Builder는 top-level `data`를 개별 axis에 자기 `data`가 없을 때의 공용 데이터로 썼다.
+// <Chart>는 top-level `data` 옵션을 forward하지 않으므로(Chart.vue의 defineProps에 없음), 대신
+// 각 axis 항목에 직접 `data: dataSource`를 넣어서 동일하게 만든다.
+Vue.createApp({
+    data() {
+        return {
+            axis : [{
+                data : dataSource,
+                x : {
+                    type : "block",  // default type is block
+                    domain : "date",
+                    full : true,
+                    hide : true
+                },
+                y : {
+                    type : "range",
+                    domain : [ 20, 30 ],
+                    step : 5,
+                    line : false,
+                    size : "69%",
+                    orient : "right"
                 }
+            }, {
+                data : dataSource,
+                x : {
+                    type : "block",  // default type is block
+                    domain : "date",
+                    format : function(d) {
+                        day_cnt++;
+
+                        if(day_cnt % 7 == 0) {
+                            return time.format(d, "MM-dd");
+                        }
+                    }
+                },
+                y : {
+                    type : "range",
+                    domain : "v",
+                    step: 5,
+                    line : false,
+                    start : "70%",
+                    size : "30%",
+                    hide : true
+                }
+            }],
+            brush : [{
+                type : "area",
+                target : "c",
+                axis : 0
+            }, {
+                type : "line",
+                target : "c",
+                axis : 0
+            }, {
+                type : "column",
+                target : "v",
+                axis : 1
+            }],
+            widget : {
+                type : "tooltip",
+                orient : "bottom"
             }
-        },
-        y : {
-            type : "range",
-            domain : "v",
-            step: 5,
-            line : false,
-            start : "70%",
-            size : "30%",
-            hide : true
-        }
-    }],
-    brush : [{
-        type : "area",
-        target : "c",
-        axis : 0
-    }, {
-        type : "line",
-        target : "c",
-        axis : 0
-    }, {
-        type : "column",
-        target : "v",
-        axis : 1
-    }],
-    widget : {
-        type : "tooltip",
-        orient : "bottom"
-    }
-});
+        };
+    },
+    template: '<Chart ref="chartRef" :axis="axis" :brush="brush" :widget="widget" />'
+}).mount("#result");
