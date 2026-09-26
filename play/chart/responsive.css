@@ -67,7 +67,4 @@
 	.content .chart_view #chart-content {
 		top: 20px !important;
 	}
-	.content .splitter {
-		display: none;
-	}
 }

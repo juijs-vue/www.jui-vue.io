@@ -124,25 +124,6 @@ textarea {
     color: white;
 }
 
-.splitter {
-    width: 5px;
-    position: absolute;
-    background-color: #ddd;
-    left: 250px;
-    top: 0px;
-    bottom: 0px;
-}
-
-.splitter-2 {
-    width: 2px;
-    position: absolute;
-    background-color: #ddd;
-    margin-left: -2px;
-    left: 45%;
-    top: 0px;
-    bottom: 0px;
-}
-
 .chart_data {
     position: absolute;
     border-left:2px solid #ddd;

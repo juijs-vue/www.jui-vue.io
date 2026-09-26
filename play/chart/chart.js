@@ -126,6 +126,10 @@ function onThemeRowEdit() {
 function onTabChange(data) {
     if (data.index === 1) {
         createTableStyle();
+    } else if (data.index === 0 && editor) {
+        // Style 그리드의 스크롤바 유무 등으로 컨테이너 폭이 바뀌었을 수 있으니 Code 탭으로
+        // 돌아올 때도 다시 맞춰준다.
+        setTimeout(function() { editor.refresh(); }, 0);
     }
 }
 
@@ -519,6 +523,12 @@ function viewCodeEditor(code) {
 			var cache = localStorage.getItem("jui.chartplay.code." + getChartKey());
 			editor.setValue(cache || code);
 		}
+
+        // CodeMirror는 생성 시점의 컨테이너 폭을 기준으로 내부 레이아웃을 굳혀버리는데, Tab 컴포넌트
+        // 마운트 직후(Vue의 DOM 반영이 아직 다 settle되지 않은 시점)에 만들어지다 보니 실제 폭보다
+        // 좁게 잡혀 오른쪽에 회색 여백이 남았다. 다음 프레임으로 한 틱 미뤄서 refresh()하면 그 시점엔
+        // 레이아웃이 이미 확정돼 있어 정확한 폭으로 다시 계산한다.
+        setTimeout(function() { editor.refresh(); }, 0);
     }
 
     // 현재 샘플의 테마가 저장되어 있는지 체크
