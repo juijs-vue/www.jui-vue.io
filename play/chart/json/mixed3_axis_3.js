@@ -1,4 +1,3 @@
-var chart = jui.include("chart.builder");
 var time = jui.include("util.time");
 
 var dataSource = [
@@ -72,7 +71,9 @@ var dataSource = [
 var start = 10,
     end = 30;
 
-var c = chart("#result", {
+Vue.createApp({
+    data() {
+        return {
 	padding : {
 		bottom : 60
 	},
@@ -158,12 +159,20 @@ var c = chart("#result", {
     },
 	style : {
 		zoomScrollBackgroundSize : 60
-	},
-    render : false
-});
+	}
+        };
+    },
+    mounted() {
+        // The initial `axis` config above has no `data`, mirroring the legacy `render: false`
+        // mount-without-data-then-fill pattern - `axis(i).update()`/`zoom()` are imperative Axis
+        // methods with no reactive-prop equivalent, so they're called directly on the live Builder.
+        var b = this.$refs.chartRef.getBuilder();
 
-c.axis(0).update(dataSource);
-c.axis(0).zoom(start, end);
-c.axis(1).update(dataSource);
-c.axis(1).zoom(start, end);
-c.render(true);
+        b.axis(0).update(dataSource);
+        b.axis(0).zoom(start, end);
+        b.axis(1).update(dataSource);
+        b.axis(1).zoom(start, end);
+        b.render(true);
+    },
+    template: '<Chart ref="chartRef" :padding="padding" :axis="axis" :brush="brush" :widget="widget" :event="event" :style="style" />'
+}).mount("#result");
