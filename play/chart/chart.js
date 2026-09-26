@@ -676,7 +676,10 @@ document.addEventListener("DOMContentLoaded", function() {
         if (basicLink) basicLink.classList.add("active");
     } else {
         var parentType = activeItem.getAttribute("data-parent"),
-            parentEl = document.querySelector("[data-type=" + parentType + "]");
+            // 값을 따옴표로 감싸지 않으면 "3d"처럼 숫자로 시작하는 값에서 잘못된 선택자
+            // 문법(SyntaxError)이 된다 - jQuery의 Sizzle 엔진은 이런 값도 관대하게 받아줬지만
+            // 네이티브 querySelector는 엄격한 CSS 문법을 요구한다.
+            parentEl = document.querySelector("[data-type='" + parentType + "']");
         if (parentEl) parentEl.classList.add("active");
     }
 
