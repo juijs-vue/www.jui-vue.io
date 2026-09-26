@@ -144,15 +144,9 @@ textarea {
     padding: 10px 25px;
 }
 
-#chart-tab-app .jui-tab-content {
-    background: #ddd;
-    padding: 5px;
-}
-
 #chart-tab-app .jui-tab-content .panel {
     height: 400px;
     background: white;
-    padding: 5px;
 }
 
 #chart-tab-app .jui-tab-content table {
