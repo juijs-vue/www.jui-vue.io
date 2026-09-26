@@ -1,8 +1,8 @@
-var builder = jui.include("chart.builder"),
-    time = jui.include("util.time"),
-    txData = [];
+var time = jui.include("util.time");
 
-var chart = builder("#result", {
+Vue.createApp({
+    data() {
+        return {
     height : 600,
     axis : [{
         x : {
@@ -22,7 +22,8 @@ var chart = builder("#result", {
         area : {
             width : "60%",
             height : "60%"
-        }
+        },
+        data : []
     }, {
         extend : 0,
         y : {
@@ -102,23 +103,32 @@ var chart = builder("#result", {
             alert(data.length);
             console.log(data);
         }
+    }
+        };
     },
-    render : false
-});
+    mounted() {
+        // Reactive-data version of the legacy per-tick chart.axis(i).update()/set()/render() calls -
+        // mutating the `axis` prop makes <Chart> re-render automatically. IMPORTANT: the array
+        // mutations (shift/push) below run directly on `this.axis[0].data` (the reactive proxy
+        // Vue instrumented), not on some separately-held plain array - mutating a plain array that
+        // merely happens to share the same *initial* reference would never notify Vue's watcher
+        // (nothing would re-render).
+        this.timer = setInterval(() => {
+            var domain = getDomain();
 
-window.interval = setInterval(function() {
-    var domain = getDomain();
+            appendTxData(this.axis[0].data, domain);
+            this.axis[0].x.domain = domain;
 
-    appendTxData(txData, domain);
-    chart.axis(0).update(txData);
-    chart.axis(0).set("x", { domain : domain });
+            this.axis[1].data = getStatusData(this.axis[0].data);
 
-    chart.axis(1).update(getStatusData());
-    chart.axis(1).set("x", { domain : domain });
-
-    chart.axis(2).update(getLevelData());
-    chart.render();
-}, 1000);
+            this.axis[2].data = getLevelData(this.axis[0].data);
+        }, 1000);
+    },
+    beforeUnmount() {
+        clearInterval(this.timer);
+    },
+    template: '<Chart ref="chartRef" :height="height" :axis="axis" :brush="brush" :widget="widget" :event="event" />'
+}).mount("#result");
 
 function appendTxData(list, domain) {
     var count = Math.floor(Math.random() * 20);
@@ -149,7 +159,7 @@ function appendTxData(list, domain) {
     }
 }
 
-function getStatusData() {
+function getStatusData(txData) {
     var list = [],
         cache = {};
 
@@ -173,7 +183,7 @@ function getStatusData() {
     return list;
 }
 
-function getLevelData() {
+function getLevelData(txData) {
     var list = [{
         normal : 0,
         warning : 0,

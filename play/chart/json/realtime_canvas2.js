@@ -1,83 +1,91 @@
-var builder = jui.include("chart.builder"),
-    time = jui.include("util.time"),
-    txData = [];
+var time = jui.include("util.time");
 
-var chart = builder("#result", {
-    canvas : true,
-    padding : {
-        top : 50,
-        bottom : 100,
-        left : 100,
-        right : 100
-    },
-    axis : [{
-        x : {
-            type : "date",
-            domain : getDomain(),
-            interval : 1,
-            realtime : "minutes",
-            format : "hh:mm",
-            key : "time"
-        },
-        y : {
-            type : "range",
-            domain : [ 0, 8000 ],
-            step : 4,
-            line : true,
-            orient : "right"
-        },
-        z : {
-            type : "block",
-            domain : [ "fatal", "warning", "normal" ],
-            line : true,
-			key : "level"
-        },
-        depth : 200,
-        degree : {
-            x : 10,
-            y : -45,
-            z : 0
-        },
-        perspective : 0.7,
-        buffer : 1000000
-    }],
-    brush : [{
-        type : "canvas.scatter3d",
-        target : [ "delay" ],
-        size : 7,
-        clip : true,
-        colors : function(d) {
-            if(d.level == 0) {
-                return "#ff0000"
-            } else if(d.level == 1) {
-                return "#f2ab14";
+Vue.createApp({
+    data() {
+        return {
+            canvas : true,
+            padding : {
+                top : 50,
+                bottom : 100,
+                left : 100,
+                right : 100
+            },
+            axis : [{
+                x : {
+                    type : "date",
+                    domain : getDomain(),
+                    interval : 1,
+                    realtime : "minutes",
+                    format : "hh:mm",
+                    key : "time"
+                },
+                y : {
+                    type : "range",
+                    domain : [ 0, 8000 ],
+                    step : 4,
+                    line : true,
+                    orient : "right"
+                },
+                z : {
+                    type : "block",
+                    domain : [ "fatal", "warning", "normal" ],
+                    line : true,
+                    key : "level"
+                },
+                depth : 200,
+                degree : {
+                    x : 10,
+                    y : -45,
+                    z : 0
+                },
+                perspective : 0.7,
+                buffer : 1000000,
+                data : []
+            }],
+            brush : [{
+                type : "canvas.scatter3d",
+                target : [ "delay" ],
+                size : 7,
+                clip : true,
+                colors : function(d) {
+                    if(d.level == 0) {
+                        return "#ff0000"
+                    } else if(d.level == 1) {
+                        return "#f2ab14";
+                    }
+
+                    return "#4692ca";
+                }
+            }],
+            widget : [{
+                type : "title",
+                text : "3D Transaction View"
+            }],
+            style : {
+                gridXAxisBorderWidth: 1,
+                gridYAxisBorderWidth: 1,
+                gridZAxisBorderWidth: 1
             }
-
-            return "#4692ca";
-        }
-    }],
-    widget : [{
-        type : "title",
-        text : "3D Transaction View"
-    }],
-    style : {
-        gridXAxisBorderWidth: 1,
-        gridYAxisBorderWidth: 1,
-        gridZAxisBorderWidth: 1
+        };
     },
-    render : false
-});
+    mounted() {
+        // Reactive-data version of the legacy per-second chart.axis(0).update()/set()/
+        // updateWidget()/render() calls - array mutations run on `this.axis[0].data` (the reactive
+        // proxy) directly, see realtime2.js's comment for why a merely-same-reference plain array
+        // wouldn't re-render.
+        this.timer = setInterval(() => {
+            var domain = getDomain();
 
-window.interval = setInterval(function() {
-    var domain = getDomain();
-
-    appendTxData(txData, domain);
-    chart.axis(0).update(txData);
-    chart.axis(0).set("x", { domain : domain });
-    chart.updateWidget(0, { text: "3D Transaction View (+" + txData.length + ")" });
-
-    chart.render(true);
-}, 1000);
+            appendTxData(this.axis[0].data, domain);
+            this.axis[0].x.domain = domain;
+            this.widget[0].text = "3D Transaction View (+" + this.axis[0].data.length + ")";
+        }, 1000);
+    },
+    beforeUnmount() {
+        clearInterval(this.timer);
+    },
+    template: '<Chart ref="chartRef" :canvas="canvas" :padding="padding" :axis="axis" :brush="brush" :widget="widget" :style="style" />'
+}).mount("#result");
 
 function appendTxData(list, domain) {
     var count = Math.floor(Math.random() * 200);

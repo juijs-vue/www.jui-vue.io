@@ -1,126 +1,134 @@
-var builder = jui.include("chart.builder"),
-    time = jui.include("util.time"),
-    txData = [];
+var time = jui.include("util.time");
 
-var chart = builder("#result", {
-    canvas : true,
-    height : 600,
-    axis : [{
-        x : {
-            type : "date",
-            domain : getDomain(),
-            interval : 1,
-            realtime : "minutes",
-            format : "hh:mm",
-            key : "time"
-        },
-        y : {
-            type : "range",
-            domain : [ 0, 8000 ],
-            step : 4,
-            line : "solid"
-        },
-        area : {
-            width : "60%",
-            height : "60%"
-        },
-        buffer : 1000000
-    }, {
-        extend : 0,
-        y : {
-            domain : function(d) {
-                return d.count * 1.2;
-            },
-            step : 2
-        },
-        area : {
-            width : "100%",
-            height : "30%",
-            y : "70%"
-        }
-    }, {
-        area : {
-            x : "70%",
-            y : "15%",
-            width : "30%",
-            height : "30%"
-        }
-    }],
-    brush : [{
-        type : "canvas.scatter",
-        symbol : "cross",
-        target : [ "delay" ],
-        size : 5,
-        colors : function(d) {
-            if(d.level == "fatal") {
-                return "#ff0000"
-            } else if(d.level == "warning") {
-                return "#f2ab14";
+Vue.createApp({
+    data() {
+        return {
+            canvas : true,
+            height : 600,
+            axis : [{
+                x : {
+                    type : "date",
+                    domain : getDomain(),
+                    interval : 1,
+                    realtime : "minutes",
+                    format : "hh:mm",
+                    key : "time"
+                },
+                y : {
+                    type : "range",
+                    domain : [ 0, 8000 ],
+                    step : 4,
+                    line : "solid"
+                },
+                area : {
+                    width : "60%",
+                    height : "60%"
+                },
+                buffer : 1000000,
+                data : []
+            }, {
+                extend : 0,
+                y : {
+                    domain : function(d) {
+                        return d.count * 1.2;
+                    },
+                    step : 2
+                },
+                area : {
+                    width : "100%",
+                    height : "30%",
+                    y : "70%"
+                }
+            }, {
+                area : {
+                    x : "70%",
+                    y : "15%",
+                    width : "30%",
+                    height : "30%"
+                }
+            }],
+            brush : [{
+                type : "canvas.scatter",
+                symbol : "cross",
+                target : [ "delay" ],
+                size : 5,
+                colors : function(d) {
+                    if(d.level == "fatal") {
+                        return "#ff0000"
+                    } else if(d.level == "warning") {
+                        return "#f2ab14";
+                    }
+
+                    return "#4692ca";
+                },
+                clip : true,
+                axis : 0
+            }, {
+                type : "line",
+                target : [ "count" ],
+                clip : true,
+                axis : 1
+            }, {
+                type : "pie",
+                colors : [ "#4692ca", "#f2ab14", "#ff0000" ],
+                showText : true,
+                format : function(k, v) {
+                    return v;
+                },
+                axis : 2
+            }],
+            widget : [{
+                type : "dragselect",
+                dataType : "list"
+            }, {
+                type : "title",
+                align : "end",
+                text : "Number of calls per second",
+                dy : 370
+            }, {
+                type : "title",
+                align : "end",
+                text : "Number of levels",
+                dy : 60
+            }, {
+                type : "cross",
+                xFormat : function(d) {
+                    return time.format(d, "HH:mm");
+                },
+                yFormat : function(d) {
+                    return Math.round(d);
+                },
+                axis : 1
+            }],
+            event : {
+                "dragselect.end": function(data) {
+                    alert(data.length);
+                    console.log(data);
+                }
             }
-
-            return "#4692ca";
-        },
-        clip : true,
-        axis : 0
-    }, {
-        type : "line",
-        target : [ "count" ],
-        clip : true,
-        axis : 1
-    }, {
-        type : "pie",
-        colors : [ "#4692ca", "#f2ab14", "#ff0000" ],
-        showText : true,
-        format : function(k, v) {
-            return v;
-        },
-        axis : 2
-    }],
-    widget : [{
-        type : "dragselect",
-        dataType : "list"
-    }, {
-        type : "title",
-        align : "end",
-        text : "Number of calls per second",
-        dy : 370
-    }, {
-        type : "title",
-        align : "end",
-        text : "Number of levels",
-        dy : 60
-    }, {
-        type : "cross",
-        xFormat : function(d) {
-            return time.format(d, "HH:mm");
-        },
-        yFormat : function(d) {
-            return Math.round(d);
-        },
-        axis : 1
-    }],
-    event : {
-        "dragselect.end": function(data) {
-            alert(data.length);
-            console.log(data);
-        }
+        };
     },
-    render : false
-});
+    mounted() {
+        // Reactive-data version of the legacy per-tick chart.axis(i).update()/set()/render() calls -
+        // array mutations run directly on `this.axis[0].data` (the reactive proxy), see
+        // realtime2.js's comment for why mutating a merely-same-reference plain array wouldn't
+        // re-render.
+        this.timer = setInterval(() => {
+            var domain = getDomain();
 
-window.interval = setInterval(function() {
-    var domain = getDomain();
+            appendTxData(this.axis[0].data, domain);
+            this.axis[0].x.domain = domain;
 
-    appendTxData(txData, domain);
-    chart.axis(0).update(txData);
-    chart.axis(0).set("x", { domain : domain });
+            this.axis[1].data = getStatusData(this.axis[0].data);
 
-    chart.axis(1).update(getStatusData());
-    chart.axis(1).set("x", { domain : domain });
-
-    chart.axis(2).update(getLevelData());
-    chart.render();
-}, 1000);
+            this.axis[2].data = getLevelData(this.axis[0].data);
+        }, 1000);
+    },
+    beforeUnmount() {
+        clearInterval(this.timer);
+    },
+    template: '<Chart ref="chartRef" :canvas="canvas" :height="height" :axis="axis" :brush="brush" :widget="widget" :event="event" />'
+}).mount("#result");
 
 function appendTxData(list, domain) {
     var count = Math.floor(Math.random() * 200);
@@ -151,7 +159,7 @@ function appendTxData(list, domain) {
     }
 }
 
-function getStatusData() {
+function getStatusData(txData) {
     var list = [],
         cache = {};
 
@@ -175,7 +183,7 @@ function getStatusData() {
     return list;
 }
 
-function getLevelData() {
+function getLevelData(txData) {
     var list = [{
         normal : 0,
         warning : 0,
