@@ -1,5 +1,3 @@
-var chart = jui.include("chart.builder");
-
 var data = [
     { age : "80+",   female : 6.0,  male : 5.3 },
     { age : "75-79", female : 4.7,  male : 4.5 },
@@ -25,7 +23,9 @@ var names = {
     female : "Female"
 };
 
-chart("#result", {
+Vue.createApp({
+    data() {
+        return {
     axis : [{
         x : {
             type : "range",
@@ -83,4 +83,7 @@ chart("#result", {
             }
         }
     }]
-});
+};
+    },
+    template: '<Chart ref="chartRef" :axis="axis" :brush="brush" :widget="widget" />'
+}).mount("#result");

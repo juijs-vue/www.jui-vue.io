@@ -1,4 +1,3 @@
-var chart = jui.include("chart.builder");
 var data = [
     { quarter : "1Q", samsung : 300, apple : 450, google : 430, facebook: 350 },
     { quarter : "2Q", samsung : 200, apple : 430, google : 410, facebook: 280 },
@@ -6,7 +5,9 @@ var data = [
     { quarter : "4Q", samsung : 260, apple : 470, google : 350, facebook: 340 }
 ];
 
-chart("#result", {
+Vue.createApp({
+    data() {
+        return {
     axis : {
         x : {
             type : "block",
@@ -39,4 +40,7 @@ chart("#result", {
         { type : "tooltip" },
         { type : "legend" }
     ]
-});
+};
+    },
+    template: '<Chart ref="chartRef" :axis="axis" :brush="brush" :widget="widget" />'
+}).mount("#result");

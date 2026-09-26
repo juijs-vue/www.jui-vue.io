@@ -1,5 +1,3 @@
-var chart = jui.include("chart.builder");
-
 var data = [{
     id: "KR",
     airport: "large"
@@ -42,7 +40,9 @@ var data = [{
     airport: "large"
 }];
 
-chart("#result", {
+Vue.createApp({
+    data() {
+        return {
     padding : 0,
     axis : [{
         map : {
@@ -72,4 +72,7 @@ chart("#result", {
         mapPathBackgroundOpacity : 0.4,
         mapControlButtonColor : "#FFCC00"
     }
-});
+};
+    },
+    template: '<Chart ref="chartRef" :padding="padding" :axis="axis" :brush="brush" :widget="widget" :style="style" />'
+}).mount("#result");

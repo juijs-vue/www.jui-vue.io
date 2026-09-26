@@ -1,5 +1,3 @@
-var chart = jui.include("chart.builder");
-
 var data = [{
     id: "KR",
     value: 50220000
@@ -32,7 +30,9 @@ var data = [{
     value: 64100000
 }];
 
-chart("#result", {
+Vue.createApp({
+    data() {
+        return {
     padding : 0,
     axis : [{
         map : {
@@ -81,4 +81,7 @@ chart("#result", {
     style: {
         mapPathBorderWidth: 0.5
     }
-});
+};
+    },
+    template: '<Chart ref="chartRef" :padding="padding" :axis="axis" :brush="brush" :widget="widget" :style="style" />'
+}).mount("#result");

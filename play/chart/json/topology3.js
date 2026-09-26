@@ -1,5 +1,3 @@
-var chart = jui.include("chart.builder");
-
 var nodeData = [
     { key: "1000_1", name: "W1", type: "was", outgoing: [ "1000_2" ] },
     { key: "1000_2", name: "W2", type: "was", outgoing: [ "1000_3", "1000_4" ] },
@@ -17,7 +15,9 @@ var edgeData = [
 	{ key: "1000_4:1_2_3_4", count: 3, time: 2000 }
 ];
 
-chart("#result", {
+Vue.createApp({
+    data() {
+        return {
     theme: "dark",
     padding: 5,
     axis: {
@@ -87,4 +87,7 @@ chart("#result", {
         zoom: true,
         move: true
     }
-});
+};
+    },
+    template: '<Chart ref="chartRef" :padding="padding" :axis="axis" :brush="brush" :widget="widget" :theme="theme" />'
+}).mount("#result");

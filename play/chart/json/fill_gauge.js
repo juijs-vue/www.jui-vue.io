@@ -1,6 +1,6 @@
-var chart = jui.include("chart.builder");
-
-chart("#result", {
+Vue.createApp({
+    data() {
+        return {
     axis : {
         y : {
            type : "range",
@@ -15,4 +15,7 @@ chart("#result", {
         min : 0,
         max : 100
     }
-});
+};
+    },
+    template: '<Chart ref="chartRef" :axis="axis" :brush="brush" />'
+}).mount("#result");

@@ -1,11 +1,12 @@
-var chart = jui.include("chart.builder"),
-    data = [];
+var data = [];
 
 for(var i = 1; i <= 30; i++) {
     data.push({ date : i, value : Math.floor(Math.random() * 100) + 1 });
 }
 
-c = chart("#result", {
+Vue.createApp({
+    data() {
+        return {
     axis : [{
         x : {
             type : "block",
@@ -27,4 +28,7 @@ c = chart("#result", {
         type : "column",
         target : "value"
     }]
-});
+};
+    },
+    template: '<Chart ref="chartRef" :axis="axis" :brush="brush" />'
+}).mount("#result");

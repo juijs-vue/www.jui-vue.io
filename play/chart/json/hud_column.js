@@ -1,6 +1,6 @@
-var chart = jui.include("chart.builder");
-
-chart("#result", {
+Vue.createApp({
+    data() {
+        return {
 	axis : [{
 		x : {
 			type : "block",
@@ -40,4 +40,7 @@ chart("#result", {
 		backgroundColor : "#1c1c1c",
 		axisBackgroundColor : "#1c1c1c"
 	}
-});
+};
+    },
+    template: '<Chart ref="chartRef" :axis="axis" :brush="brush" :widget="widget" :style="style" />'
+}).mount("#result");

@@ -1,8 +1,9 @@
-var chart = jui.include("chart.builder"),
-    time = jui.include("util.time");
+var time = jui.include("util.time");
 var today = getTodayData();
 
-chart("#result", {
+Vue.createApp({
+    data() {
+        return {
     axis : {
         x : {
             type : "date",
@@ -36,4 +37,7 @@ chart("#result", {
     style : {
         lineSplitBorderColor: "#929292"
     }
-});
+};
+    },
+    template: '<Chart ref="chartRef" :axis="axis" :brush="brush" :widget="widget" :style="style" />'
+}).mount("#result");

@@ -1,4 +1,3 @@
-var chart = jui.include("chart.builder");
 var time = jui.include('util.time');
 
 var stocks = {
@@ -17,7 +16,9 @@ for(var i = 0; i < stocks.visitor.length; i++) {
     });
 }
 
-chart("#result", {
+Vue.createApp({
+    data() {
+        return {
     axis : [{
         x : {
             type : "date",
@@ -61,4 +62,7 @@ chart("#result", {
         { type : "legend", brush : [ 0, 1 ] },
         { type : "tooltip", brush : [ 2, 3 ] }
     ]
-});
+};
+    },
+    template: '<Chart ref="chartRef" :axis="axis" :brush="brush" :widget="widget" />'
+}).mount("#result");

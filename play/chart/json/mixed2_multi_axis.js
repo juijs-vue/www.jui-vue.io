@@ -1,4 +1,3 @@
-var chart = jui.include("chart.builder");
 var data = [
     { month : "Jan", rainfall : 49.9, sealevel : 1016, temperature : 7.0},
     { month : "Feb", rainfall : 71.5, sealevel : 1016, temperature : 6.9 },
@@ -14,7 +13,9 @@ var data = [
     { month :  "Dec", rainfall : 54.4, sealevel : 1016.7, temperature : 9.6}
 ];
 
-chart("#result", {
+Vue.createApp({
+    data() {
+        return {
     padding : {
         right : 120
     },
@@ -68,4 +69,7 @@ chart("#result", {
     	{ type : "title", text : "Combination Sample" },
     	{ type : "legend", brush : [ 0, 1, 2 ], align : "end" }
     ]
-});
+};
+    },
+    template: '<Chart ref="chartRef" :padding="padding" :axis="axis" :brush="brush" :widget="widget" />'
+}).mount("#result");

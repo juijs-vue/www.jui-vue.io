@@ -1,6 +1,6 @@
-var chart = jui.include("chart.builder");
-
-chart("#result", {
+Vue.createApp({
+    data() {
+        return {
 	axis : [{
 		data : [
 			{ visit : 15654, download : 4064, request : 1987, invoice : 976, final : 846 }
@@ -34,4 +34,7 @@ chart("#result", {
 	style : {
 		pyramidLineWidth: 3
 	}
-});
+};
+    },
+    template: '<Chart ref="chartRef" :axis="axis" :brush="brush" :widget="widget" :style="style" />'
+}).mount("#result");

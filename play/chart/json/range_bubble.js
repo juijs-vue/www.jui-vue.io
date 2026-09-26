@@ -1,4 +1,3 @@
-var chart = jui.include("chart.builder");
 var time = jui.include("util.time");
 
 function getNumber() {
@@ -18,7 +17,9 @@ for (var i = 0; i < 30; i++) {
 	});
 }
 
-chart("#result", {
+Vue.createApp({
+    data() {
+        return {
 	axis : {
 		x : {
 			type : "date",
@@ -61,4 +62,7 @@ chart("#result", {
 			type : "tooltip"
 		}
     ]
-});
+};
+    },
+    template: '<Chart ref="chartRef" :axis="axis" :brush="brush" :widget="widget" />'
+}).mount("#result");

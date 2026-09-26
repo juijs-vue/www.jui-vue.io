@@ -1,6 +1,6 @@
-var chart = jui.include("chart.builder");
-
-chart("#result", {
+Vue.createApp({
+    data() {
+        return {
     axis : [{
         x : {
             type : "block",
@@ -50,4 +50,7 @@ chart("#result", {
         outerPadding : 20,
         target : "value"
     }]
-});
+};
+    },
+    template: '<Chart ref="chartRef" :axis="axis" :brush="brush" />'
+}).mount("#result");

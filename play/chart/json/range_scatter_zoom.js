@@ -1,5 +1,4 @@
-var chart = jui.include("chart.builder"),
-    time = jui.include("util.time");
+var time = jui.include("util.time");
 
 var start = new Date("2015/05/01 00:00:00"),
     end = new Date("2015/05/01 01:00:00")
@@ -13,7 +12,9 @@ for(var i = 0; i < 1000; i++) {
     });
 }
 
-chart("#result", {
+Vue.createApp({
+    data() {
+        return {
     axis : {
         x : {
             type : "date",
@@ -71,4 +72,7 @@ chart("#result", {
             return "hh:mm";
         }
     }]
-});
+};
+    },
+    template: '<Chart ref="chartRef" :axis="axis" :brush="brush" :widget="widget" />'
+}).mount("#result");

@@ -1,4 +1,3 @@
-var chart = jui.include("chart.builder");
 var data = [
     { server : "W1", cpu : 10 },
     { server : "W2", cpu : 2 },
@@ -10,7 +9,9 @@ var data = [
     { server : "W8", cpu : 3 }
 ];
 
-chart("#result", {
+Vue.createApp({
+    data() {
+        return {
     axis : {
         x : {
             type : "block",
@@ -36,4 +37,7 @@ chart("#result", {
     widget : [
         { type : "title", text : "Equalizer Sample" }
     ]
-});
+};
+    },
+    template: '<Chart ref="chartRef" :axis="axis" :brush="brush" :widget="widget" />'
+}).mount("#result");

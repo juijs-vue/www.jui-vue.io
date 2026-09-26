@@ -1,4 +1,3 @@
-var chart = jui.include("chart.builder");
 var names = {
     ie: "IE",
     ff: "Fire Fox",
@@ -7,7 +6,9 @@ var names = {
     other: "Others"
 };
 
-chart("#result", {
+Vue.createApp({
+    data() {
+        return {
     padding : 150,
     axis : {
         data : [
@@ -41,4 +42,7 @@ chart("#result", {
             return names[k];
         }
     }]
-});
+};
+    },
+    template: '<Chart ref="chartRef" :padding="padding" :axis="axis" :brush="brush" :widget="widget" />'
+}).mount("#result");

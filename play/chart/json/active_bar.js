@@ -1,4 +1,3 @@
-var chart = jui.include("chart.builder");
 var data = [
     { quarter : "01", sales : 50 },
     { quarter : "02", sales : 20 },
@@ -14,7 +13,9 @@ var data = [
     { quarter : "12", sales : 25 }
 ];
 
-chart("#result", {
+Vue.createApp({
+    data() {
+        return {
     axis : [{
         x : {
             type : "range",
@@ -46,4 +47,7 @@ chart("#result", {
         text : "Bar Sample",
         align : "start"
     }]
-});
+};
+    },
+    template: '<Chart ref="chartRef" :axis="axis" :brush="brush" :widget="widget" />'
+}).mount("#result");

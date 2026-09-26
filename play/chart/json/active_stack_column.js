@@ -1,4 +1,3 @@
-var chart = jui.include("chart.builder");
 var activeIndex = 0,
     data = [
         { quarter : "1Q", samsung : 50, lg : 35, sony: 10 },
@@ -7,7 +6,9 @@ var activeIndex = 0,
         { quarter : "4Q", samsung : 30, lg : 25, sony: 15 }
     ];
 
-chart("#result", {
+Vue.createApp({
+    data() {
+        return {
     axis : {
         x : {
             type : "block",
@@ -42,4 +43,7 @@ chart("#result", {
             this.updateBrush(0, { active: activeIndex });
         }
     }
-});
+};
+    },
+    template: '<Chart ref="chartRef" :axis="axis" :brush="brush" :widget="widget" :event="event" />'
+}).mount("#result");

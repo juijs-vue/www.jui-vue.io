@@ -1,5 +1,3 @@
-var chart = jui.include("chart.builder");
-
 var names = {
     KR: "Korea",
     CN: "China",
@@ -32,7 +30,9 @@ var data = [{
     ]
 }];
 
-chart("#result", {
+Vue.createApp({
+    data() {
+        return {
     padding : 0,
     axis : [{
         map : {
@@ -74,4 +74,7 @@ chart("#result", {
         mapSelectorActiveColor: "rgb(242,140,8)",
         tooltipBorderColor: "#a9a9a9"
     }
-});
+};
+    },
+    template: '<Chart ref="chartRef" :padding="padding" :axis="axis" :brush="brush" :widget="widget" :style="style" />'
+}).mount("#result");

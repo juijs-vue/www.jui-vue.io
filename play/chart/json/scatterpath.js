@@ -1,11 +1,12 @@
-var chart = jui.include("chart.builder"),
-    time = jui.include("util.time");
+var time = jui.include("util.time");
 
 var start = new Date(),
     end = time.add(start, time.hours, 5),
     data = getRandomData();
 
-chart("#result", {
+Vue.createApp({
+    data() {
+        return {
     axis : {
         x : {
             type : "date",  // default type is block
@@ -45,7 +46,10 @@ chart("#result", {
         colors : [ 2 ],
         size : 3
     }]
-});
+};
+    },
+    template: '<Chart ref="chartRef" :axis="axis" :brush="brush" />'
+}).mount("#result");
 
 function getRandomData() {
     var data = [];

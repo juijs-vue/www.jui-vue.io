@@ -1,5 +1,4 @@
-var chart = jui.include("chart.builder"),
-    time = jui.include("util.time");
+var time = jui.include("util.time");
 
 var data = [
     { date: new Date(1994,2,1), l: 24.00, h: 25.00, o: 25.00, c: 24.875 },
@@ -27,7 +26,9 @@ var data = [
     { date: new Date(1994,2,31), l: 24.75, h: 27.00, o: 26.50, c: 25.25 }
 ];
 
-chart("#result", {
+Vue.createApp({
+    data() {
+        return {
     axis : {
         x : {
             type : "block",  // default type is block
@@ -57,4 +58,7 @@ chart("#result", {
     widget : {
         type : "zoom"
     }
-});
+};
+    },
+    template: '<Chart ref="chartRef" :axis="axis" :brush="brush" :widget="widget" />'
+}).mount("#result");

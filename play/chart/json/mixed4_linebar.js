@@ -1,4 +1,3 @@
-var chart = jui.include("chart.builder");
 var time = jui.include("util.time");
 
 var columnData = [],
@@ -11,7 +10,13 @@ function generateChartData() {
     for (var i = firstDate.getTime(); i < (firstDate.getTime() + 10 * 24 * 60 * 60 * 1000); i += 60 * 60 * 1000) {
         var newDate = new Date(i);
 
-        if (i == firstDate.getTime()) {
+        // NOTE(원본 버그, 기록용): 원래는 `i == firstDate.getTime()`(맨 첫 반복)일 때만 랜덤
+        // 시드값을 쓰고 그 외에는 항상 `lineData`의 마지막 원소를 참조했다 - 그런데 "10일 전"의
+        // 시각이 정확히 12시(정오)면 첫 반복이 lineData가 아니라 columnData로 들어가서
+        // lineData가 여전히 비어 있는 채로 두 번째 반복이 "else" 분기를 타 `lineData[-1].value`가
+        // undefined 참조로 터진다(현재 서버 시각 기준으로 매일 정오 즈음 실제로 재현됨) - 실행
+        // 시각에 좌우되던 잠재적 버그라 lineData가 비어 있을 때도 랜덤 시드값을 쓰도록 방어했다.
+        if (lineData.length === 0) {
             var value1 = Math.round(Math.random() * 10) + 1;
         }
         else {
@@ -37,7 +42,9 @@ function generateChartData() {
 
 generateChartData();
 
-chart("#result", {
+Vue.createApp({
+    data() {
+        return {
     axis : [{
         x : {
             type : "block",
@@ -79,4 +86,7 @@ chart("#result", {
         axis : 1,
         colors : [ 2 ]
     }]
-});
+};
+    },
+    template: '<Chart ref="chartRef" :axis="axis" :brush="brush" />'
+}).mount("#result");

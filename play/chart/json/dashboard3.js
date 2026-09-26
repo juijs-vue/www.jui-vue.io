@@ -1,5 +1,3 @@
-var chart = jui.include("chart.builder");
-
 var dataSource = [
     { title : "Nike", value : 103902, max : 200000 },
     { title : "Adidas", value : 112352, max : 200000 },
@@ -22,7 +20,9 @@ var dataSource2 = [
     { date: "Dec", nike: 24, adidas: 38, converse: 48, puma: 69 }
 ];
 
-chart("#result", {
+Vue.createApp({
+    data() {
+        return {
     padding : {
         top : 100
     },
@@ -82,4 +82,7 @@ chart("#result", {
         titleFontSize : "16px",
         titleFontWeight : "bold"
     }
-});
+};
+    },
+    template: '<Chart ref="chartRef" :height="height" :padding="padding" :axis="axis" :brush="brush" :widget="widget" :style="style" />'
+}).mount("#result");

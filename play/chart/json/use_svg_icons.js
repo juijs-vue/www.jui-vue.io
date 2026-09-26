@@ -1,4 +1,3 @@
-var chart = jui.include("chart.builder");
 var names = {
     ie: "IE",
     ff: "Fire Fox",
@@ -8,7 +7,9 @@ var names = {
 };
 
 // The SVG icon of style components can be used in chart
-chart("#result", {
+Vue.createApp({
+    data() {
+        return {
     /* When no load is 'jui.css' or Icon file of the other libraries /
     icon: {
         type: "jennifer",
@@ -46,4 +47,7 @@ chart("#result", {
             }
         }
     ]
-});
+};
+    },
+    template: '<Chart ref="chartRef" :padding="padding" :axis="axis" :brush="brush" :widget="widget" />'
+}).mount("#result");

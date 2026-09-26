@@ -1,5 +1,3 @@
-var chart = jui.include("chart.builder");
-
 var dataSource = [
     { date: "Apr", value1 : 36, value2 : 42 },
     { date: "May", value1 : 30, value2 : 24 },
@@ -24,7 +22,9 @@ var dataSource2 = [
     { mr : "MR 12", value1 : 5100, value2 : 4100 }
 ];
 
-chart("#result", {
+Vue.createApp({
+    data() {
+        return {
     axis : [{
         x : {
             domain : "date",
@@ -110,4 +110,7 @@ chart("#result", {
         titleFontWeight : "bold",
         tooltipBorderColor : "#dcdcdc"
     }
-});
+};
+    },
+    template: '<Chart ref="chartRef" :axis="axis" :brush="brush" :widget="widget" :style="style" />'
+}).mount("#result");

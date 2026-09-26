@@ -1,6 +1,6 @@
-var chart = jui.include("chart.builder");
-
-chart("#result", {
+Vue.createApp({
+    data() {
+        return {
     brush : {
         type : 'gauge',
         value : 200,
@@ -11,4 +11,7 @@ chart("#result", {
         arrow : true,
         unitText : "feeds"
     }
-});
+};
+    },
+    template: '<Chart ref="chartRef" :brush="brush" />'
+}).mount("#result");

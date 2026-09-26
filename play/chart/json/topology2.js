@@ -1,5 +1,3 @@
-var chart = jui.include("chart.builder");
-
 var data = [
     { key: "1000_1", name: "W1", type: "was", outgoing: [ "1000_2" ] },
     { key: "1000_2", name: "W2", type: "was", outgoing: [ "1000_3", "1000_4" ] },
@@ -8,7 +6,9 @@ var data = [
     { key: "1_2_3_4", name: "Oracle", type: "db", outgoing: [] }
 ];
 
-chart("#result", {
+Vue.createApp({
+    data() {
+        return {
     padding: 5,
     axis: {
         c: {
@@ -39,4 +39,7 @@ chart("#result", {
     style: {
         topologyNodeRadius: 20
     }
-});
+};
+    },
+    template: '<Chart ref="chartRef" :padding="padding" :axis="axis" :brush="brush" :widget="widget" :style="style" />'
+}).mount("#result");

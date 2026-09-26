@@ -1,5 +1,3 @@
-var chart = jui.include("chart.builder");
-
 var data = [
 	{ date : "2016/01", sales : 10, profit : 3 },
 	{ date : "2016/02", sales : 15, profit : 2 },
@@ -15,7 +13,9 @@ var data = [
 	{ date : "2016/12", sales : 5, profit : 0 }
 ];
 
-chart("#result", {
+Vue.createApp({
+    data() {
+        return {
 	axis : [{
 		x : {
 			type : "fullblock",
@@ -62,4 +62,7 @@ chart("#result", {
 		type : "title",
 		text : "Area Sample"
 	}]
-});
+};
+    },
+    template: '<Chart ref="chartRef" :axis="axis" :brush="brush" :widget="widget" />'
+}).mount("#result");

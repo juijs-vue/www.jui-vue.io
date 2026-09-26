@@ -1,6 +1,6 @@
-var chart = jui.include("chart.builder");
-
-chart("#result", {
+Vue.createApp({
+    data() {
+        return {
     padding : {
         top : 100,
         left : 100
@@ -36,4 +36,7 @@ chart("#result", {
         orient : "top",
         align : "start"
     }]
-});
+};
+    },
+    template: '<Chart ref="chartRef" :padding="padding" :axis="axis" :brush="brush" :widget="widget" />'
+}).mount("#result");

@@ -1,6 +1,6 @@
-var chart = jui.include("chart.builder");
-
-chart("#result", {
+Vue.createApp({
+    data() {
+        return {
     axis : [{
         data : [
             { quarter : "1Q", twitter : 50, facebook : 70 },
@@ -37,4 +37,7 @@ chart("#result", {
         text : "Pattern Column Sample",
         align : "start"
     }
-});
+};
+    },
+    template: '<Chart ref="chartRef" :axis="axis" :brush="brush" :widget="widget" />'
+}).mount("#result");

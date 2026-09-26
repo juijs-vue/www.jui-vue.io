@@ -1,5 +1,3 @@
-var chart = jui.include("chart.builder");
-
 var data = [{
     id: "서울",
     temperature: 25,
@@ -55,7 +53,9 @@ var data = [{
     dy: -20
 }];
 
-chart("#result", {
+Vue.createApp({
+    data() {
+        return {
     padding : 0,
     axis : [{
         map : {
@@ -79,4 +79,7 @@ chart("#result", {
         mapPathBackgroundColor : "white",
         mapPathBorderColor : "#a9a9a9"
     }
-});
+};
+    },
+    template: '<Chart ref="chartRef" :padding="padding" :axis="axis" :brush="brush" :style="style" />'
+}).mount("#result");

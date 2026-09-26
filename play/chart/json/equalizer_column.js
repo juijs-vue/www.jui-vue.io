@@ -1,6 +1,6 @@
-var chart = jui.include("chart.builder");
-
-chart("#result", {
+Vue.createApp({
+    data() {
+        return {
     axis : [{
         x : {
             domain : [ "1 year ago", "1 month ago", "Yesterday", "Today" ],
@@ -42,4 +42,7 @@ chart("#result", {
             all : true
         }
     ]
-});
+};
+    },
+    template: '<Chart ref="chartRef" :axis="axis" :brush="brush" :widget="widget" />'
+}).mount("#result");

@@ -1,5 +1,3 @@
-var builder = jui.include("chart.builder");
-
 // 'key, stime, etime' properties are required!!!
 var data = [
     { key: "http://google.co.kr/", stime: 0, etime: 612, kind: "dns" },
@@ -31,7 +29,9 @@ var data = [
     { key: "cb=gapi.loaded_0", stime: 1061, etime: 1064, kind: "receive" }
 ];
 
-var chart = builder("#result", {
+Vue.createApp({
+    data() {
+        return {
     height : 300,
     padding : {
         top : 0,
@@ -93,7 +93,10 @@ var chart = builder("#result", {
             console.log(d);
         }
     }
-});
+};
+    },
+    template: '<Chart ref="chartRef" :height="height" :padding="padding" :axis="axis" :brush="brush" :widget="widget" :event="event" />'
+}).mount("#result");
 
 function getDataToDomain() {
     var cache = {},

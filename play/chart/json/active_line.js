@@ -1,4 +1,3 @@
-var chart = jui.include("chart.builder");
 var data = [
     { apple : 26.1, microsoft : 24.86, oracle : 22.08 },
     { apple : 43.83, microsoft : 27.14, oracle : 30.15 },
@@ -6,7 +5,9 @@ var data = [
     { apple : 72.95, microsoft : 25.39, oracle : 32.78 }
 ];
 
-chart("#result", {
+Vue.createApp({
+    data() {
+        return {
     axis : {
         x : {
             type : "fullblock",
@@ -32,4 +33,7 @@ chart("#result", {
     	{ type : "title", text : "Line Sample" },
     	{ type : "legend" }
     ]
-});
+};
+    },
+    template: '<Chart ref="chartRef" :axis="axis" :brush="brush" :widget="widget" />'
+}).mount("#result");

@@ -1,4 +1,3 @@
-var chart = jui.include("chart.builder");
 var time = jui.include("util.time");
 
 function getNumber() {
@@ -18,7 +17,9 @@ for(var i = 0; i < 30; i++) {
     });
 }
 
-chart("#result", {
+Vue.createApp({
+    data() {
+        return {
     padding : {
         left : 70
     },
@@ -61,4 +62,7 @@ chart("#result", {
             console.log(data);
         }
     }
-});
+};
+    },
+    template: '<Chart ref="chartRef" :padding="padding" :axis="axis" :brush="brush" :widget="widget" :event="event" />'
+}).mount("#result");

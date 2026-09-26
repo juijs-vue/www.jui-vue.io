@@ -1,4 +1,3 @@
-var chart = jui.include("chart.builder");
 var time = jui.include("util.time");
 
 var data = [
@@ -8,7 +7,9 @@ var data = [
     { quarter : "4Q", sales : 10322200, profit : 1123213200 }
 ];
 
-chart("#result", {
+Vue.createApp({
+    data() {
+        return {
     padding : { left : 100 },
     axis : [{
         x : {
@@ -32,4 +33,7 @@ chart("#result", {
         type : "column",
         target : [ "sales", "profit" ]
     }
-});
+};
+    },
+    template: '<Chart ref="chartRef" :padding="padding" :axis="axis" :brush="brush" />'
+}).mount("#result");

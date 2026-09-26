@@ -1,6 +1,6 @@
-var chart = jui.include("chart.builder");
-
-chart("#result", {
+Vue.createApp({
+    data() {
+        return {
     axis : {
         c : {
             type : "radar",
@@ -19,4 +19,7 @@ chart("#result", {
         type : "path",
         target : [ "warrior", "wizard", "archer" ]
     }
-});
+};
+    },
+    template: '<Chart ref="chartRef" :axis="axis" :brush="brush" />'
+}).mount("#result");

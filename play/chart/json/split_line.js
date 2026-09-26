@@ -1,8 +1,9 @@
-var chart = jui.include("chart.builder"),
-    time = jui.include("util.time");
+var time = jui.include("util.time");
 var today = getTodayData();
 
-chart("#result", {
+Vue.createApp({
+    data() {
+        return {
     axis : {
         x : {
             type : "date",
@@ -33,4 +34,7 @@ chart("#result", {
         type : "title",
         text : "Line Sample"
     }]
-});
+};
+    },
+    template: '<Chart ref="chartRef" :axis="axis" :brush="brush" :widget="widget" />'
+}).mount("#result");

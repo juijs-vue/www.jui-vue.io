@@ -1,6 +1,6 @@
-var chart = jui.include("chart.builder");
-
-chart("#result", {
+Vue.createApp({
+    data() {
+        return {
     axis : [{
         x : {
             type : "block",
@@ -22,4 +22,7 @@ chart("#result", {
             { quarter : "4Q", sales : 30, profit : 25 }
         ]
     }]
-});
+};
+    },
+    template: '<Chart ref="chartRef" :axis="axis" />'
+}).mount("#result");

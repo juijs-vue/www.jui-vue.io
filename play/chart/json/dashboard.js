@@ -1,4 +1,3 @@
-var chart = jui.include("chart.builder");
 var time = jui.include("util.time");
 
 var data = [
@@ -19,7 +18,9 @@ var data2 = [
     { name : "end", value : 168 }
 ];
 
-chart("#result", {
+Vue.createApp({
+    data() {
+        return {
     axis : [{
         x : {
             type : "block",
@@ -76,4 +77,7 @@ chart("#result", {
         outerPadding : 10,
         axis : 2
     }]
-});
+};
+    },
+    template: '<Chart ref="chartRef" :axis="axis" :brush="brush" />'
+}).mount("#result");

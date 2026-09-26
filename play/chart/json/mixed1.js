@@ -1,6 +1,6 @@
-var chart = jui.include("chart.builder");
-
-chart("#result", {
+Vue.createApp({
+    data() {
+        return {
     axis : {
         x : {
             domain : "quarter",
@@ -27,4 +27,7 @@ chart("#result", {
     	{ type : "title", text : "Combination Sample" },
     	{ type : "legend", brush : [ 0, 1 ] }
     ]
-});
+};
+    },
+    template: '<Chart ref="chartRef" :axis="axis" :brush="brush" :widget="widget" />'
+}).mount("#result");

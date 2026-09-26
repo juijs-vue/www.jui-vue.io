@@ -1,4 +1,3 @@
-var chart = jui.include("chart.builder");
 var data = [
     { type : "STR", warrior : 100, wizard : 30, archer : 35 },
     { type : "VIT", warrior : 80, wizard : 50, archer : 70 },
@@ -8,7 +7,9 @@ var data = [
     { type : "WIS", warrior : 50, wizard : 90, archer : 40 }
 ];
 
-chart("#result", {
+Vue.createApp({
+    data() {
+        return {
     axis : {
         c : {
             type : "radar",
@@ -21,4 +22,7 @@ chart("#result", {
         type : "path",
         target : [ "warrior", "wizard", "archer" ]
     }
-});
+};
+    },
+    template: '<Chart ref="chartRef" :axis="axis" :brush="brush" />'
+}).mount("#result");

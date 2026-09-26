@@ -1,6 +1,6 @@
-var chart = jui.include("chart.builder");
-
-chart("#result", {
+Vue.createApp({
+    data() {
+        return {
     axis : [{
 		c : {
 			type : "panel",
@@ -26,4 +26,7 @@ chart("#result", {
 	style : {
 		gaugeFontSize : 30
 	}
-});
+};
+    },
+    template: '<Chart ref="chartRef" :axis="axis" :brush="brush" :style="style" />'
+}).mount("#result");

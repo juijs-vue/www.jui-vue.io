@@ -1,6 +1,6 @@
-var chart = jui.include("chart.builder");
-
-chart("#result", {
+Vue.createApp({
+    data() {
+        return {
 	axis : [{
 		data : [{
 			index: "0",
@@ -79,4 +79,7 @@ chart("#result", {
 			console.log(d);
 		}
 	}
-});
+};
+    },
+    template: '<Chart ref="chartRef" :axis="axis" :brush="brush" :widget="widget" :event="event" />'
+}).mount("#result");

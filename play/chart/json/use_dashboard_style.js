@@ -1,5 +1,4 @@
-var chart = jui.include("chart.builder"),
-    data1 = [
+var data1 = [
         { sales: 2, profit: 15, dept: 7 },
         { sales: -15, profit: 6, dept: 2 },
         { sales: 8, profit: 10, dept: 5 },
@@ -12,7 +11,9 @@ var chart = jui.include("chart.builder"),
         { title : "Overall Visits", value : 192, max : 200, min : 0 }
     ];
 
-chart("#result", {
+Vue.createApp({
+    data() {
+        return {
     padding : 10,
     axis : [{
         x : {
@@ -120,4 +121,7 @@ chart("#result", {
         titleFontSize : 12,
         titleFontWeight : 700
     }
-});
+};
+    },
+    template: '<Chart ref="chartRef" :padding="padding" :axis="axis" :brush="brush" :widget="widget" :style="style" />'
+}).mount("#result");

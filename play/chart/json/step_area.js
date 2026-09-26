@@ -1,4 +1,3 @@
-var chart = jui.include("chart.builder");
 var data = [
     { sales : 4, profit : 2, dept : 0 },
     { sales : 5, profit : 3, dept : 2 },
@@ -6,7 +5,9 @@ var data = [
     { sales : 10, profit : 7, dept : 6 }
 ];
 
-chart("#result", {
+Vue.createApp({
+    data() {
+        return {
     axis : {
         x : {
             type : "block",
@@ -32,4 +33,7 @@ chart("#result", {
         type : "title",
         text : "Area Sample"
     }]
-});
+};
+    },
+    template: '<Chart ref="chartRef" :axis="axis" :brush="brush" :widget="widget" />'
+}).mount("#result");

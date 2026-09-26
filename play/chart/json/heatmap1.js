@@ -1,5 +1,3 @@
-var chart = jui.include("chart.builder");
-
 var data = [
 	{ x: 0, y: 0, value: 100 },
 	{ x: 0, y: 1, value: 93 },
@@ -41,7 +39,9 @@ var data = [
 	{ x: 6, y: 4, value: 100 }
 ];
 
-chart("#result", {
+Vue.createApp({
+    data() {
+        return {
 	axis : [
 		{
 			x : {
@@ -79,4 +79,7 @@ chart("#result", {
 	widget : {
 		type : "tooltip"
 	}
-});
+};
+    },
+    template: '<Chart ref="chartRef" :axis="axis" :brush="brush" :widget="widget" />'
+}).mount("#result");

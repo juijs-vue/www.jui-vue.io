@@ -1,5 +1,3 @@
-var chart = jui.include("chart.builder");
-
 var baseDate = +new Date(1968, 9, 3),
 	baseValue = Math.random() * 150,
 	oneDay = 24 * 3600 * 1000,
@@ -16,7 +14,9 @@ for (var i = 1; i < 3650; i++) {
 	});
 }
 
-chart("#result", {
+Vue.createApp({
+    data() {
+        return {
 	axis : [{
 		x : {
 			type : "date",
@@ -42,4 +42,7 @@ chart("#result", {
         type : "title",
         text : "Area Sample"
     }]
-});
+};
+    },
+    template: '<Chart ref="chartRef" :axis="axis" :brush="brush" :widget="widget" />'
+}).mount("#result");
