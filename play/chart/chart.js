@@ -47,11 +47,14 @@ function getCurrentBuilder() {
 }
 
 // ---------------------------------------------------------------------------------------------
-// 플레이그라운드 셸 UI(Tab / Style 테마 그리드 / 컬러 목록 창 / 인라인 컬러피커 / 토스트 알림)는
-// jui-ui-vue(Tab/Window/Notify/Colorpicker) + jui-grid-vue(DataGrid)로 구현한다. Tab 영역과
-// Window/Notify 영역은 DOM상 서로 떨어져 있어(Tab은 .chart_data_main 안, Window/Notify는 body
+// 플레이그라운드 셸 UI(Tab / 툴바 / Style 테마 그리드 / 컬러 목록 창 / 인라인 컬러피커 / 토스트
+// 알림)는 jui-ui-vue(Tab/Window/Notify/Colorpicker) + jui-grid-vue(DataGrid)로 구현하고, jQuery는
+// 전혀 쓰지 않는다(CSV/Theme 텍스트 파싱처럼 DOM과 무관한 순수 문자열 로직만 남는다). Tab+툴바
+// 영역과 Window/Notify 영역은 DOM상 서로 떨어져 있어(전자는 .chart_data_main 안, 후자는 body
 // 끝) 별도의 두 Vue 앱으로 마운트하되, 아래 모듈 스코프의 reactive 상태를 공유해서 하나처럼
-// 동작하게 한다.
+// 동작하게 한다. 헤더의 테마 <select>와 Result 패널의 전체화면/이미지 다운로드 버튼은 이 두
+// 마운트 지점 밖에 있어 별도 Vue 앱을 만드는 대신 순수 DOM API로 배선한다(mountShellApps() 끝
+// 부분 참고).
 // ---------------------------------------------------------------------------------------------
 
 var tabIndex = Vue.ref(0);
@@ -121,22 +124,12 @@ function onThemeRowEdit() {
 }
 
 function onTabChange(data) {
-    if (data.index === 0) {
-        $("#save_btn").show();
-        $(".tools").find(".csv").css("display", "inline-block");
-        $(".tools").find(".theme").hide();
-    } else if (data.index === 1) {
+    if (data.index === 1) {
         createTableStyle();
-
-        $("#save_btn").hide();
-        $(".tools").find(".csv").hide();
-        $(".tools").find(".theme").css("display", "inline-block");
     }
 }
 
 function createTableStyle() {
-    if (jui.include("util.base").browser.msie) return;
-
     // 아직 jui-chart-vue로 이관되지 않은 데모(레거시 chart.builder를 그대로 쓰는 json/*.js)에서는
     // Vue.createApp(...).mount("#result")가 호출되지 않아 currentVM/getCurrentBuilder()가 null을
     // 반환하고, window.currentChart도 갱신되지 않는다 - 이런 데모에서 Style 탭을 열어도 그냥
@@ -214,6 +207,91 @@ function cancelColorsWindow() {
     colorsWinCancel = null;
 }
 
+// CODE 저장하기
+function saveCode() {
+    var code = getChartKey();
+
+    localStorage.setItem("jui.chartplay.code." + code, editor.getValue());
+
+    notifyRef.value && notifyRef.value.add({
+        title: code,
+        message: "The source code has been saved.",
+        color: "danger"
+    });
+}
+
+function clearCode() {
+    if (confirm("Clear the code and data cache?")) {
+        var code = getChartKey();
+
+        localStorage.removeItem("jui.chartplay.code." + code);
+        location.reload();
+    }
+}
+
+function clearAllCode() {
+    if (confirm("Clear all code and data cache?")) {
+        localStorage.clear();
+        location.reload();
+    }
+}
+
+// CSV 내보내기
+function exportCsv() {
+    var chart = getCurrentBuilder(),
+        csv = dataToCsv(chart.get("axis", 0).data),
+        code = getChartKey();
+
+    exportTextFile(code.split(".").join("_") + ".csv", csv);
+}
+
+// CSV 가져오기
+function importCsv(e) {
+    var input = e.target,
+        reader = new FileReader();
+
+    reader.onload = function(readerEvt) {
+        var result = getCsvToObject(readerEvt.target.result);
+
+        getCurrentBuilder().axis(0).update(eval(result));
+
+        input.value = "";
+    };
+
+    reader.readAsText(input.files[0]);
+}
+
+// Theme 내보내기
+function exportTheme() {
+    var code = getChartKey(),
+        js = getDataToObject();
+
+    exportTextFile(code.split(".").join("_") + ".js", js);
+
+    // 로컬 스토리지에 저장
+    localStorage.setItem("jui.chartplay.theme." + code, js);
+}
+
+// THEME 가져오기
+function importTheme(e) {
+    var input = e.target,
+        reader = new FileReader();
+
+    reader.onload = function(readerEvt) {
+        var result = readerEvt.target.result;
+
+        localStorage.setItem("jui.chartplay.theme." + getChartKey(), result);
+        eval(result);
+
+        window.currentChart.setTheme(jui.include("chart.theme.custom"));
+        createTableStyle();
+
+        input.value = "";
+    };
+
+    reader.readAsText(input.files[0]);
+}
+
 function mountShellApps() {
     var tabApp = nativeCreateApp({
         setup: function() {
@@ -226,7 +304,14 @@ function mountShellApps() {
                 onThemeRowEdit: onThemeRowEdit,
                 isColorKey: isColorKey,
                 isImageKey: isImageKey,
-                openColorsWindow: openColorsWindow
+                openColorsWindow: openColorsWindow,
+                saveCode: saveCode,
+                clearCode: clearCode,
+                clearAllCode: clearAllCode,
+                exportCsv: exportCsv,
+                importCsv: importCsv,
+                exportTheme: exportTheme,
+                importTheme: importTheme
             };
         }
     });
@@ -235,10 +320,6 @@ function mountShellApps() {
     tabApp.use(JuiGridVue.default || JuiGridVue);
     tabApp.mount("#chart-tab-app");
     chartTabApp = tabApp;
-
-    // Tab 컴포넌트는 최초 활성 탭(index:0, Code)에 대해서는 change 이벤트를 쏘지 않으므로,
-    // Code 탭과 함께 보여야 하는 csv 툴 그룹의 초기 표시 상태를 직접 맞춰준다.
-    $(".tools").find(".csv").css("display", "inline-block");
 
     var modalApp = nativeCreateApp({
         setup: function() {
@@ -257,6 +338,67 @@ function mountShellApps() {
     modalApp.use(JuiGridVue.default || JuiGridVue);
     modalApp.mount("#chart-shell-modals");
     chartModalApp = modalApp;
+
+    // 헤더의 테마 <select>와 Result 패널의 전체화면/이미지 다운로드 버튼은 두 마운트 지점(
+    // #chart-tab-app, #chart-shell-modals) 밖에 있어 Vue로 감쌀 필요 없이 순수 DOM API로 배선한다.
+    var fullscreenBtn = document.querySelector(".btn-fullscreen");
+    if (fullscreenBtn) {
+        fullscreenBtn.addEventListener("click", function() {
+            var chartView = document.querySelector(".chart_view");
+            if (chartView.classList.contains("fullscreen")) {
+                chartView.classList.remove("fullscreen");
+                animateLeft(chartView, "45%", viewCodeEditor);
+            } else {
+                chartView.classList.add("fullscreen");
+                animateLeft(chartView, "0%", viewCodeEditor);
+            }
+        });
+    }
+
+    var imageBtn = document.querySelector(".btn-image");
+    if (imageBtn) {
+        imageBtn.addEventListener("click", function() {
+            window.currentChart.svg.download("jui_image");
+        });
+    }
+
+    var sidemenu = document.getElementById("sidemenu");
+    if (sidemenu) {
+        sidemenu.addEventListener("mousedown", function() {
+            document.body.classList.toggle("menu-open");
+        });
+    }
+}
+
+// jQuery의 .animate({ left: ... })를 대체하는 최소한의 CSS 트랜지션 기반 구현. chart.css가 이미
+// .chart_view에 트랜지션을 걸어주지 않으므로, 여기서 직접 requestAnimationFrame으로 left 값을
+// 보간한다 - 애니메이션 자체가 이 기능의 핵심은 아니라서(끝나면 뷰포트 리사이즈만 다시 하면 됨)
+// 정교한 이징 없이 단순 선형 보간이면 충분하다.
+function animateLeft(el, targetLeft, callback) {
+    var startLeft = parseFloat(getComputedStyle(el).left) || 0,
+        targetPx = targetLeft.indexOf("%") !== -1
+            ? (parseFloat(targetLeft) / 100) * el.parentElement.clientWidth
+            : parseFloat(targetLeft),
+        duration = 300,
+        startTime = null;
+
+    function step(timestamp) {
+        if (startTime === null) startTime = timestamp;
+
+        var progress = Math.min((timestamp - startTime) / duration, 1),
+            current = startLeft + (targetPx - startLeft) * progress;
+
+        el.style.left = current + "px";
+
+        if (progress < 1) {
+            requestAnimationFrame(step);
+        } else {
+            el.style.left = targetLeft;
+            if (typeof callback === "function") callback();
+        }
+    }
+
+    requestAnimationFrame(step);
 }
 
 function getTodayData() {
@@ -307,8 +449,9 @@ function runRealtimeData(realtime) {
 }
 
 function changeTheme(value) {
-	var name = !value ? $("select").find("option:selected").val() : value,
-		chart = getCurrentBuilder();
+    var select = document.querySelector(".header select"),
+        name = !value ? (select ? select.value : null) : value,
+        chart = getCurrentBuilder();
 
     if(chart == null) return;
 
@@ -327,7 +470,7 @@ function changeTheme(value) {
             color: "warning"
         });
 
-        $("select").find("option:first-child")[0].selected = true;
+        if (select && select.options.length > 0) select.selectedIndex = 0;
     }
 }
 
@@ -342,7 +485,7 @@ function resetChart() {
 
 function viewCodeEditor(code) {
     if (!editor) {
-        editor = CodeMirror.fromTextArea($("#chart-code-text")[0], {
+        editor = CodeMirror.fromTextArea(document.getElementById("chart-code-text"), {
             mode: "javascript",
             lineNumbers: true,
             styleActiveLine: true,
@@ -352,16 +495,16 @@ function viewCodeEditor(code) {
 
         editor.setOption("extraKeys", {
             "Ctrl-S": function(cm) {
-                $("#save_btn").trigger("click");
+                saveCode();
             }
         });
 
         editor.on("change", function(cm) {
             try {
                 resetChart();
-                $("#result").empty();
+                document.getElementById("result").innerHTML = "";
 
-                $.globalEval(cm.getValue());
+                (0, eval)(cm.getValue());
 
                 window.currentChart = getCurrentBuilder();
 
@@ -385,42 +528,16 @@ function viewCodeEditor(code) {
         jui.redefine("chart.theme.custom", [], function () { return null; });
     } else {
         eval(theme);
-        $("select").find("option:last-child")[0].selected = true;
+
+        var select = document.querySelector(".header select");
+        if (select && select.options.length > 0) select.selectedIndex = select.options.length - 1;
     }
 
 	changeTheme();
 }
 
-function setFunctions() {
-    var $el = $(".btn-fullscreen");
-
-    $el.on('click', function() {
-        var $el = $(".chart_view");
-
-        if ($el.hasClass("fullscreen")) {
-            $el.removeClass("fullscreen").animate({ left : "45%" }, viewCodeEditor);
-        } else {
-            $el.addClass("fullscreen").animate({ left : "0%" }, viewCodeEditor);
-        }
-    });
-
-    $(".btn-style").on("click", function() {
-        if(themeRows.length > 0) {
-            JuiGridVue.downloadCsv("jui_style.csv", JuiGridVue.rowsToCsv(themeColumns, themeRows));
-        } else {
-            alert("Style data is not loaded.");
-        }
-    });
-
-    $(".btn-image").on("click", function() {
-        var chart = window.currentChart;
-        chart.svg.download("jui_image");
-    });
-}
-
 function getCsvToObject(csv) {
-    var _ = jui.include("util.base"),
-        data = [],
+    var data = [],
         rows = csv.split("\n"),
         fields = rows[0].split(",");
 
@@ -428,11 +545,11 @@ function getCsvToObject(csv) {
         var cells = rows[i].split(",");
 
         for(var j = 0; j < cells.length; j++) {
-            var v = $.trim(cells[j]);
+            var v = cells[j].trim();
 
             if (/^[0-9]*$/.test(v) ||
-                (_.startsWith(v, '"') && _.endsWith(v, '"')) ||
-                (_.startsWith(v, "'") && _.endsWith(v, "'"))
+                (v.indexOf('"') === 0 && v.lastIndexOf('"') === v.length - 1) ||
+                (v.indexOf("'") === 0 && v.lastIndexOf("'") === v.length - 1)
             ) {
                 cells[j] = fields[j] + ":" + v;
             } else {
@@ -473,18 +590,28 @@ function dataToCsv(data) {
 }
 
 function exportTextFile(name, text) {
-    var $form = $("<form action='export.php' method='POST' target='_blank'></form>"),
-        $name = $("<input type='hidden' name='filename'/>"),
-        $text = $("<input type='hidden' name='filetext'/>");
+    var form = document.createElement("form"),
+        nameInput = document.createElement("input"),
+        textInput = document.createElement("input");
 
-    $name.val(name);
-    $text.val(text);
-    $form.append($name);
-    $form.append($text);
-    $("body").append($form);
+    form.action = "export.php";
+    form.method = "POST";
+    form.target = "_blank";
 
-    $form.submit();
-    $form.remove();
+    nameInput.type = "hidden";
+    nameInput.name = "filename";
+    nameInput.value = name;
+
+    textInput.type = "hidden";
+    textInput.name = "filetext";
+    textInput.value = text;
+
+    form.appendChild(nameInput);
+    form.appendChild(textInput);
+    document.body.appendChild(form);
+
+    form.submit();
+    form.remove();
 }
 
 function getDataToObject() {
@@ -524,104 +651,26 @@ function getDataToObject() {
     return head.join("\n") + body.join(",\n") + foot.join("\n");
 }
 
-jui.ready([ "util.base" ], function(_) {
-    setFunctions();
+document.addEventListener("DOMContentLoaded", function() {
     mountShellApps();
+    viewCodeEditor(document.getElementById("chart-code-text").value);
 
-    // IE일 경우, 탭 제거
-    if(_.browser.msie) {
-        $("#chart-tab-app").hide();
+    var menu = document.querySelector(".menu"),
+        activeItem = menu.querySelector("li.active");
+
+    if (!activeItem) { // 메뉴 매개변수가 없을 때
+        activeItem = menu.querySelector("li");
+        if (activeItem) activeItem.classList.add("active");
+
+        var basicLink = document.querySelector("a[data-type=basic]");
+        if (basicLink) basicLink.classList.add("active");
+    } else {
+        var parentType = activeItem.getAttribute("data-parent"),
+            parentEl = document.querySelector("[data-type=" + parentType + "]");
+        if (parentEl) parentEl.classList.add("active");
     }
 
-    // 모바일 버전 이벤트
-    $("#sidemenu").on("mousedown", function(e) {
-        if($("body").hasClass("menu-open")) {
-            $("body").removeClass("menu-open");
-        } else {
-            $("body").addClass("menu-open");
-        }
-    });
-
-    // CSV 내보내기
-    $("#export_csv_btn").on("click", function (e) {
-        var chart = getCurrentBuilder(),
-            csv = dataToCsv(chart.get("axis", 0).data),
-			code = getChartKey();
-
-        exportTextFile(code.split(".").join("_") + ".csv", csv);
-    });
-
-    // CSV 가져오기
-    $("#import_csv_input").on("change", function (e) {
-        var reader = new FileReader();
-
-        reader.onload = function(readerEvt) {
-            var result = getCsvToObject(readerEvt.target.result);
-
-            getCurrentBuilder().axis(0).update(eval(result));
-
-            $("#import_csv_input").val("");
-        };
-
-        reader.readAsText(e.target.files[0]);
-    });
-
-    // Theme 내보내기
-    $("#export_theme_btn").on("click", function (e) {
-        var code = getChartKey(),
-            js = getDataToObject();
-
-        exportTextFile(code.split(".").join("_") + ".js", js);
-
-        // 로컬 스토리지에 저장
-        localStorage.setItem("jui.chartplay.theme." + code, js);
-    });
-
-    // THEME 가져오기
-    $("#import_theme_input").on("change", function (e) {
-        var reader = new FileReader();
-
-        reader.onload = function(readerEvt) {
-            var result = readerEvt.target.result;
-
-            localStorage.setItem("jui.chartplay.theme." + getChartKey(), result);
-            eval(result);
-
-            window.currentChart.setTheme(jui.include("chart.theme.custom"));
-            createTableStyle();
-
-            $("#import_theme_input").val("");
-        };
-
-        reader.readAsText(e.target.files[0]);
-    });
-
-    // CODE 저장하기
-    $("#save_btn").on("click", function (e) {
-		var code = getChartKey();
-
-        localStorage.setItem("jui.chartplay.code." + code, editor.getValue());
-
-        notifyRef.value && notifyRef.value.add({
-            title: code,
-            message: "The source code has been saved.",
-            color: "danger"
-        });
-    });
-
-    $("#clear_btn").on("click", function (e) {
-        if(confirm("Clear the code and data cache?")) {
-            var code = getChartKey();
-
-            localStorage.removeItem("jui.chartplay.code." + code);
-            location.reload();
-        }
-    });
-
-    $("#clear_all_btn").on("click", function (e) {
-        if(confirm("Clear all code and data cache?")) {
-            localStorage.clear();
-            location.reload();
-        }
-    });
+    if (activeItem) {
+        menu.scrollTop = activeItem.offsetTop - 100;
+    }
 });
