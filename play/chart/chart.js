@@ -11,9 +11,9 @@ var realtimeInterval = null;
 // (`Vue.createApp({ data(){...}, template:'<Chart ref="chartRef" :axis="axis" ... />' }).mount("#result")`).
 // `Vue.createApp`을 감싸서 (1) "Chart" 컴포넌트를 앱마다 자동 등록해주고(데모 코드에서
 // app.component(...)를 반복할 필요 없게), (2) 마지막으로 mount된 앱/루트 인스턴스를 추적해서
-// Data/Style 탭과 테마 드롭다운이 접근할 수 있게 한다. 템플릿에 ref="chartRef"를 쓴 데모는
-// getCurrentBuilder()로 실제 jui-graph-ts Builder 인스턴스(axis()/render()/theme()/setTheme() 등
-// 레거시와 동일한 시그니처)에 접근할 수 있다.
+// Style 탭·CSV export/import·테마 드롭다운이 접근할 수 있게 한다. 템플릿에 ref="chartRef"를 쓴
+// 데모는 getCurrentBuilder()로 실제 jui-graph-ts Builder 인스턴스(axis()/render()/theme()/
+// setTheme() 등 레거시와 동일한 시그니처)에 접근할 수 있다.
 var currentApp = null;
 var currentVM = null;
 
@@ -202,11 +202,13 @@ function createTab() {
             change: function(data) {
                 if(data.index == 0) {
                     $("#save_btn").show();
+                    $(".tools").find(".csv").css("display", "inline-block");
                     $(".tools").find(".theme").hide();
                 } else if(data.index == 1) {
                     createTableStyle();
 
                     $("#save_btn").hide();
+                    $(".tools").find(".csv").hide();
                     $(".tools").find(".theme").css("display", "inline-block");
                 }
             }
@@ -214,6 +216,10 @@ function createTab() {
         target: "#tab_contents_1",
         index: 0
     });
+
+    // 탭 컴포넌트는 최초 활성 탭(index:0, Code)에 대해서는 change 이벤트를 쏘지 않으므로,
+    // Code 탭과 함께 보여야 하는 csv 툴 그룹의 초기 표시 상태를 직접 맞춰준다.
+    $(".tools").find(".csv").css("display", "inline-block");
 }
 
 function resetChart() {
@@ -314,6 +320,60 @@ function setFunctions() {
         var chart = window.currentChart;
         chart.svg.download("jui_image");
     });
+}
+
+function getCsvToObject(csv) {
+    var _ = jui.include("util.base"),
+        data = [],
+        rows = csv.split("\n"),
+        fields = rows[0].split(",");
+
+    for(var i = 1; i < rows.length - 1; i++) {
+        var cells = rows[i].split(",");
+
+        for(var j = 0; j < cells.length; j++) {
+            var v = $.trim(cells[j]);
+
+            if (/^[0-9]*$/.test(v) ||
+                (_.startsWith(v, '"') && _.endsWith(v, '"')) ||
+                (_.startsWith(v, "'") && _.endsWith(v, "'"))
+            ) {
+                cells[j] = fields[j] + ":" + v;
+            } else {
+                cells[j] = fields[j] + ":'" + v + "'";
+            }
+        }
+
+        data.push("{" + cells.join(",") + "}");
+    }
+
+    return "[" + data.join(",") + "]";
+}
+
+function dataToCsv(data) {
+    if (!data || data.length == 0) return "";
+
+    var fields = [];
+
+    for(var key in data[0]) {
+        if (typeof data[0][key] == 'function') continue;
+        fields.push(key);
+    }
+
+    var rows = [ fields.join(",") ];
+
+    for(var i = 0; i < data.length; i++) {
+        var row = data[i],
+            cells = [];
+
+        for(var j = 0; j < fields.length; j++) {
+            cells.push(row[fields[j]]);
+        }
+
+        rows.push(cells.join(","));
+    }
+
+    return rows.join("\n") + "\n";
 }
 
 function exportTextFile(name, text) {
@@ -443,6 +503,30 @@ jui.ready([ "util.base", "ui.window", "ui.notify", "grid.table", "ui.colorpicker
         } else {
             $("body").addClass("menu-open");
         }
+    });
+
+    // CSV 내보내기
+    $("#export_csv_btn").on("click", function (e) {
+        var chart = getCurrentBuilder(),
+            csv = dataToCsv(chart.get("axis", 0).data),
+			code = getChartKey();
+
+        exportTextFile(code.split(".").join("_") + ".csv", csv);
+    });
+
+    // CSV 가져오기
+    $("#import_csv_input").on("change", function (e) {
+        var reader = new FileReader();
+
+        reader.onload = function(readerEvt) {
+            var result = getCsvToObject(readerEvt.target.result);
+
+            getCurrentBuilder().axis(0).update(eval(result));
+
+            $("#import_csv_input").val("");
+        };
+
+        reader.readAsText(e.target.files[0]);
     });
 
     // Theme 내보내기
