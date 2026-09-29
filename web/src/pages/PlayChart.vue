@@ -47,6 +47,17 @@ import playShellStyleHref from "../styles/play-shell.css?url"
 import juiChartVueEsUrl from "jui-chart-vue?url"
 import juiChartVueCssUrl from "jui-chart-vue/style.css?url"
 import vueEsmBrowserUrl from "vue/dist/vue.esm-browser.js?url"
+// jui-chart-vue's own lib build (vite.lib.config.ts) deliberately keeps jui-graph-ts external
+// (not bundled) - so every ONE of its OWN internal `import ... from "jui-graph-ts"` statements
+// survives as a real, unresolved bare specifier in its self-hosted ES module. The browser only
+// resolves that against this page's own import map, which never had a "jui-graph-ts" entry -
+// so EVERY demo in this sandbox (not just chart types that reference it directly) failed with
+// "TypeError: Failed to resolve module specifier 'jui-graph-ts'" the instant <Chart> itself first
+// executed any of its own jui-graph-ts imports, confirmed via a real production build + preview
+// (this bug doesn't show up as a compile error - the demo's OWN source never mentions
+// jui-graph-ts at all; it's purely jui-chart-vue's internal import failing at runtime). Self-host
+// it exactly like jui-chart-vue/vue already are and register it below.
+import juiGraphTsEsUrl from "jui-graph-ts?url"
 
 const shellCss = useStylesheet(playShellStyleHref)
 
@@ -211,7 +222,8 @@ const store = useStore({
         mergeImportMap(vueImportMap.value, {
             imports: {
                 vue: vueEsmBrowserUrl,
-                "jui-chart-vue": juiChartVueEsUrl
+                "jui-chart-vue": juiChartVueEsUrl,
+                "jui-graph-ts": juiGraphTsEsUrl
             }
         })
     )
