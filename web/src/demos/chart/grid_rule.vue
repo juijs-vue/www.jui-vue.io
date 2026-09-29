@@ -48,7 +48,13 @@ const axis = [
             type: "rule",
             domain: "sales",
             step: 10,
-            orient: "right"
+            orient: "right",
+            // RuleGrid.right()'s own tick+label reach ~10px INWARD from this grid's own origin
+            // (a short tick plus 4px of label padding, see rule.ts's right() method) - with the
+            // default dist:0 that origin sits exactly on the plot's right edge, so the label
+            // overlapped the column brush's own full-width bars. Push the grid itself out into
+            // the right padding area so the label clears the bars.
+            dist: 40
         },
         extend: 0,
         data: data
